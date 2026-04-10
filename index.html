@@ -535,7 +535,7 @@ function fillNote(data,skip){
     var col=getNoteColor(n.cod);
     return '<div class="note-row" style="background:'+col+'22;border:1.5px solid '+col+'44;">'+
       '<span class="note-label" style="color:'+col+'">'+n.cod+'</span>'+
-      '<span class="note-desc">'+n.desc+'</span>'+
+      '<span class="note-desc" style="color:'+col+'">'+n.desc+'</span>'+
       '<input type="number" class="note-qty" id="qty-'+n.cod+'" min="0" placeholder="0" style="border:1.5px solid '+col+'66;color:'+col+'"/>'+
       '</div>';
   }).join('');
