@@ -201,12 +201,23 @@
       </div>
 
       <div class="ins-layout">
-        <!-- Colonna sinistra: Data, Articolo, Reparto, Note libere -->
+        <!-- Colonna sinistra: Data, Reparto, Articolo, Note -->
         <div class="ins-left">
           <div class="fg" style="margin-bottom:14px">
             <label>Data <span style="color:var(--red)">*</span></label>
             <input type="date" id="fdata"/>
             <span class="field-err" id="err-data"></span>
+          </div>
+          <div class="fg" style="margin-bottom:14px">
+            <label>Reparto <span style="color:var(--red)">*</span></label>
+            <div class="search-wrap">
+              <input type="text" id="frep-txt" placeholder="Cerca reparto..." autocomplete="off"
+                oninput="filterDrop('rep')" onfocus="openDrop('rep')" onblur="blurDrop('rep')"/>
+              <button class="clear-btn" onmousedown="clearSrch('rep')">✕</button>
+              <div class="dropdown-list" id="drop-rep"></div>
+            </div>
+            <input type="hidden" id="frep"/>
+            <span class="field-err" id="err-rep"></span>
           </div>
           <div class="fg" style="margin-bottom:14px">
             <label>Articolo <span style="color:var(--red)">*</span></label>
@@ -227,28 +238,17 @@
             </div>
             <span class="field-err" id="err-art"></span>
           </div>
-          <div class="fg" style="margin-bottom:14px">
-            <label>Reparto <span style="color:var(--red)">*</span></label>
-            <div class="search-wrap">
-              <input type="text" id="frep-txt" placeholder="Cerca reparto..." autocomplete="off"
-                oninput="filterDrop('rep')" onfocus="openDrop('rep')" onblur="blurDrop('rep')"/>
-              <button class="clear-btn" onmousedown="clearSrch('rep')">✕</button>
-              <div class="dropdown-list" id="drop-rep"></div>
-            </div>
-            <input type="hidden" id="frep"/>
-            <span class="field-err" id="err-rep"></span>
-          </div>
-          <div class="fg">
-            <label>Note <span style="color:var(--red)">*</span></label>
-            <textarea id="fnlib" placeholder="Note aggiuntive..."></textarea>
-          </div>
         </div>
 
-        <!-- Colonna destra: Tipologie nota con quantità -->
+        <!-- Colonna destra: Cluster Caveau + Note -->
         <div class="ins-right">
           <label style="display:block;margin-bottom:12px;color:#f26eff;">Cluster Caveau <span style="color:var(--red)">*</span></label>
           <div id="note-rows"></div>
           <span class="field-err" id="err-note"></span>
+          <div class="fg" style="margin-top:14px;">
+            <label style="color:#f26eff;">Note</label>
+            <textarea id="fnlib" placeholder="Note aggiuntive..." style="min-height:60px;"></textarea>
+          </div>
         </div>
       </div>
 
