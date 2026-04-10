@@ -62,18 +62,18 @@
   .alert.inf{background:#eff6ff;color:#3b82f6;border:1.5px solid #93c5fd;}
 
   /* CARD */
-  .card{background:#ebebff;border:2px solid var(--accent);border-radius:16px;padding:24px;margin-bottom:18px;box-shadow:0 0 28px rgba(108,99,255,0.2),var(--shadow);}
+  .card{background:#f2f2f5;border:2px solid var(--accent);border-radius:16px;padding:24px;margin-bottom:18px;box-shadow:0 0 32px 6px rgba(108,99,255,0.22);}
   .card-title{font-size:12px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--accent);margin-bottom:20px;text-align:center;display:flex;align-items:center;justify-content:center;gap:10px;}
   .card-title::before,.card-title::after{content:'';flex:1;height:1.5px;background:rgba(108,99,255,0.3);}
 
   /* FORM */
   .grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
-  .grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;}
+  .grid-3{display:grid;grid-template-columns:2fr 0.6fr 1.4fr;gap:16px;}
   .fg{display:flex;flex-direction:column;gap:7px;}
   .fg.full{grid-column:1/-1;}
-  label{font-size:11px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-muted);text-align:center;}
+  label{font-size:13px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-muted);text-align:center;}
   input[type=date],input[type=number],input[type=text],select,textarea{
-    padding:11px 14px;background:#e0e0ff;border:1.5px solid rgba(108,99,255,0.35);
+    padding:11px 14px;background:#ffffff;border:1.5px solid rgba(108,99,255,0.35);
     border-radius:10px;font-size:14px;font-weight:500;color:var(--text);
     font-family:'Montserrat',sans-serif;width:100%;transition:border-color 0.2s,box-shadow 0.2s;text-align:center;
   }
@@ -175,12 +175,12 @@
       <!-- Riga 1: Data | Reparto -->
       <div class="grid" style="margin-bottom:16px">
         <div class="fg">
-          <label>📅 Data <span style="color:var(--red)">*</span></label>
+          <label>Data <span style="color:var(--red)">*</span></label>
           <input type="date" id="fdata"/>
           <span class="field-err" id="err-data"></span>
         </div>
         <div class="fg">
-          <label>🏭 Reparto <span style="color:var(--red)">*</span></label>
+          <label>Reparto <span style="color:var(--red)">*</span></label>
           <div class="search-wrap">
             <input type="text" id="frep-txt" placeholder="Cerca reparto..." autocomplete="off"
               oninput="filterDrop('rep')" onfocus="openDrop('rep')" onblur="blurDrop('rep')"/>
@@ -195,7 +195,7 @@
       <!-- Riga 2: Articolo | Quantità | Tipologia Nota -->
       <div class="grid-3" style="margin-bottom:16px">
         <div class="fg">
-          <label>📦 Articolo <span style="color:var(--red)">*</span></label>
+          <label>Articolo <span style="color:var(--red)">*</span></label>
           <div class="search-wrap">
             <input type="text" id="fart-txt" placeholder="Cerca articolo..." autocomplete="off"
               oninput="filterDrop('art')" onfocus="openDrop('art')" onblur="blurDrop('art')"/>
@@ -206,12 +206,12 @@
           <span class="field-err" id="err-art"></span>
         </div>
         <div class="fg">
-          <label>🔢 Quantità <span style="color:var(--red)">*</span></label>
+          <label>Quantità <span style="color:var(--red)">*</span></label>
           <input type="number" id="fqta" min="0" placeholder="0"/>
           <span class="field-err" id="err-qta"></span>
         </div>
         <div class="fg">
-          <label>🏷️ Tipologia Nota <span style="color:var(--red)">*</span></label>
+          <label>Tipologia Nota <span style="color:var(--red)">*</span></label>
           <select id="fnote"><option value="">— nessuna —</option></select>
           <span class="field-err" id="err-note"></span>
         </div>
@@ -219,7 +219,7 @@
 
       <!-- Riga 3: Note libere -->
       <div class="fg" style="margin-bottom:4px">
-        <label>📝 Note Libere <span style="color:var(--text-muted);font-size:10px;font-weight:500;text-transform:none;letter-spacing:0">(opzionale)</span></label>
+        <label>Note Libere <span style="color:var(--text-muted);font-size:11px;font-weight:500;text-transform:none;letter-spacing:0">(opzionale)</span></label>
         <textarea id="fnlib" placeholder="Note aggiuntive opzionali..."></textarea>
       </div>
       <div class="acts">
