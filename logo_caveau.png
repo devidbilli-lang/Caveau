@@ -1,0 +1,18 @@
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#6c63ff"/>
+      <stop offset="100%" style="stop-color:#4f46e5"/>
+    </linearGradient>
+  </defs>
+  <!-- Background rounded square -->
+  <rect width="512" height="512" rx="96" fill="url(#bg)"/>
+  <!-- Lock body -->
+  <rect x="128" y="248" width="256" height="184" rx="28" fill="white"/>
+  <!-- Lock shackle -->
+  <path d="M168 248 V180 C168 108 344 108 344 180 V248" stroke="white" stroke-width="40" stroke-linecap="round" fill="none"/>
+  <!-- Keyhole circle -->
+  <circle cx="256" cy="330" r="32" fill="#6c63ff"/>
+  <!-- Keyhole stem -->
+  <rect x="240" y="346" width="32" height="36" rx="8" fill="#6c63ff"/>
+</svg>
