@@ -282,9 +282,9 @@
           <canvas id="pieChart" width="200" height="200"></canvas>
           <div class="pie-legend" id="pie-legend"></div>
         </div>
-        <div id="bar-card" style="background:var(--surface);border:2px solid #f26eff;border-radius:16px;padding:20px;box-shadow:0 0 16px 4px rgba(242,110,255,0.5),0 0 48px 12px rgba(242,110,255,0.2);width:240px;flex-shrink:0;">
+        <div id="bar-card" style="background:var(--surface);border:2px solid #f26eff;border-radius:16px;padding:20px;box-shadow:0 0 16px 4px rgba(242,110,255,0.5),0 0 48px 12px rgba(242,110,255,0.2);width:240px;flex-shrink:0;position:sticky;top:16px;">
           <div style="font-size:11px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:#f26eff;margin-bottom:12px;text-align:center;">Articoli</div>
-          <div id="bar-chart" style="max-height:400px;overflow-y:auto;"></div>
+          <div id="bar-chart" style="max-height:500px;overflow-y:auto;"><div style="color:var(--text-muted);font-size:12px;text-align:center;">Caricamento...</div></div>
         </div>
     </div>
   </div>
@@ -495,40 +495,41 @@ function renderPie(rows){
 
 function renderBarChart(rows){
   try{
-    var barCard=document.getElementById('bar-card');
     var barDiv=document.getElementById('bar-chart');
-    if(!barDiv||!barCard)return;
+    if(!barDiv)return;
     var artIdx=rHeaders.indexOf('Articolo');
     var totIdx=rHeaders.indexOf('Totale');
-    if(artIdx<0||totIdx<0)return;
-
+    if(artIdx<0||totIdx<0){
+      barDiv.innerHTML='<div style="color:var(--text-muted);font-size:12px;text-align:center;">—</div>';
+      return;
+    }
     var artTotals={};
     rows.forEach(function(r){
-      var cod=String(r[artIdx]||'');
+      var cod=String(r[artIdx]||'').trim();
       var tot=parseFloat(r[totIdx])||0;
       if(!cod||tot<=0)return;
       artTotals[cod]=(artTotals[cod]||0)+tot;
     });
-
-    var entries=Object.keys(artTotals).filter(function(k){return artTotals[k]>0;})
+    var entries=Object.keys(artTotals)
       .map(function(k){return{cod:k,tot:artTotals[k]};})
       .sort(function(a,b){return b.tot-a.tot;});
-
-    if(!entries.length){barDiv.innerHTML='<div style="color:var(--text-muted);font-size:12px;text-align:center;">Nessun dato</div>';return;}
-
-    barDiv.innerHTML=entries.map(function(e,idx){
+    if(!entries.length){
+      barDiv.innerHTML='<div style="color:var(--text-muted);font-size:12px;text-align:center;">Nessun dato</div>';
+      return;
+    }
+    barDiv.innerHTML=entries.map(function(e){
       var desc=artDescMap[e.cod]||'';
       var coll=artCollMap[e.cod]||'';
       return '<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 4px;border-bottom:1px solid var(--border);">'+
-        '<div style="flex:1;min-width:0;">'+
+        '<div style="flex:1;min-width:0;padding-right:6px;">'+
           '<div style="font-size:12px;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+e.cod+'</div>'+
           (desc?'<div style="font-size:10px;color:var(--text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+desc+'</div>':'')+
           (coll?'<div style="font-size:10px;color:#e91e8c;font-weight:700;">'+coll+'</div>':'')+
         '</div>'+
-        '<span style="margin-left:8px;background:#f26eff;color:#fff;font-size:12px;font-weight:800;padding:2px 8px;border-radius:20px;flex-shrink:0;">'+e.tot+'</span>'+
+        '<span style="background:#f26eff;color:#fff;font-size:12px;font-weight:800;padding:2px 8px;border-radius:20px;flex-shrink:0;">'+e.tot+'</span>'+
       '</div>';
     }).join('');
-  }catch(e){console.error('renderBarChart:',e);}
+  }catch(err){console.error('renderBarChart:',err);}
 }
 
 function clearErrors(){
