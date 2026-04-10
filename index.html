@@ -145,6 +145,7 @@
   tbody tr:hover{background:#eeeeff;}
   .td-zero{color:var(--text-dim);}
   .empty{text-align:center;padding:48px;color:var(--text-muted);font-size:15px;font-weight:600;}
+  #s-ins{max-width:800px;margin:0 auto;}
   #s-rep{width:100vw;position:relative;left:50%;right:50%;margin-left:-50vw;margin-right:-50vw;padding:0 40px;}
 </style>
 </head>
@@ -253,7 +254,6 @@
       <div class="rep-layout">
         <div class="table-wrap">
           <table>
-            <colgroup id="tbl-cols"></colgroup>
             <thead id="tbl-head"></thead>
             <tbody id="tb"><tr><td class="empty">Caricamento dati...</td></tr></tbody>
           </table>
@@ -553,25 +553,19 @@ function getNoteThClass(cod){
 function renderHead(){
   var ni=getNoteIndices();
   var h='<tr>';
-  var cols='';
   for(var i=0;i<rHeaders.length;i++){
     var col=rHeaders[i];
     if(isHidden(col)&&col!=='Totale')continue;
-    if(col==='Data'){h+='<th>'+col+'</th>';cols+='<col style="width:90px">';continue;}
-    if(col==='Totale'){h+='<th class="th-tot">Totale</th>';cols+='<col style="width:70px">';continue;}
+    if(col==='Totale'){h+='<th class="th-tot">Totale</th>';continue;}
     if(ni.indexOf(i)>=0){
       var desc=noteDescMap[col]||'';
       h+='<th class="'+getNoteThClass(col)+'">'+col+(desc?'<span class="th-sub">'+desc+'</span>':'')+'</th>';
-      cols+='<col style="width:80px">';
-    } else if(col==='Articolo'){
-      h+='<th>'+col+'</th>';cols+='<col style="width:140px">';
     } else {
-      h+='<th>'+col+'</th>';cols+='<col>';
+      h+='<th>'+col+'</th>';
     }
   }
   h+='</tr>';
   document.getElementById('tbl-head').innerHTML=h;
-  document.getElementById('tbl-cols').innerHTML=cols;
 }
 
 function filtra(){
