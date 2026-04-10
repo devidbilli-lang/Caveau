@@ -397,9 +397,7 @@ function renderPie(rows){
     ctx.strokeStyle='#fff';ctx.lineWidth=2;ctx.stroke();
     var mid=startAngle+slice/2,pct=Math.round((totals[k]/total)*100);
     if(pct>5){
-      ctx.fillStyle='#fff';ctx.font='bold 13px Montserrat,sans-serif';
-      ctx.textAlign='center';ctx.textBaseline='middle';
-      ctx.fillText(totals[k],cx+Math.cos(mid)*58,cy+Math.sin(mid)*58);
+      // no label inside slice
     }
     startAngle+=slice;
   });
@@ -407,7 +405,20 @@ function renderPie(rows){
   ctx.fillStyle='#1a1a2e';ctx.font='bold 18px Montserrat,sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';
   ctx.fillText(total,cx,cy-8);
   ctx.font='600 10px Montserrat,sans-serif';ctx.fillStyle='#6b6b8a';ctx.fillText('TOT',cx,cy+10);
-  legend.innerHTML='';
+  // Tabella sotto
+  legend.innerHTML='<table style="width:100%;border-collapse:collapse;margin-top:14px;font-size:13px;">'+
+    '<thead><tr>'+
+    keys.map(function(k){
+      var col=getNoteColor(k);
+      return '<th style="background:'+col+';color:#1a1a2e;padding:6px 10px;font-weight:800;border-radius:0;">'+k+'</th>';
+    }).join('')+
+    '</tr></thead>'+
+    '<tbody><tr>'+
+    keys.map(function(k){
+      var col=getNoteColor(k);
+      return '<td style="text-align:center;padding:8px 10px;font-weight:800;color:'+col+';border-bottom:1px solid #e0e0ec;">'+totals[k]+'</td>';
+    }).join('')+
+    '</tr></tbody></table>';
 }
 
 function clearErrors(){
