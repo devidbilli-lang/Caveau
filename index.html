@@ -109,32 +109,43 @@
   .filters{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:18px;}
   .filters input[type=text],.filters input[type=date]{max-width:200px;width:auto;padding:10px 14px;font-size:14px;font-weight:600;text-align:left;}
 
-  /* TABLE — full width, same size headers and cells */
-  .table-wrap{border-radius:12px;overflow:auto;border:1.5px solid var(--border);width:100%;box-shadow:var(--shadow);}
-  table{width:100%;border-collapse:collapse;font-size:15px;}
+  /* TABLE — full width, no scroll */
+  .table-wrap{border-radius:12px;overflow:hidden;border:1.5px solid var(--border);width:100%;box-shadow:var(--shadow);}
+  table{width:100%;border-collapse:collapse;table-layout:fixed;}
   thead th{
     background:linear-gradient(135deg,var(--accent),var(--accent2));
-    padding:16px 20px;text-align:center;
-    font-size:15px;font-weight:700;
-    color:#fff;
-    border-bottom:none;white-space:nowrap;
+    padding:11px 6px;text-align:center;
+    font-size:11px;font-weight:800;letter-spacing:0.5px;
+    color:#fff;text-transform:uppercase;
+    border-bottom:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
   }
   thead th.th-note{background:rgba(108,99,255,0.85);}
+  thead th.th-note-a1{background:#dc2626;}
+  thead th.th-note-b1{background:#ea580c;}
+  thead th.th-note-c1{background:#ea580c;}
   thead th.th-tot{background:rgba(79,70,229,1);}
-  .th-sub{font-size:12px;font-weight:500;color:rgba(255,255,255,0.75);display:block;margin-top:4px;text-transform:none;letter-spacing:0;}
-  tbody td{padding:15px 20px;text-align:center;border-bottom:1.5px solid var(--border);color:var(--text);font-weight:500;font-size:15px;}
+  .th-sub{font-size:9px;font-weight:500;color:rgba(255,255,255,0.8);display:block;margin-top:3px;text-transform:none;letter-spacing:0;white-space:normal;line-height:1.3;}
+  .opt-a1{color:#dc2626;font-weight:700;}
+  .opt-b1{color:#ea580c;font-weight:700;}
+  .opt-c1{color:#ea580c;font-weight:700;}
+  /* pie chart layout */
+  .rep-layout{display:grid;grid-template-columns:1fr 240px;gap:16px;align-items:start;}
+  .pie-card{background:var(--surface);border:1.5px solid var(--border);border-radius:16px;padding:20px;box-shadow:var(--shadow);text-align:center;}
+  .pie-title{font-size:11px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--accent);margin-bottom:16px;}
+  .pie-legend{margin-top:14px;display:flex;flex-direction:column;gap:7px;}
+  .pie-leg-row{display:flex;align-items:center;justify-content:space-between;font-size:13px;font-weight:600;}
+  .pie-leg-dot{width:12px;height:12px;border-radius:3px;flex-shrink:0;margin-right:8px;}
+  .pie-leg-label{display:flex;align-items:center;flex:1;}
+  tbody td{padding:10px 6px;text-align:center;border-bottom:1px solid var(--border);color:var(--text);font-weight:500;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
   tbody tr:last-child td{border-bottom:none;}
   tbody tr:nth-child(even){background:#f8f8fd;}
   tbody tr:hover{background:#eeeeff;}
   .td-zero{color:var(--text-dim);}
   .td-tot{font-weight:800;color:var(--accent);}
-  .badge{display:inline-block;padding:5px 18px;border-radius:20px;font-size:15px;font-weight:800;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;}
+  .badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:12px;font-weight:800;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;}
   .empty{text-align:center;padding:48px;color:var(--text-muted);font-size:15px;font-weight:600;}
-
-  @media(max-width:700px){
-    .grid{grid-template-columns:1fr;}.fg.full{grid-column:1;}
-    header{flex-direction:column;gap:14px;text-align:center;}
-  }
+  tbody tr:nth-child(even){background:#f8f8fd;}
+  #s-rep{width:100vw;position:relative;left:50%;right:50%;margin-left:-50vw;margin-right:-50vw;padding:0 16px;}
 </style>
 </head>
 <body>
@@ -161,8 +172,8 @@
   </header>
 
   <div class="tabs">
-    <button class="tab on" onclick="show('ins')">📦 Inserimento</button>
-    <button class="tab" onclick="show('rep')">📊 Riepilogo</button>
+    <button class="tab on" onclick="show('ins')">Inserimento</button>
+    <button class="tab" onclick="show('rep')">Riepilogo</button>
   </div>
 
   <div id="alert" class="alert"></div>
@@ -229,21 +240,28 @@
     </div>
   </div>
 
-  <!-- RIEPILOGO — solo tabella -->
+  <!-- RIEPILOGO — tabella + torta -->
   <div id="s-rep" class="sec">
     <div class="card-plain">
       <div class="filters">
-        <input type="text" id="r-rep" placeholder="🏭 Linea..." oninput="filtra()"/>
-        <input type="text" id="r-art" placeholder="📦 Desc. articolo..." oninput="filtra()"/>
+        <input type="text" id="r-rep" placeholder="Linea..." oninput="filtra()"/>
+        <input type="text" id="r-art" placeholder="Desc. articolo..." oninput="filtra()"/>
         <input type="date" id="rda" onchange="filtra()" title="Dal"/>
         <input type="date" id="ral" onchange="filtra()" title="Al"/>
         <button class="btn btn-green" style="padding:10px 18px;font-size:13px" onclick="loadR()">↻ Aggiorna</button>
       </div>
-      <div class="table-wrap">
-        <table>
-          <thead id="tbl-head"></thead>
-          <tbody id="tb"><tr><td class="empty">Caricamento dati...</td></tr></tbody>
-        </table>
+      <div class="rep-layout">
+        <div class="table-wrap">
+          <table>
+            <thead id="tbl-head"></thead>
+            <tbody id="tb"><tr><td class="empty">Caricamento dati...</td></tr></tbody>
+          </table>
+        </div>
+        <div class="pie-card">
+          <div class="pie-title">Quantità per Nota</div>
+          <canvas id="pieChart" width="200" height="200"></canvas>
+          <div class="pie-legend" id="pie-legend"></div>
+        </div>
       </div>
     </div>
   </div>
@@ -349,6 +367,50 @@ function selectDrop(type,val){
   document.getElementById('drop-'+type).classList.remove('open');
 }
 
+function renderPie(rows){
+  var canvas=document.getElementById('pieChart');
+  var legend=document.getElementById('pie-legend');
+  if(!canvas)return;
+  var ni=getNoteIndices();
+  if(!ni.length){return;}
+  var totals={};
+  ni.forEach(function(i){totals[rHeaders[i]]=0;});
+  rows.forEach(function(r){ni.forEach(function(i){totals[rHeaders[i]]+=(parseFloat(r[i])||0);});});
+  var keys=Object.keys(totals).filter(function(k){return totals[k]>0;});
+  var total=keys.reduce(function(s,k){return s+totals[k];},0);
+  var ctx=canvas.getContext('2d');
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  if(!total){
+    ctx.fillStyle='#e8e8f0';ctx.beginPath();ctx.arc(100,100,90,0,Math.PI*2);ctx.fill();
+    ctx.beginPath();ctx.arc(100,100,44,0,Math.PI*2);ctx.fillStyle='#fff';ctx.fill();
+    legend.innerHTML='<div style="font-size:12px;color:var(--text-muted);text-align:center">Nessun dato</div>';
+    return;
+  }
+  var startAngle=-Math.PI/2,cx=100,cy=100,r=90;
+  keys.forEach(function(k){
+    var slice=(totals[k]/total)*Math.PI*2;
+    var col=getNoteColor(k);
+    ctx.beginPath();ctx.moveTo(cx,cy);ctx.arc(cx,cy,r,startAngle,startAngle+slice);
+    ctx.closePath();ctx.fillStyle=col;ctx.fill();
+    ctx.strokeStyle='#fff';ctx.lineWidth=2;ctx.stroke();
+    var mid=startAngle+slice/2,pct=Math.round((totals[k]/total)*100);
+    if(pct>5){
+      ctx.fillStyle='#fff';ctx.font='bold 13px Montserrat,sans-serif';
+      ctx.textAlign='center';ctx.textBaseline='middle';
+      ctx.fillText(pct+'%',cx+Math.cos(mid)*58,cy+Math.sin(mid)*58);
+    }
+    startAngle+=slice;
+  });
+  ctx.beginPath();ctx.arc(cx,cy,44,0,Math.PI*2);ctx.fillStyle='#ffffff';ctx.fill();
+  ctx.fillStyle='#1a1a2e';ctx.font='bold 18px Montserrat,sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';
+  ctx.fillText(total,cx,cy-8);
+  ctx.font='600 10px Montserrat,sans-serif';ctx.fillStyle='#6b6b8a';ctx.fillText('TOT',cx,cy+10);
+  legend.innerHTML=keys.map(function(k){
+    var col=getNoteColor(k),desc=noteDescMap[k]||k;
+    return '<div class="pie-leg-row"><div class="pie-leg-label"><div class="pie-leg-dot" style="background:'+col+'"></div>'+k+' — '+desc+'</div><div style="font-weight:800;color:'+col+'">'+totals[k]+'</div></div>';
+  }).join('');
+}
+
 function clearErrors(){
   ['data','rep','art','qta','note'].forEach(function(f){
     var el=document.getElementById('err-'+f);
@@ -412,7 +474,11 @@ function fillNote(data,skip){
     var cod=String(data[i][0]),desc=data[i][1]?String(data[i][1]):'';
     noteDescMap[cod]=desc;
     var o=document.createElement('option');
-    o.value=cod;o.textContent=desc?cod+' — '+desc:cod;
+    o.value=cod;
+    o.textContent=desc?cod+' — '+desc:cod;
+    var col=getNoteColor(cod);
+    o.style.color=col;
+    o.style.fontWeight='700';
     s.appendChild(o);
   }
 }
@@ -464,18 +530,28 @@ function getNoteIndices(){
   return r;
 }
 
+var NOTE_COLORS={'A1':'#dc2626','B1':'#ea580c','C1':'#ea580c'};
+var NOTE_DEFAULT='#6c63ff';
+
+function getNoteColor(cod){return NOTE_COLORS[cod.toUpperCase()]||NOTE_DEFAULT;}
+function getNoteThClass(cod){
+  var u=cod.toUpperCase();
+  if(u==='A1')return'th-note-a1';
+  if(u==='B1'||u==='C1')return'th-note-b1';
+  return'th-note';
+}
+
 function renderHead(){
   var ni=getNoteIndices();
   var totIdx=rHeaders.indexOf('Totale');
   var h='<tr>';
-  // Mostra tutte le intestazioni dal foglio tranne quelle nascoste e Totale
   for(var i=0;i<rHeaders.length;i++){
     var col=rHeaders[i];
     if(col==='Totale'){h+='<th class="th-tot">Totale</th>';continue;}
     if(isHidden(col))continue;
     if(ni.indexOf(i)>=0){
       var desc=noteDescMap[col]||'';
-      h+='<th class="th-note">'+col+(desc?'<span class="th-sub">'+desc+'</span>':'')+'</th>';
+      h+='<th class="'+getNoteThClass(col)+'">'+col+(desc?'<span class="th-sub">'+desc+'</span>':'')+'</th>';
     } else {
       h+='<th>'+col+'</th>';
     }
@@ -506,6 +582,8 @@ function filtra(){
     }
     return true;
   });
+
+  renderPie(f);
 
   var tb=document.getElementById('tb');
   if(!f.length){
