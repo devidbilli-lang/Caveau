@@ -72,7 +72,7 @@
   .grid-3{display:grid;grid-template-columns:2fr 0.6fr 1.4fr;gap:16px;}
   .fg{display:flex;flex-direction:column;gap:7px;}
   .fg.full{grid-column:1/-1;}
-  label{font-size:13px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-muted);text-align:center;}
+  label{font-size:13px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:#6c63ff;text-align:center;}
   input[type=date],input[type=number],input[type=text],select,textarea{
     padding:11px 14px;background:#ffffff;border:1.5px solid rgba(108,99,255,0.35);
     border-radius:10px;font-size:14px;font-weight:500;color:var(--text);
@@ -192,7 +192,13 @@
   <!-- INSERIMENTO -->
   <div id="s-ins" class="sec on">
     <div class="card">
-      <div class="card-title">Nuovo Movimento</div>
+      <div class="card-title">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="3" y="11" width="18" height="11" rx="2" fill="#6c63ff" opacity="0.9"/>
+          <path d="M7 11V7a5 5 0 0 1 10 0v4" stroke="#6c63ff" stroke-width="2.2" stroke-linecap="round" fill="none"/>
+          <circle cx="12" cy="16.5" r="1.8" fill="white"/>
+        </svg>
+      </div>
 
       <div class="ins-layout">
         <!-- Colonna sinistra: Data, Articolo, Reparto, Note libere -->
@@ -229,14 +235,14 @@
             <span class="field-err" id="err-rep"></span>
           </div>
           <div class="fg">
-            <label>Note Libere <span style="color:var(--text-muted);font-size:11px;font-weight:500;text-transform:none;letter-spacing:0">(opzionale)</span></label>
-            <textarea id="fnlib" placeholder="Note aggiuntive opzionali..."></textarea>
+            <label>Note <span style="color:var(--red)">*</span></label>
+            <textarea id="fnlib" placeholder="Note aggiuntive..."></textarea>
           </div>
         </div>
 
         <!-- Colonna destra: Tipologie nota con quantità -->
         <div class="ins-right">
-          <label style="display:block;margin-bottom:12px">Tipologia Nota <span style="color:var(--red)">*</span></label>
+          <label style="display:block;margin-bottom:12px;color:#6c63ff;">Cluster Caveau <span style="color:var(--red)">*</span></label>
           <div id="note-rows"></div>
           <span class="field-err" id="err-note"></span>
         </div>
