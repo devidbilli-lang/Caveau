@@ -150,7 +150,14 @@
   tbody tr:hover{background:#eeeeff;}
   .td-zero{color:var(--text-dim);}
   .empty{text-align:center;padding:48px;color:var(--text-muted);font-size:15px;font-weight:600;}
-  #s-ins{max-width:800px;margin:0 auto;}
+  .ins-layout{display:grid;grid-template-columns:1fr 1fr;gap:24px;}
+  .ins-left{display:flex;flex-direction:column;}
+  .ins-right{background:var(--surface2);border:1.5px solid rgba(108,99,255,0.2);border-radius:12px;padding:18px;}
+  .note-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 12px;border-radius:10px;margin-bottom:8px;}
+  .note-row:last-child{margin-bottom:0;}
+  .note-label{font-size:15px;font-weight:800;letter-spacing:1px;min-width:40px;}
+  .note-desc{font-size:12px;font-weight:500;color:var(--text-muted);flex:1;}
+  .note-qty{width:90px;text-align:center;font-size:15px;font-weight:700;padding:8px 10px;}
   #s-rep{width:100vw;position:relative;left:50%;right:50%;margin-left:-50vw;margin-right:-50vw;padding:0 40px;}
 </style>
 </head>
@@ -185,57 +192,51 @@
     <div class="card">
       <div class="card-title">Nuovo Movimento</div>
 
-      <!-- Riga 1: Data | Tipologia Nota -->
-      <div class="grid" style="margin-bottom:16px">
-        <div class="fg">
-          <label>Data <span style="color:var(--red)">*</span></label>
-          <input type="date" id="fdata"/>
-          <span class="field-err" id="err-data"></span>
+      <div class="ins-layout">
+        <!-- Colonna sinistra: Data, Articolo, Reparto, Note libere -->
+        <div class="ins-left">
+          <div class="fg" style="margin-bottom:14px">
+            <label>Data <span style="color:var(--red)">*</span></label>
+            <input type="date" id="fdata"/>
+            <span class="field-err" id="err-data"></span>
+          </div>
+          <div class="fg" style="margin-bottom:14px">
+            <label>Articolo <span style="color:var(--red)">*</span></label>
+            <div class="search-wrap">
+              <input type="text" id="fart-txt" placeholder="Cerca articolo..." autocomplete="off"
+                oninput="filterDrop('art')" onfocus="openDrop('art')" onblur="blurDrop('art')"/>
+              <button class="clear-btn" onmousedown="clearSrch('art')">✕</button>
+              <div class="dropdown-list" id="drop-art"></div>
+            </div>
+            <input type="hidden" id="fart"/>
+            <span class="field-err" id="err-art"></span>
+          </div>
+          <div class="fg" style="margin-bottom:14px">
+            <label>Reparto <span style="color:var(--red)">*</span></label>
+            <div class="search-wrap">
+              <input type="text" id="frep-txt" placeholder="Cerca reparto..." autocomplete="off"
+                oninput="filterDrop('rep')" onfocus="openDrop('rep')" onblur="blurDrop('rep')"/>
+              <button class="clear-btn" onmousedown="clearSrch('rep')">✕</button>
+              <div class="dropdown-list" id="drop-rep"></div>
+            </div>
+            <input type="hidden" id="frep"/>
+            <span class="field-err" id="err-rep"></span>
+          </div>
+          <div class="fg">
+            <label>Note Libere <span style="color:var(--text-muted);font-size:11px;font-weight:500;text-transform:none;letter-spacing:0">(opzionale)</span></label>
+            <textarea id="fnlib" placeholder="Note aggiuntive opzionali..."></textarea>
+          </div>
         </div>
-        <div class="fg">
-          <label>Tipologia Nota <span style="color:var(--red)">*</span></label>
-          <select id="fnote" onchange="colorNote(this)"><option value="">— nessuna —</option></select>
+
+        <!-- Colonna destra: Tipologie nota con quantità -->
+        <div class="ins-right">
+          <label style="display:block;margin-bottom:12px">Tipologia Nota <span style="color:var(--red)">*</span></label>
+          <div id="note-rows"></div>
           <span class="field-err" id="err-note"></span>
         </div>
       </div>
 
-      <!-- Riga 2: Articolo | Quantità | Reparto -->
-      <div class="grid-3" style="margin-bottom:16px">
-        <div class="fg">
-          <label>Articolo <span style="color:var(--red)">*</span></label>
-          <div class="search-wrap">
-            <input type="text" id="fart-txt" placeholder="Cerca articolo..." autocomplete="off"
-              oninput="filterDrop('art')" onfocus="openDrop('art')" onblur="blurDrop('art')"/>
-            <button class="clear-btn" onmousedown="clearSrch('art')">✕</button>
-            <div class="dropdown-list" id="drop-art"></div>
-          </div>
-          <input type="hidden" id="fart"/>
-          <span class="field-err" id="err-art"></span>
-        </div>
-        <div class="fg">
-          <label>Quantità <span style="color:var(--red)">*</span></label>
-          <input type="number" id="fqta" min="0" placeholder="0"/>
-          <span class="field-err" id="err-qta"></span>
-        </div>
-        <div class="fg">
-          <label>Reparto <span style="color:var(--red)">*</span></label>
-          <div class="search-wrap">
-            <input type="text" id="frep-txt" placeholder="Cerca reparto..." autocomplete="off"
-              oninput="filterDrop('rep')" onfocus="openDrop('rep')" onblur="blurDrop('rep')"/>
-            <button class="clear-btn" onmousedown="clearSrch('rep')">✕</button>
-            <div class="dropdown-list" id="drop-rep"></div>
-          </div>
-          <input type="hidden" id="frep"/>
-          <span class="field-err" id="err-rep"></span>
-        </div>
-      </div>
-
-      <!-- Riga 3: Note libere -->
-      <div class="fg" style="margin-bottom:4px">
-        <label>Note Libere <span style="color:var(--text-muted);font-size:11px;font-weight:500;text-transform:none;letter-spacing:0">(opzionale)</span></label>
-        <textarea id="fnlib" placeholder="Note aggiuntive opzionali..."></textarea>
-      </div>
-      <div class="acts">
+      <div class="acts" style="margin-top:20px">
         <button class="btn" onclick="resetF()">✕ Pulisci</button>
         <button class="btn btn-primary" onclick="salva()">✓ Salva Movimento</button>
       </div>
@@ -422,7 +423,7 @@ function renderPie(rows){
 }
 
 function clearErrors(){
-  ['data','rep','art','qta','note'].forEach(function(f){
+  ['data','rep','art','note'].forEach(function(f){
     var el=document.getElementById('err-'+f);
     if(el){el.textContent='';el.classList.remove('show');}
     var fg=el?el.parentElement:null;
@@ -442,11 +443,8 @@ function salva(){
   var data=document.getElementById('fdata').value;
   var rep=document.getElementById('frep').value;
   var art=document.getElementById('fart').value;
-  var qta=document.getElementById('fqta').value;
-  var note=document.getElementById('fnote').value;
   var nlib=document.getElementById('fnlib').value;
 
-  // Fallback reparto dal testo visibile
   if(!rep){
     var txt=document.getElementById('frep-txt').value.trim();
     var found=dropData['rep'].find(function(d){return d.label===txt||d.val===txt;});
@@ -459,13 +457,27 @@ function salva(){
   if(!data){setError('data','Inserisci la data');ok=false;}
   if(!rep){setError('rep','Seleziona un reparto');ok=false;}
   if(!art){setError('art','Seleziona un articolo');ok=false;}
-  if(!qta||parseFloat(qta)<=0){setError('qta','Inserisci una quantità valida');ok=false;}
-  if(!note){setError('note','Seleziona la tipologia nota');ok=false;}
+
+  // Raccogli tutte le note con quantità > 0
+  var noteEntries=[];
+  Object.keys(noteDescMap).forEach(function(cod){
+    var el=document.getElementById('qty-'+cod);
+    if(el){var v=parseFloat(el.value)||0;if(v>0)noteEntries.push({cod:cod,qty:v});}
+  });
+  if(noteEntries.length===0){setError('note','Inserisci almeno una quantità');ok=false;}
   if(!ok)return;
 
-  gp('write',{data:data,reparto:rep,articolo:art,quantita:qta,note:note,note_libere:nlib,foglio:'Riepilogo'},function(r){
-    if(r.ok){showAlert('✓ Movimento salvato!','ok');resetF();setTimeout(loadR,1500);}
-    else{showAlert('Errore: '+(r.error||'sconosciuto'),'err');}
+  // Salva ogni nota separatamente
+  var pending=noteEntries.length,hasError=false;
+  noteEntries.forEach(function(entry){
+    gp('write',{data:data,reparto:rep,articolo:art,quantita:entry.qty,note:entry.cod,note_libere:nlib,foglio:'Riepilogo'},function(r){
+      pending--;
+      if(!r.ok)hasError=true;
+      if(pending===0){
+        if(hasError)showAlert('Errore nel salvataggio','err');
+        else{showAlert('✓ Movimento salvato!','ok');resetF();setTimeout(loadR,1500);}
+      }
+    });
   });
 }
 function clearSrch(type){
@@ -485,21 +497,25 @@ function colorNote(sel){
 }
 
 function fillNote(data,skip){
-  var s=document.getElementById('fnote');
-  s.innerHTML='<option value="">— nessuna —</option>';
   noteDescMap={};
+  var noteList=[];
   for(var i=skip?1:0;i<data.length;i++){
     if(!data[i][0])continue;
     var cod=String(data[i][0]),desc=data[i][1]?String(data[i][1]):'';
     noteDescMap[cod]=desc;
-    var o=document.createElement('option');
-    o.value=cod;
-    o.textContent=desc?cod+' — '+desc:cod;
-    var col=getNoteColor(cod);
-    o.style.color=col;
-    o.style.fontWeight='700';
-    s.appendChild(o);
+    noteList.push({cod:cod,desc:desc});
   }
+  // Costruisci righe visibili con casella qty
+  var container=document.getElementById('note-rows');
+  if(!container)return;
+  container.innerHTML=noteList.map(function(n){
+    var col=getNoteColor(n.cod);
+    return '<div class="note-row" style="background:'+col+'22;border:1.5px solid '+col+'44;">'+
+      '<span class="note-label" style="color:'+col+'">'+n.cod+'</span>'+
+      '<span class="note-desc">'+n.desc+'</span>'+
+      '<input type="number" class="note-qty" id="qty-'+n.cod+'" min="0" placeholder="0" style="border:1.5px solid '+col+'66;color:'+col+'"/>'+
+      '</div>';
+  }).join('');
 }
 
 // INIT
@@ -649,9 +665,11 @@ function resetF(){
   clearErrors();
   document.getElementById('fdata').value=todayLocal();
   clearSrch('rep');clearSrch('art');
-  document.getElementById('fqta').value='';
-  document.getElementById('fnote').value='';
   document.getElementById('fnlib').value='';
+  Object.keys(noteDescMap).forEach(function(cod){
+    var el=document.getElementById('qty-'+cod);
+    if(el)el.value='';
+  });
 }
 
 function showAlert(t,c){
@@ -667,6 +685,39 @@ function show(n){
   document.querySelectorAll('.tab')[{ins:0,rep:1}[n]].classList.add('on');
   if(n==='rep')loadR();
 }
+
+// Auto-refresh ogni 5 minuti
+setInterval(function(){
+  // Ricarica sempre i menu a tendina
+  gp('read',{sheet:'Articoli'},function(da){
+    var A=da.data||[];
+    buildDrop('art',A,hdr(A));
+    var rA=document.getElementById('r-art');
+    if(rA){
+      var cur=rA.value;
+      rA.innerHTML='<option value="">Tutti gli articoli</option>';
+      dropData['art'].forEach(function(d){
+        var o=document.createElement('option');
+        o.value=d.val;o.textContent=d.label;
+        rA.appendChild(o);
+      });
+      rA.value=cur;
+    }
+  });
+  gp('read',{sheet:'Reparti'},function(dr){
+    var R=dr.data||[];
+    buildDrop('rep',R,hdr(R));
+    var rR=document.getElementById('r-rep');
+  });
+  gp('read',{sheet:'Note'},function(dn){
+    var N=dn.data||[];
+    fillNote(N,hdr(N));
+  });
+  // Ricarica riepilogo solo se nella sezione
+  if(document.getElementById('s-rep').classList.contains('on')){
+    loadR();
+  }
+}, 5 * 60 * 1000);
 
 init();
 </script>
