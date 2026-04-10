@@ -233,7 +233,7 @@
 
 </div>
 <script>
-var BASE='https://script.google.com/macros/s/AKfycbx3kR7u7U8xMo7MFGIWun9-ohNgJLP6gmFjw8x_HU5L32Gekpvk9Sno0Mg0m0wJcbAs8Q/exec';
+var BASE='https://script.google.com/macros/s/AKfycbw8Cnq21yK3CGevksTIyaaBTCjIqzmaOxSfShDZMPX4L-TiAy396HI6EMH4x7hq9zjwSw/exec';
 var tid=0,allRows=[],rHeaders=[],noteDescMap={},artDescMap={},dropData={art:[],rep:[]};
 
 // Clock
@@ -298,16 +298,17 @@ function buildDrop(type,data,skip){
   dropData[type]=[];
   for(var i=skip?1:0;i<data.length;i++){
     if(!data[i][0])continue;
-    var cod=String(data[i][0]);
+    var nome=String(data[i][0]);
     var desc='';
     if(type==='rep'){
-      // colonna A = Nome, colonna C = Ubicazione
+      // col A = Nome, col C = Ubicazione
       desc=data[i][2]?String(data[i][2]):'';
     } else {
+      // art: col A = Codice, col B = Descrizione
       desc=data[i][1]?String(data[i][1]):'';
+      artDescMap[nome]=desc;
     }
-    dropData[type].push({val:cod, label:desc?cod+' — '+desc:cod});
-    if(type==='art') artDescMap[cod]=desc;
+    dropData[type].push({val:nome, label:desc?nome+' — '+desc:nome});
   }
 }
 function filterDrop(type){
