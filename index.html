@@ -216,7 +216,7 @@
     <div class="card">
       <div class="card-title">Riepilogo Movimenti</div>
       <div class="filters">
-        <input type="text" id="r-rep" placeholder="🏭 Reparto..." oninput="filtra()"/>
+        <input type="text" id="r-rep" placeholder="🏭 Linea..." oninput="filtra()"/>
         <input type="text" id="r-art" placeholder="📦 Desc. articolo..." oninput="filtra()"/>
         <input type="date" id="rda" onchange="filtra()" title="Dal"/>
         <input type="date" id="ral" onchange="filtra()" title="Al"/>
@@ -390,7 +390,11 @@ function getNoteIndices(){
 
 function renderHead(){
   var ni=getNoteIndices(),totIdx=rHeaders.indexOf('Totale');
-  var h='<tr><th>Data</th><th>Reparto</th><th>Articolo</th>';
+  var h='<tr>';
+  // Mostra tutte le colonne fino alle note (Data, Linea/Reparto, Articolo, ...)
+  h+='<th>'+( rHeaders[0]||'Data')+'</th>';
+  h+='<th>'+(rHeaders[1]||'Linea')+'</th>';
+  h+='<th>'+(rHeaders[2]||'Articolo')+'</th>';
   ni.forEach(function(i){
     var cod=rHeaders[i],desc=noteDescMap[cod]||'';
     h+='<th class="th-note">'+cod+(desc?'<span class="th-sub">'+desc+'</span>':'')+'</th>';
