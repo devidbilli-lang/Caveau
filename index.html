@@ -217,9 +217,13 @@
               <div class="dropdown-list" id="drop-art"></div>
             </div>
             <input type="hidden" id="fart"/>
-            <div id="art-info" style="display:none;margin-top:6px;padding:8px 12px;border-radius:8px;background:#fff;border:1.5px solid rgba(242,110,255,0.2);">
-              <div id="art-desc" style="font-size:12px;font-weight:600;color:var(--text-muted);"></div>
-              <div id="art-coll" style="font-size:12px;font-weight:700;color:#e91e8c;margin-top:2px;display:none;"></div>
+            <div id="art-info" style="display:none;margin-top:6px;padding:10px 14px;border-radius:8px;background:#fff;border:1.5px solid rgba(242,110,255,0.3);">
+              <div style="font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:#f26eff;margin-bottom:3px;">Descrizione</div>
+              <div id="art-desc" style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:6px;"></div>
+              <div id="art-coll-wrap" style="display:none;">
+                <div style="font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:#f26eff;margin-bottom:3px;">Collezione</div>
+                <div id="art-coll" style="font-size:13px;font-weight:700;color:#e91e8c;"></div>
+              </div>
             </div>
             <span class="field-err" id="err-art"></span>
           </div>
@@ -404,8 +408,8 @@ function selectDrop(type,val){
   _selecting=true;
   var desc=artDescMap[val]||'';
   var coll=artCollMap[val]||'';
-  // Mostra codice + descrizione nel campo testo
-  var displayTxt=val+(desc?' — '+desc:'');
+  // Mostra solo il codice nel campo testo
+  var displayTxt=val;
   document.getElementById('f'+type+'-txt').value=displayTxt;
   document.getElementById('f'+type).value=val;
   document.getElementById('drop-'+type).classList.remove('open');
@@ -414,11 +418,12 @@ function selectDrop(type,val){
     var info=document.getElementById('art-info');
     var descEl=document.getElementById('art-desc');
     var collEl=document.getElementById('art-coll');
+    var collWrap=document.getElementById('art-coll-wrap');
     if(desc||coll){
       info.style.display='block';
-      descEl.textContent=desc;
-      if(coll){collEl.textContent=coll;collEl.style.display='block';}
-      else{collEl.style.display='none';}
+      descEl.textContent=desc||'—';
+      if(coll&&coll.trim()){collEl.textContent=coll;collWrap.style.display='block';}
+      else{collWrap.style.display='none';}
     } else {
       info.style.display='none';
     }
@@ -544,6 +549,8 @@ function clearSrch(type){
   if(type==='art'){
     var info=document.getElementById('art-info');
     if(info)info.style.display='none';
+    var cw=document.getElementById('art-coll-wrap');
+    if(cw)cw.style.display='none';
   }
 }
 
