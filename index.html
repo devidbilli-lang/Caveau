@@ -138,7 +138,8 @@
   .td-tot{font-weight:800;color:#1a1a2e;}
   .badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:12px;font-weight:800;background:#86efac;color:#1a1a2e;}
   /* pie chart layout */
-  .rep-layout{display:grid;grid-template-columns:1fr 240px;gap:16px;align-items:start;}
+  .rep-layout{display:flex;gap:16px;align-items:start;}
+  .rep-layout .table-wrap{flex:1;min-width:0;}
   .pie-card{background:var(--surface);border:2px solid #f26eff;border-radius:16px;padding:20px;text-align:center;position:sticky;top:16px;box-shadow:0 0 16px 4px rgba(242,110,255,0.5),0 0 48px 12px rgba(242,110,255,0.2);}
   .pie-legend{margin-top:14px;display:flex;flex-direction:column;gap:7px;}
   .pie-leg-row{display:flex;align-items:center;justify-content:space-between;font-size:13px;font-weight:600;}
@@ -281,12 +282,10 @@
           <canvas id="pieChart" width="200" height="200"></canvas>
           <div class="pie-legend" id="pie-legend"></div>
         </div>
-      </div>
-      <!-- Grafico a barre articoli -->
-      <div id="bar-card" style="display:none;margin-top:18px;background:var(--surface);border:2px solid #f26eff;border-radius:16px;padding:20px;box-shadow:0 0 16px 4px rgba(242,110,255,0.5),0 0 48px 12px rgba(242,110,255,0.2);">
-        <div style="font-size:12px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:#f26eff;margin-bottom:16px;text-align:center;">Articoli per Quantità</div>
-        <div id="bar-chart"></div>
-      </div>
+        <div id="bar-card" style="background:var(--surface);border:2px solid #f26eff;border-radius:16px;padding:20px;box-shadow:0 0 16px 4px rgba(242,110,255,0.5),0 0 48px 12px rgba(242,110,255,0.2);width:240px;flex-shrink:0;">
+          <div style="font-size:11px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:#f26eff;margin-bottom:12px;text-align:center;">Articoli</div>
+          <div id="bar-chart" style="max-height:400px;overflow-y:auto;"></div>
+        </div>
     </div>
   </div>
 
@@ -501,9 +500,8 @@ function renderBarChart(rows){
     if(!barDiv||!barCard)return;
     var artIdx=rHeaders.indexOf('Articolo');
     var totIdx=rHeaders.indexOf('Totale');
-    if(artIdx<0||totIdx<0){barCard.style.display='none';return;}
+    if(artIdx<0||totIdx<0)return;
 
-    // Aggrega totali per articolo
     var artTotals={};
     rows.forEach(function(r){
       var cod=String(r[artIdx]||'');
@@ -512,31 +510,25 @@ function renderBarChart(rows){
       artTotals[cod]=(artTotals[cod]||0)+tot;
     });
 
-    var entries=Object.keys(artTotals).map(function(k){return{cod:k,tot:artTotals[k]};});
-    entries=entries.filter(function(e){return e.tot>0;});
-    entries.sort(function(a,b){return b.tot-a.tot;});
+    var entries=Object.keys(artTotals).filter(function(k){return artTotals[k]>0;})
+      .map(function(k){return{cod:k,tot:artTotals[k]};})
+      .sort(function(a,b){return b.tot-a.tot;});
 
-    if(!entries.length){barCard.style.display='none';return;}
-    barCard.style.display='block';
+    if(!entries.length){barDiv.innerHTML='<div style="color:var(--text-muted);font-size:12px;text-align:center;">Nessun dato</div>';return;}
 
-    var maxVal=entries[0].tot||1;
-    barDiv.innerHTML=entries.map(function(e){
-      var pct=Math.round((e.tot/maxVal)*100);
+    barDiv.innerHTML=entries.map(function(e,idx){
       var desc=artDescMap[e.cod]||'';
       var coll=artCollMap[e.cod]||'';
-      return '<div style="margin-bottom:10px;">'+
-        '<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:3px;">'+
-          '<div style="font-size:12px;font-weight:700;color:var(--text);">'+e.cod+
-          (desc?'<span style="color:var(--text-muted);font-weight:500;font-size:11px;"> — '+desc+'</span>':'')+
-          (coll?'<span style="color:#e91e8c;font-weight:700;font-size:11px;"> ['+coll+']</span>':'')+'</div>'+
-          '<span style="font-size:13px;font-weight:800;color:#f26eff;margin-left:8px;">'+e.tot+'</span>'+
+      return '<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 4px;border-bottom:1px solid var(--border);">'+
+        '<div style="flex:1;min-width:0;">'+
+          '<div style="font-size:12px;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+e.cod+'</div>'+
+          (desc?'<div style="font-size:10px;color:var(--text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+desc+'</div>':'')+
+          (coll?'<div style="font-size:10px;color:#e91e8c;font-weight:700;">'+coll+'</div>':'')+
         '</div>'+
-        '<div style="background:#f0f0f5;border-radius:20px;height:10px;overflow:hidden;">'+
-          '<div style="height:100%;width:'+pct+'%;background:linear-gradient(90deg,#f26eff,#d400e8);border-radius:20px;"></div>'+
-        '</div>'+
+        '<span style="margin-left:8px;background:#f26eff;color:#fff;font-size:12px;font-weight:800;padding:2px 8px;border-radius:20px;flex-shrink:0;">'+e.tot+'</span>'+
       '</div>';
     }).join('');
-  }catch(e){console.error('renderBarChart error:',e);}
+  }catch(e){console.error('renderBarChart:',e);}
 }
 
 function clearErrors(){
