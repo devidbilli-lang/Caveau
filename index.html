@@ -393,7 +393,7 @@ function filterDrop(type){
     var baseText=d.val+(desc?' — '+desc:'');
     var hlText=safe?baseText.replace(new RegExp('('+safe+')','gi'),'<mark>$1</mark>'):baseText;
     var coll=(type==='art'&&d.coll&&d.coll.trim())?'<span style="color:#e91e8c;font-weight:700;"> ['+d.coll+']</span>':'';
-    return '<div class="dropdown-item" onmousedown="selectDrop(\''+type+'\',\''+d.val.replace(/\\/g,'\\\\').replace(/'/g,'\\\'')+'\'">'+hlText+coll+'</div>';
+    return '<div class="dropdown-item" onmousedown="selectDrop(\''+type+'\',\''+d.val.replace(/\\/g,'\\\\').replace(/'/g,'\\\'')+'\')">'+hlText+coll+'</div>';
   }).join(''):'<div class="dropdown-item" style="color:var(--text-dim)">Nessun risultato</div>';
   list.classList.add('open');
 }
