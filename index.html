@@ -331,6 +331,32 @@ function selectDrop(type,val){
   document.getElementById('f'+type).value=val;
   document.getElementById('drop-'+type).classList.remove('open');
 }
+
+function salva(){
+  var data=document.getElementById('fdata').value;
+  var rep=document.getElementById('frep').value;
+  var art=document.getElementById('fart').value;
+  var qta=document.getElementById('fqta').value;
+  var note=document.getElementById('fnote').value;
+  var nlib=document.getElementById('fnlib').value;
+
+  // Se frep è vuoto ma c'è testo nel campo visibile, usa quello come fallback
+  if(!rep){
+    var txt=document.getElementById('frep-txt').value.trim();
+    // Cerca corrispondenza esatta nel dropData
+    var found=dropData['rep'].find(function(d){return d.label===txt||d.val===txt;});
+    if(found) rep=found.val;
+    else rep=txt;
+    document.getElementById('frep').value=rep;
+  }
+
+  if(!data||!rep||!art||!qta||!note){showAlert('Compila tutti i campi obbligatori, inclusa la tipologia nota','err');return;}
+
+  gp('write',{data:data,reparto:rep,articolo:art,quantita:qta,note:note,note_libere:nlib,foglio:'Riepilogo'},function(r){
+    if(r.ok){showAlert('✓ Movimento salvato!','ok');resetF();setTimeout(loadR,1500);}
+    else{showAlert('Errore: '+(r.error||'sconosciuto'),'err');}
+  });
+}
 function clearSrch(type){
   document.getElementById('f'+type+'-txt').value='';
   document.getElementById('f'+type).value='';
@@ -455,21 +481,6 @@ function filtra(){
     html+='</tr>';
     return html;
   }).join('');
-}
-
-// SALVA
-function salva(){
-  var data=document.getElementById('fdata').value;
-  var rep=document.getElementById('frep').value;
-  var art=document.getElementById('fart').value;
-  var qta=document.getElementById('fqta').value;
-  var note=document.getElementById('fnote').value;
-  var nlib=document.getElementById('fnlib').value;
-  if(!data||!rep||!art||!qta||!note){showAlert('Compila tutti i campi obbligatori, inclusa la tipologia nota','err');return;}
-  gp('write',{data:data,reparto:rep,articolo:art,quantita:qta,note:note,note_libere:nlib,foglio:'Riepilogo'},function(r){
-    if(r.ok){showAlert('✓ Movimento salvato!','ok');resetF();setTimeout(loadR,1500);}
-    else{showAlert('Errore: '+(r.error||'sconosciuto'),'err');}
-  });
 }
 
 function resetF(){
