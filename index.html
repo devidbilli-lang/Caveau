@@ -26,7 +26,7 @@
   *{box-sizing:border-box;margin:0;padding:0;font-family:'Montserrat',sans-serif;}
   body{background:var(--bg);color:var(--text);min-height:100vh;font-size:15px;}
 
-  .wrapper{max-width:100%;margin:0 auto;padding:24px 32px;}
+  .wrapper{max-width:1200px;margin:0 auto;padding:24px 32px;}
 
   /* HEADER */
   header{display:flex;align-items:center;justify-content:space-between;margin-bottom:28px;padding-bottom:22px;border-bottom:2px solid var(--border);}
@@ -68,6 +68,7 @@
 
   /* FORM */
   .grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  .grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;}
   .fg{display:flex;flex-direction:column;gap:7px;}
   .fg.full{grid-column:1/-1;}
   label{font-size:11px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-muted);text-align:center;}
@@ -82,6 +83,9 @@
 
   .card-plain{background:var(--surface);border:1.5px solid var(--border);border-radius:16px;padding:24px;margin-bottom:18px;box-shadow:var(--shadow);}
   .card-plain .card-title::before,.card-plain .card-title::after{content:'';flex:1;height:1.5px;background:var(--border);}
+  .field-err{font-size:12px;font-weight:600;color:var(--red);margin-top:4px;display:none;text-align:center;}
+  .field-err.show{display:block;}
+  .input-err input,.input-err select{border-color:var(--red)!important;box-shadow:0 0 0 3px rgba(220,38,38,0.15)!important;}
   .search-wrap{position:relative;}
   .search-wrap input{padding-right:36px;text-align:left;}
   .clear-btn{position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:15px;padding:2px 4px;}
@@ -167,13 +171,16 @@
   <div id="s-ins" class="sec on">
     <div class="card">
       <div class="card-title">Nuovo Movimento</div>
-      <div class="grid">
+
+      <!-- Riga 1: Data | Reparto -->
+      <div class="grid" style="margin-bottom:16px">
         <div class="fg">
-          <label>📅 Data</label>
+          <label>📅 Data <span style="color:var(--red)">*</span></label>
           <input type="date" id="fdata"/>
+          <span class="field-err" id="err-data"></span>
         </div>
         <div class="fg">
-          <label>🏭 Reparto</label>
+          <label>🏭 Reparto <span style="color:var(--red)">*</span></label>
           <div class="search-wrap">
             <input type="text" id="frep-txt" placeholder="Cerca reparto..." autocomplete="off"
               oninput="filterDrop('rep')" onfocus="openDrop('rep')" onblur="blurDrop('rep')"/>
@@ -181,9 +188,14 @@
             <div class="dropdown-list" id="drop-rep"></div>
           </div>
           <input type="hidden" id="frep"/>
+          <span class="field-err" id="err-rep"></span>
         </div>
+      </div>
+
+      <!-- Riga 2: Articolo | Quantità | Tipologia Nota -->
+      <div class="grid-3" style="margin-bottom:16px">
         <div class="fg">
-          <label>📦 Articolo</label>
+          <label>📦 Articolo <span style="color:var(--red)">*</span></label>
           <div class="search-wrap">
             <input type="text" id="fart-txt" placeholder="Cerca articolo..." autocomplete="off"
               oninput="filterDrop('art')" onfocus="openDrop('art')" onblur="blurDrop('art')"/>
@@ -191,19 +203,24 @@
             <div class="dropdown-list" id="drop-art"></div>
           </div>
           <input type="hidden" id="fart"/>
+          <span class="field-err" id="err-art"></span>
         </div>
         <div class="fg">
-          <label>🔢 Quantità</label>
+          <label>🔢 Quantità <span style="color:var(--red)">*</span></label>
           <input type="number" id="fqta" min="0" placeholder="0"/>
+          <span class="field-err" id="err-qta"></span>
         </div>
-        <div class="fg full">
-          <label>🏷️ Tipologia Nota</label>
+        <div class="fg">
+          <label>🏷️ Tipologia Nota <span style="color:var(--red)">*</span></label>
           <select id="fnote"><option value="">— nessuna —</option></select>
+          <span class="field-err" id="err-note"></span>
         </div>
-        <div class="fg full">
-          <label>📝 Note Libere</label>
-          <textarea id="fnlib" placeholder="Note aggiuntive opzionali..."></textarea>
-        </div>
+      </div>
+
+      <!-- Riga 3: Note libere -->
+      <div class="fg" style="margin-bottom:4px">
+        <label>📝 Note Libere <span style="color:var(--text-muted);font-size:10px;font-weight:500;text-transform:none;letter-spacing:0">(opzionale)</span></label>
+        <textarea id="fnlib" placeholder="Note aggiuntive opzionali..."></textarea>
       </div>
       <div class="acts">
         <button class="btn" onclick="resetF()">✕ Pulisci</button>
@@ -332,7 +349,24 @@ function selectDrop(type,val){
   document.getElementById('drop-'+type).classList.remove('open');
 }
 
+function clearErrors(){
+  ['data','rep','art','qta','note'].forEach(function(f){
+    var el=document.getElementById('err-'+f);
+    if(el){el.textContent='';el.classList.remove('show');}
+    var fg=el?el.parentElement:null;
+    if(fg)fg.classList.remove('input-err');
+  });
+}
+
+function setError(field, msg){
+  var el=document.getElementById('err-'+field);
+  if(el){el.textContent=msg;el.classList.add('show');}
+  var fg=el?el.parentElement:null;
+  if(fg)fg.classList.add('input-err');
+}
+
 function salva(){
+  clearErrors();
   var data=document.getElementById('fdata').value;
   var rep=document.getElementById('frep').value;
   var art=document.getElementById('fart').value;
@@ -340,17 +374,22 @@ function salva(){
   var note=document.getElementById('fnote').value;
   var nlib=document.getElementById('fnlib').value;
 
-  // Se frep è vuoto ma c'è testo nel campo visibile, usa quello come fallback
+  // Fallback reparto dal testo visibile
   if(!rep){
     var txt=document.getElementById('frep-txt').value.trim();
-    // Cerca corrispondenza esatta nel dropData
     var found=dropData['rep'].find(function(d){return d.label===txt||d.val===txt;});
     if(found) rep=found.val;
     else rep=txt;
     document.getElementById('frep').value=rep;
   }
 
-  if(!data||!rep||!art||!qta||!note){showAlert('Compila tutti i campi obbligatori, inclusa la tipologia nota','err');return;}
+  var ok=true;
+  if(!data){setError('data','Inserisci la data');ok=false;}
+  if(!rep){setError('rep','Seleziona un reparto');ok=false;}
+  if(!art){setError('art','Seleziona un articolo');ok=false;}
+  if(!qta||parseFloat(qta)<=0){setError('qta','Inserisci una quantità valida');ok=false;}
+  if(!note){setError('note','Seleziona la tipologia nota');ok=false;}
+  if(!ok)return;
 
   gp('write',{data:data,reparto:rep,articolo:art,quantita:qta,note:note,note_libere:nlib,foglio:'Riepilogo'},function(r){
     if(r.ok){showAlert('✓ Movimento salvato!','ok');resetF();setTimeout(loadR,1500);}
@@ -500,6 +539,7 @@ function filtra(){
 }
 
 function resetF(){
+  clearErrors();
   document.getElementById('fdata').value=todayLocal();
   clearSrch('rep');clearSrch('art');
   document.getElementById('fqta').value='';
