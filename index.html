@@ -265,6 +265,7 @@
       <div class="filters">
         <input type="text" id="r-rep" placeholder="Linea..." oninput="filtra()"/>
         <input type="text" id="r-art" placeholder="Desc. articolo..." oninput="filtra()"/>
+        <input type="text" id="r-cluster" placeholder="Cluster caveau..." oninput="filtra()"/>
         <input type="date" id="rda" onchange="filtra()" title="Dal"/>
         <input type="date" id="ral" onchange="filtra()" title="Al"/>
         <button class="btn btn-green" style="padding:10px 18px;font-size:13px" onclick="loadR()">↻ Aggiorna</button>
@@ -290,6 +291,7 @@
       <div class="filters">
         <input type="text" id="sto-rep" placeholder="Linea..." oninput="filtraSto()"/>
         <input type="text" id="sto-art" placeholder="Desc. articolo..." oninput="filtraSto()"/>
+        <input type="text" id="sto-cluster" placeholder="Cluster caveau..." oninput="filtraSto()"/>
         <input type="date" id="sto-da" onchange="filtraSto()" title="Dal"/>
         <input type="date" id="sto-al" onchange="filtraSto()" title="Al"/>
         <button class="btn btn-green" style="padding:9px 18px;font-size:13px" onclick="loadSto()">↻ Aggiorna</button>
@@ -305,7 +307,7 @@
 
 </div>
 <script>
-var BASE='https://script.google.com/macros/s/AKfycbz5rzxc2MN8C1GYjgagsPk7qxJ5eTwvOB4-A_03LuU3GlFyvwLOEKmK3oUQWj4TylZvjQ/exec';
+var BASE='https://script.google.com/macros/s/AKfycbw2hteCu-l74pn7mtIeWQDI_gvqfO2s82iCb3amKJ0cMKrDVF68nW6kqrXIvBefNfyp1g/exec';
 var tid=0,allRows=[],rHeaders=[],noteDescMap={},artDescMap={},artCollMap={},dropData={art:[],rep:[]};
 var stoRows=[],stoHeaders=[];
 var stoRows=[],stoHeaders=[];
@@ -593,7 +595,7 @@ function init(){
     var A=da.data||[];
     gp('read',{sheet:'Reparti'},function(dr){
       var R=dr.data||[];
-      gp('read',{sheet:'Note'},function(dn){
+      gp('read',{sheet:'Cluster Caveau'},function(dn){
         var N=dn.data||[];
         buildDrop('art',A,hdr(A));
         buildDrop('rep',R,hdr(R));
@@ -685,6 +687,7 @@ function renderHead(){
 function filtra(){
   var rep=document.getElementById('r-rep').value.toLowerCase();
   var art=document.getElementById('r-art').value.toLowerCase();
+  var cluster=document.getElementById('r-cluster').value.toLowerCase();
   var da=document.getElementById('rda').value;
   var al=document.getElementById('ral').value;
   var totIdx=rHeaders.indexOf('Totale');
@@ -697,6 +700,19 @@ function filtra(){
       var cod=String(r[artIdx>=0?artIdx:3]||'');
       var desc=(artDescMap[cod]||'').toLowerCase();
       if(desc.indexOf(art)<0&&cod.toLowerCase().indexOf(art)<0)return false;
+    }
+    if(cluster){
+      // Cerca nelle colonne nota: cerca il nome della nota che contiene il filtro
+      var found=false;
+      ni.forEach(function(i){
+        var colName=rHeaders[i].toLowerCase();
+        var qty=parseFloat(r[i])||0;
+        if(colName.indexOf(cluster)>=0&&qty>0)found=true;
+        // Cerca anche nella descrizione della nota
+        var desc=(noteDescMap[rHeaders[i]]||'').toLowerCase();
+        if(desc.indexOf(cluster)>=0&&qty>0)found=true;
+      });
+      if(!found)return false;
     }
     if(da||al){
       var iso=toISO(formatDate(r[0]));
@@ -801,6 +817,7 @@ function renderStoHead(){
 function filtraSto(){
   var rep=document.getElementById('sto-rep').value.toLowerCase();
   var art=document.getElementById('sto-art').value.toLowerCase();
+  var cluster=document.getElementById('sto-cluster').value.toLowerCase();
   var da=document.getElementById('sto-da').value;
   var al=document.getElementById('sto-al').value;
   var artIdx=stoHeaders.indexOf('Articolo');
@@ -812,6 +829,17 @@ function filtraSto(){
   var f=stoRows.filter(function(r){
     if(rep&&String(r[1]||'').toLowerCase().indexOf(rep)<0)return false;
     if(art){var cod=String(r[artIdx>=0?artIdx:2]||'');var desc=(artDescMap[cod]||'').toLowerCase();if(desc.indexOf(art)<0&&cod.toLowerCase().indexOf(art)<0)return false;}
+    if(cluster){
+      var found=false;
+      ni.forEach(function(i){
+        var colName=stoHeaders[i].toLowerCase();
+        var qty=parseFloat(r[i])||0;
+        if(colName.indexOf(cluster)>=0&&qty>0)found=true;
+        var desc=(noteDescMap[stoHeaders[i]]||'').toLowerCase();
+        if(desc.indexOf(cluster)>=0&&qty>0)found=true;
+      });
+      if(!found)return false;
+    }
     if(da||al){var iso=toISO(formatDate(r[0]));if(da&&iso<da)return false;if(al&&iso>al)return false;}
     return true;
   });
@@ -865,7 +893,7 @@ setInterval(function(){
     buildDrop('rep',R,hdr(R));
     var rR=document.getElementById('r-rep');
   });
-  gp('read',{sheet:'Note'},function(dn){
+  gp('read',{sheet:'Cluster Caveau'},function(dn){
     var N=dn.data||[];
     fillNote(N,hdr(N));
   });
