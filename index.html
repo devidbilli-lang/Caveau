@@ -138,8 +138,7 @@
   .td-tot{font-weight:800;color:#1a1a2e;}
   .badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:12px;font-weight:800;background:#86efac;color:#1a1a2e;}
   /* pie chart layout */
-  .rep-layout{display:flex;gap:16px;align-items:start;}
-  .rep-layout .table-wrap{flex:1;min-width:0;}
+  .rep-layout{display:grid;grid-template-columns:1fr 240px;gap:16px;align-items:start;}
   .pie-card{background:var(--surface);border:2px solid #f26eff;border-radius:16px;padding:20px;text-align:center;position:sticky;top:16px;box-shadow:0 0 16px 4px rgba(242,110,255,0.5),0 0 48px 12px rgba(242,110,255,0.2);}
   .pie-legend{margin-top:14px;display:flex;flex-direction:column;gap:7px;}
   .pie-leg-row{display:flex;align-items:center;justify-content:space-between;font-size:13px;font-weight:600;}
@@ -278,15 +277,17 @@
             <tbody id="tb"><tr><td class="empty">Caricamento dati...</td></tr></tbody>
           </table>
         </div>
-        <div class="pie-card">
-          <canvas id="pieChart" width="200" height="200"></canvas>
-          <div class="pie-legend" id="pie-legend"></div>
+        <div style="display:flex;flex-direction:column;gap:16px;position:sticky;top:16px;">
+          <div class="pie-card" style="position:static;">
+            <canvas id="pieChart" width="200" height="200"></canvas>
+            <div class="pie-legend" id="pie-legend"></div>
+          </div>
+          <div id="bar-card" style="background:var(--surface);border:2px solid #f26eff;border-radius:16px;padding:20px;box-shadow:0 0 16px 4px rgba(242,110,255,0.5),0 0 48px 12px rgba(242,110,255,0.2);">
+            <div style="font-size:11px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:#f26eff;margin-bottom:12px;text-align:center;">Articoli</div>
+            <div id="bar-chart" style="max-height:400px;overflow-y:auto;"><div style="color:var(--text-muted);font-size:12px;text-align:center;">Caricamento...</div></div>
+          </div>
         </div>
-        <div id="bar-card" style="background:var(--surface);border:2px solid #f26eff;border-radius:16px;padding:20px;box-shadow:0 0 16px 4px rgba(242,110,255,0.5),0 0 48px 12px rgba(242,110,255,0.2);width:240px;flex-shrink:0;position:sticky;top:16px;">
-          <div style="font-size:11px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:#f26eff;margin-bottom:12px;text-align:center;">Articoli</div>
-          <div id="bar-chart" style="max-height:500px;overflow-y:auto;"><div style="color:var(--text-muted);font-size:12px;text-align:center;">Caricamento...</div></div>
-        </div>
-    </div>
+      </div>
   </div>
 
   <!-- STORICO -->
