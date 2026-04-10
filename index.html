@@ -755,8 +755,11 @@ function filtra(){
       if(ni.indexOf(i)>=0){
         var n=parseFloat(val)||0;
         var u=col.toUpperCase();
-        var tdcls=n===0?'td-zero':(u==='A1'?'td-a1':u==='B1'?'td-b1':u==='C1'?'td-c1':u==='D1'?'td-d1':'');
-        html+='<td class="'+tdcls+'">'+(n===0?'—':n)+'</td>';
+        if(n===0){html+='<td class="td-zero">—</td>';}
+        else{
+          var bg=u==='A1'?'#60a5fa':u==='B1'?'#fb923c':u==='C1'?'#fbbf24':u==='D1'?'#f87171':'#f26eff';
+          html+='<td><span style="display:inline-block;padding:3px 10px;border-radius:20px;font-size:12px;font-weight:800;background:'+bg+';color:#fff;">'+n+'</span></td>';
+        }
         continue;
       }
       html+='<td>'+String(val)+'</td>';
@@ -854,7 +857,7 @@ function filtraSto(){
       if(col==='Totale'){html+='<td class="td-tot"><span class="badge">'+(parseFloat(val)||0)+'</span></td>';continue;}
       if(isNoteLibere(col)){html+='<td style="font-size:13px;text-align:center;font-weight:500;white-space:normal;word-break:break-word;">'+String(val||'')+'</td>';continue;}
       if(col==='Articolo'){var coll=artCollMap[String(val)]||'';var desc=artDescMap[String(val)]||'';html+='<td>'+String(val)+(desc?'<br><span style="color:var(--text-muted);font-size:11px;font-weight:600;">'+desc+'</span>':'')+(coll?'<br><span style="color:#e91e8c;font-size:11px;font-weight:700;">'+coll+'</span>':'')+'</td>';continue;}
-      if(ni.indexOf(i)>=0){var n=parseFloat(val)||0,u=col.toUpperCase(),tdcls=n===0?'td-zero':(u==='A1'?'td-a1':u==='B1'?'td-b1':u==='C1'?'td-c1':u==='D1'?'td-d1':'');html+='<td class="'+tdcls+'">'+(n===0?'—':n)+'</td>';continue;}
+      if(ni.indexOf(i)>=0){var n=parseFloat(val)||0,u=col.toUpperCase();if(n===0){html+='<td class="td-zero">—</td>';}else{var bg=u==='A1'?'#60a5fa':u==='B1'?'#fb923c':u==='C1'?'#fbbf24':u==='D1'?'#f87171':'#f26eff';html+='<td><span style="display:inline-block;padding:3px 10px;border-radius:20px;font-size:12px;font-weight:800;background:'+bg+';color:#fff;">'+n+'</span></td>';}continue;}
       html+='<td>'+String(val)+'</td>';
     }
     return html+'</tr>';
