@@ -120,14 +120,16 @@
     border-bottom:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
   }
   thead th.th-note{background:rgba(108,99,255,0.85);}
-  thead th.th-note-a1{background:#f87171;}
-  thead th.th-note-b1{background:#fb923c;}
+  thead th.th-note-a1{background:#f87171;color:#1a1a2e;}
+  thead th.th-note-b1{background:#fb923c;color:#1a1a2e;}
   thead th.th-note-c1{background:#fbbf24;color:#1a1a2e;}
-  thead th.th-tot{background:rgba(79,70,229,1);}
-  .th-sub{font-size:9px;font-weight:500;color:rgba(255,255,255,0.8);display:block;margin-top:3px;text-transform:none;letter-spacing:0;white-space:normal;line-height:1.3;}
-  .opt-a1{color:#dc2626;font-weight:700;}
-  .opt-b1{color:#ea580c;font-weight:700;}
-  .opt-c1{color:#ea580c;font-weight:700;}
+  thead th.th-tot{background:#86efac;color:#1a1a2e;}
+  .th-sub{font-size:9px;font-weight:600;color:rgba(0,0,0,0.6);display:block;margin-top:3px;text-transform:none;letter-spacing:0;white-space:normal;line-height:1.3;}
+  .td-a1{color:#f87171;font-weight:700;}
+  .td-b1{color:#fb923c;font-weight:700;}
+  .td-c1{color:#fbbf24;font-weight:700;}
+  .td-tot{font-weight:800;color:#1a1a2e;background:#86efac;}
+  .badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:12px;font-weight:800;background:#86efac;color:#1a1a2e;}
   /* pie chart layout */
   .rep-layout{display:grid;grid-template-columns:1fr 240px;gap:16px;align-items:start;}
   .pie-card{background:var(--surface);border:1.5px solid var(--border);border-radius:16px;padding:20px;box-shadow:var(--shadow);text-align:center;}
@@ -258,7 +260,6 @@
           </table>
         </div>
         <div class="pie-card">
-          <div class="pie-title">Quantità per Nota</div>
           <canvas id="pieChart" width="200" height="200"></canvas>
           <div class="pie-legend" id="pie-legend"></div>
         </div>
@@ -607,7 +608,9 @@ function filtra(){
       }
       if(ni.indexOf(i)>=0){
         var n=parseFloat(val)||0;
-        html+='<td class="'+(n===0?'td-zero':'')+'">'+(n===0?'—':n)+'</td>';
+        var u=col.toUpperCase();
+        var tdcls=n===0?'td-zero':(u==='A1'?'td-a1':u==='B1'?'td-b1':u==='C1'?'td-c1':'');
+        html+='<td class="'+tdcls+'">'+(n===0?'—':n)+'</td>';
         continue;
       }
       html+='<td>'+String(val)+'</td>';
