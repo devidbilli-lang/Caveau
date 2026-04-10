@@ -269,7 +269,7 @@
 
 </div>
 <script>
-var BASE='https://script.google.com/macros/s/AKfycbzRdYvlgWCf_loTBZCX5zlJbDIDeih_lSiL_g4klxJCubcg7VtsTnOP-UNgAEVObMDtAQ/exec';
+var BASE='https://script.google.com/macros/s/AKfycbzlL1w1-9dYohC_iaAMt3oCuiDGhxdpvBIsDd3nv15DgURHZKSMCFz2Y7gARixD-HnzBQ/exec';
 var tid=0,allRows=[],rHeaders=[],noteDescMap={},artDescMap={},dropData={art:[],rep:[]};
 
 // Clock
@@ -378,6 +378,7 @@ function renderPie(rows){
   ni.forEach(function(i){totals[rHeaders[i]]=0;});
   rows.forEach(function(r){ni.forEach(function(i){totals[rHeaders[i]]+=(parseFloat(r[i])||0);});});
   var keys=Object.keys(totals).filter(function(k){return totals[k]>0;});
+  // Totale = somma delle sole colonne nota
   var total=keys.reduce(function(s,k){return s+totals[k];},0);
   var ctx=canvas.getContext('2d');
   ctx.clearRect(0,0,canvas.width,canvas.height);
@@ -523,7 +524,9 @@ function loadR(){
 }
 
 var HIDDEN=['note','codice','notes'];
+var NOTE_LIBERE_COL='note libere';
 function isHidden(col){return HIDDEN.indexOf(col.toLowerCase())>=0;}
+function isNoteLibere(col){return col.toLowerCase()===NOTE_LIBERE_COL;}
 
 function getNoteIndices(){
   var r=[];
@@ -555,8 +558,9 @@ function renderHead(){
   var h='<tr>';
   for(var i=0;i<rHeaders.length;i++){
     var col=rHeaders[i];
-    if(isHidden(col)&&col!=='Totale')continue;
+    if(isHidden(col))continue;
     if(col==='Totale'){h+='<th class="th-tot">Totale</th>';continue;}
+    if(isNoteLibere(col)){h+='<th style="background:#e0e7ff;color:#1a1a2e;">Note Libere</th>';continue;}
     if(ni.indexOf(i)>=0){
       var desc=noteDescMap[col]||'';
       h+='<th class="'+getNoteThClass(col)+'">'+col+(desc?'<span class="th-sub">'+desc+'</span>':'')+'</th>';
@@ -604,12 +608,16 @@ function filtra(){
     var html='<tr>';
     for(var i=0;i<rHeaders.length;i++){
       var col=rHeaders[i];
-      if(isHidden(col)&&col!=='Totale') continue;
+      if(isHidden(col))continue;
       var val=r[i]!==undefined?r[i]:'';
       if(col==='Data'){html+='<td>'+formatDate(val)+'</td>';continue;}
       if(col==='Totale'){
         var tv=parseFloat(val)||0;
         html+='<td class="td-tot"><span class="badge">'+tv+'</span></td>';
+        continue;
+      }
+      if(isNoteLibere(col)){
+        html+='<td style="color:var(--text-muted);font-size:12px;text-align:left;">'+String(val||'')+'</td>';
         continue;
       }
       if(ni.indexOf(i)>=0){
