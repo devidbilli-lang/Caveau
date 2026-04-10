@@ -383,35 +383,34 @@ function buildDrop(type,data,skip){
   }
 }
 function filterDrop(type){
+  if(_selecting)return;
   var txt=document.getElementById('f'+type+'-txt').value.toLowerCase();
   var list=document.getElementById('drop-'+type);
   var items=dropData[type].filter(function(d){return d.label.toLowerCase().indexOf(txt)>=0;});
   list.innerHTML=items.length?items.map(function(d){
     var safe=txt.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
-    // Costruisci testo base senza collezione
     var desc=artDescMap[d.val]||'';
-    var baseText=type==='rep'?(d.val+(desc?' — '+desc:'')):(d.val+(desc?' — '+desc:''));
-    // Evidenzia match nel testo base
+    var baseText=d.val+(desc?' — '+desc:'');
     var hlText=safe?baseText.replace(new RegExp('('+safe+')','gi'),'<mark>$1</mark>'):baseText;
-    // Aggiungi collezione in fucsia DOPO l'highlight, solo se presente
     var coll=(type==='art'&&d.coll&&d.coll.trim())?'<span style="color:#e91e8c;font-weight:700;"> ['+d.coll+']</span>':'';
     return '<div class="dropdown-item" onmousedown="selectDrop(\''+type+'\',\''+d.val.replace(/\\/g,'\\\\').replace(/'/g,'\\\'')+'\'">'+hlText+coll+'</div>';
   }).join(''):'<div class="dropdown-item" style="color:var(--text-dim)">Nessun risultato</div>';
   list.classList.add('open');
-  document.getElementById('f'+type).value='';
 }
+var _selecting=false;
 function openDrop(type){filterDrop(type);}
 function blurDrop(type){setTimeout(function(){document.getElementById('drop-'+type).classList.remove('open');},150);}
 function selectDrop(type,val){
-  var item=dropData[type].find(function(d){return d.val===val;});
-  // Mostra solo il codice nel campo testo
-  document.getElementById('f'+type+'-txt').value=val;
+  _selecting=true;
+  var desc=artDescMap[val]||'';
+  var coll=artCollMap[val]||'';
+  // Mostra codice + descrizione nel campo testo
+  var displayTxt=val+(desc?' — '+desc:'');
+  document.getElementById('f'+type+'-txt').value=displayTxt;
   document.getElementById('f'+type).value=val;
   document.getElementById('drop-'+type).classList.remove('open');
-  // Se articolo, mostra card info con descrizione e collezione
+  // Se articolo, mostra card info
   if(type==='art'){
-    var desc=artDescMap[val]||'';
-    var coll=artCollMap[val]||'';
     var info=document.getElementById('art-info');
     var descEl=document.getElementById('art-desc');
     var collEl=document.getElementById('art-coll');
@@ -424,6 +423,7 @@ function selectDrop(type,val){
       info.style.display='none';
     }
   }
+  setTimeout(function(){_selecting=false;},200);
 }
 
 function renderPie(rows){
