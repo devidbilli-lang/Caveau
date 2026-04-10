@@ -268,7 +268,6 @@
   <div class="tabs">
     <button class="tab on" onclick="show('ins')">📦 Inserimento</button>
     <button class="tab" onclick="show('rep')">📊 Riepilogo</button>
-    <button class="tab" onclick="show('cfg')">⚙️ Configurazione</button>
   </div>
 
   <div id="alert" class="alert"></div>
@@ -318,64 +317,19 @@
     </div>
   </div>
 
-  <!-- CONFIGURAZIONE -->
-  <div id="s-cfg" class="sec">
-    <div class="card">
-      <div class="card-title">Configurazione</div>
-      <div class="cfg-note">
-        Inserisci l'URL del tuo Google Apps Script e i nomi esatti dei fogli nel tuo Google Sheet.
-      </div>
-      <div class="fg full" style="margin-bottom:14px">
-        <label>🔗 URL Apps Script</label>
-        <input type="text" id="curl" value="https://script.google.com/macros/s/AKfycbwn7CluVc0tqfFs1efbAE5DN5OP7kK2KSlz7sd1tHvuiTHQR5tR7Eqne1rD5A8JPV14yw/exec" placeholder="https://script.google.com/macros/s/.../exec"/>
-      </div>
-      <div class="grid">
-        <div class="fg"><label>Foglio Articoli</label><input type="text" id="ca" value="Articoli"/></div>
-        <div class="fg"><label>Foglio Reparti</label><input type="text" id="cr" value="Reparti"/></div>
-        <div class="fg"><label>Foglio Note</label><input type="text" id="cn" value="Note"/></div>
-        <div class="fg"><label>Foglio Riepilogo</label><input type="text" id="cs" value="Riepilogo"/></div>
-      </div>
-      <div class="acts">
-        <button class="btn btn-primary" onclick="saveAndConnect()">🔌 Salva e Connetti</button>
-        <button class="btn btn-green" onclick="initHeaders()">📋 Inizializza Intestazioni</button>
-      </div>
-    </div>
-  </div>
 
 </div>
 <script>
-var BASE = '';
+var BASE = 'https://script.google.com/macros/s/AKfycbwn7CluVc0tqfFs1efbAE5DN5OP7kK2KSlz7sd1tHvuiTHQR5tR7Eqne1rD5A8JPV14yw/exec';
 var rows = [];
 var cfg = { a:'Articoli', r:'Reparti', n:'Note', s:'Riepilogo' };
 var tid = 0;
 
-// Clock
 setInterval(function(){
   var n = new Date();
   document.getElementById('clk').textContent =
     n.getHours().toString().padStart(2,'0') + ':' + n.getMinutes().toString().padStart(2,'0');
 }, 1000);
-
-// Load config from localStorage
-(function(){
-  try {
-    var s = localStorage.getItem('caveau_cfg');
-    if (s) {
-      var c = JSON.parse(s);
-      BASE = c.url || '';
-      cfg.a = c.a || 'Articoli';
-      cfg.r = c.r || 'Reparti';
-      cfg.n = c.n || 'Note';
-      cfg.s = c.s || 'Riepilogo';
-    }
-  } catch(e){}
-  document.getElementById('curl').value = BASE;
-  document.getElementById('ca').value = cfg.a;
-  document.getElementById('cr').value = cfg.r;
-  document.getElementById('cn').value = cfg.n;
-  document.getElementById('cs').value = cfg.s;
-  if (BASE) init();
-})();
 
 document.getElementById('fdata').value = new Date().toISOString().slice(0,10);
 
@@ -509,44 +463,22 @@ function resetF(){
   ['frep','fart','fqta','fnote','fnlib'].forEach(function(i){document.getElementById(i).value='';});
 }
 
-function saveAndConnect(){
-  BASE = document.getElementById('curl').value.trim();
-  cfg.a = document.getElementById('ca').value.trim()||'Articoli';
-  cfg.r = document.getElementById('cr').value.trim()||'Reparti';
-  cfg.n = document.getElementById('cn').value.trim()||'Note';
-  cfg.s = document.getElementById('cs').value.trim()||'Riepilogo';
-  try{ localStorage.setItem('caveau_cfg', JSON.stringify({url:BASE,a:cfg.a,r:cfg.r,n:cfg.n,s:cfg.s})); }catch(e){}
-  init();
-}
-
 function showAlert(t,c){
   var e=document.getElementById('alert');
   e.textContent=t; e.className='alert '+c; e.style.display='block';
   setTimeout(function(){e.style.display='none';},5000);
 }
 
-function initHeaders(){
-  if(!BASE){showAlert('Prima salva e connetti lo script','err');return;}
-  showAlert('Inizializzazione intestazioni in corso...','inf');
-  var fn='_cb'+(tid++);
-  var el=document.createElement('script');
-  el.src=BASE+'?action=init_headers&callback='+fn+'&t='+Date.now();
-  window[fn]=function(d){delete window[fn];el.remove();
-    if(d.ok){showAlert('✓ Intestazioni aggiunte a tutti i fogli!','ok');}
-    else{showAlert('Errore: '+(d.error||'sconosciuto'),'err');}
-  };
-  el.onerror=function(){delete window[fn];el.remove();showAlert('Errore connessione','err');};
-  document.head.appendChild(el);
-}
-
 function show(n){
   document.querySelectorAll('.sec').forEach(function(s){s.classList.remove('on');});
   document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('on');});
   document.getElementById('s-'+n).classList.add('on');
-  var m={ins:0,rep:1,cfg:2};
+  var m={ins:0,rep:1};
   document.querySelectorAll('.tab')[m[n]].classList.add('on');
   if(n==='rep'&&!rows.length) loadR();
 }
+
+init();
 </script>
 </body>
 </html>
