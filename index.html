@@ -469,7 +469,10 @@ function renderPie(rows){
   ctx.beginPath();ctx.arc(cx,cy,44,0,Math.PI*2);ctx.fillStyle='#ffffff';ctx.fill();
   ctx.fillStyle='#1a1a2e';ctx.font='bold 18px Montserrat,sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';
   ctx.fillText(total,cx,cy-8);
-  ctx.font='600 10px Montserrat,sans-serif';ctx.fillStyle='#6b6b8a';ctx.fillText('TOT',cx,cy+10);
+  // Disegna lucchetto fucsia sotto il numero
+  var img=new Image();
+  img.src='data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" fill="%23f26eff"/><path d="M7 11V7a5 5 0 0 1 10 0v4" stroke="%23f26eff" stroke-width="2.2" stroke-linecap="round" fill="none"/><circle cx="12" cy="16.5" r="1.8" fill="white"/></svg>';
+  img.onload=function(){ctx.drawImage(img,cx-12,cy+4,24,24);};
   // Tabella sotto
   legend.innerHTML='<table style="width:100%;border-collapse:collapse;margin-top:14px;font-size:13px;">'+
     '<thead><tr>'+
