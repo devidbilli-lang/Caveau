@@ -83,7 +83,9 @@
 
   .card-plain{background:var(--surface);border:1.5px solid var(--border);border-radius:16px;padding:24px;margin-bottom:18px;box-shadow:var(--shadow);}
   .card-plain .card-title::before,.card-plain .card-title::after{content:'';flex:1;height:1.5px;background:var(--border);}
-  .field-err{font-size:12px;font-weight:600;color:var(--red);margin-top:4px;display:none;text-align:center;}
+  .select-a1{color:#f87171!important;font-weight:700!important;}
+  .select-b1{color:#fb923c!important;font-weight:700!important;}
+  .select-c1{color:#fbbf24!important;font-weight:700!important;}
   .field-err.show{display:block;}
   .input-err input,.input-err select{border-color:var(--red)!important;box-shadow:0 0 0 3px rgba(220,38,38,0.15)!important;}
   .search-wrap{position:relative;}
@@ -120,11 +122,11 @@
     border-bottom:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
   }
   thead th.th-note{background:rgba(108,99,255,0.85);}
-  thead th.th-note-a1{background:#f87171;color:#1a1a2e;}
-  thead th.th-note-b1{background:#fb923c;color:#1a1a2e;}
-  thead th.th-note-c1{background:#fbbf24;color:#1a1a2e;}
+  thead th.th-note-a1{background:#f87171;color:#1a1a2e;font-size:15px;}
+  thead th.th-note-b1{background:#fb923c;color:#1a1a2e;font-size:15px;}
+  thead th.th-note-c1{background:#fbbf24;color:#1a1a2e;font-size:15px;}
   thead th.th-tot{background:#86efac;color:#1a1a2e;}
-  .th-sub{font-size:9px;font-weight:600;color:rgba(0,0,0,0.6);display:block;margin-top:3px;text-transform:none;letter-spacing:0;white-space:normal;line-height:1.3;}
+  .th-sub{font-size:10px;font-weight:600;color:rgba(0,0,0,0.6);display:block;margin-top:3px;text-transform:none;letter-spacing:0;white-space:normal;line-height:1.3;}
   .td-a1{color:#f87171;font-weight:700;}
   .td-b1{color:#fb923c;font-weight:700;}
   .td-c1{color:#fbbf24;font-weight:700;}
@@ -133,7 +135,6 @@
   /* pie chart layout */
   .rep-layout{display:grid;grid-template-columns:1fr 240px;gap:16px;align-items:start;}
   .pie-card{background:var(--surface);border:1.5px solid var(--border);border-radius:16px;padding:20px;box-shadow:var(--shadow);text-align:center;}
-  .pie-title{font-size:11px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--accent);margin-bottom:16px;}
   .pie-legend{margin-top:14px;display:flex;flex-direction:column;gap:7px;}
   .pie-leg-row{display:flex;align-items:center;justify-content:space-between;font-size:13px;font-weight:600;}
   .pie-leg-dot{width:12px;height:12px;border-radius:3px;flex-shrink:0;margin-right:8px;}
@@ -143,11 +144,8 @@
   tbody tr:nth-child(even){background:#f8f8fd;}
   tbody tr:hover{background:#eeeeff;}
   .td-zero{color:var(--text-dim);}
-  .td-tot{font-weight:800;color:var(--accent);}
-  .badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:12px;font-weight:800;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;}
   .empty{text-align:center;padding:48px;color:var(--text-muted);font-size:15px;font-weight:600;}
-  tbody tr:nth-child(even){background:#f8f8fd;}
-  #s-rep{width:100vw;position:relative;left:50%;right:50%;margin-left:-50vw;margin-right:-50vw;padding:0 16px;}
+  #s-rep{width:100vw;position:relative;left:50%;right:50%;margin-left:-50vw;margin-right:-50vw;padding:0 40px;}
 </style>
 </head>
 <body>
@@ -225,7 +223,7 @@
         </div>
         <div class="fg">
           <label>Tipologia Nota <span style="color:var(--red)">*</span></label>
-          <select id="fnote"><option value="">— nessuna —</option></select>
+          <select id="fnote" onchange="colorNote(this)"><option value="">— nessuna —</option></select>
           <span class="field-err" id="err-note"></span>
         </div>
       </div>
@@ -255,6 +253,7 @@
       <div class="rep-layout">
         <div class="table-wrap">
           <table>
+            <colgroup id="tbl-cols"></colgroup>
             <thead id="tbl-head"></thead>
             <tbody id="tb"><tr><td class="empty">Caricamento dati...</td></tr></tbody>
           </table>
@@ -466,6 +465,14 @@ function clearSrch(type){
 }
 
 // NOTE SELECT
+function colorNote(sel){
+  sel.className='';
+  var v=sel.value.toUpperCase();
+  if(v==='A1')sel.className='select-a1';
+  else if(v==='B1')sel.className='select-b1';
+  else if(v==='C1')sel.className='select-c1';
+}
+
 function fillNote(data,skip){
   var s=document.getElementById('fnote');
   s.innerHTML='<option value="">— nessuna —</option>';
@@ -545,21 +552,26 @@ function getNoteThClass(cod){
 
 function renderHead(){
   var ni=getNoteIndices();
-  var totIdx=rHeaders.indexOf('Totale');
   var h='<tr>';
+  var cols='';
   for(var i=0;i<rHeaders.length;i++){
     var col=rHeaders[i];
-    if(col==='Totale'){h+='<th class="th-tot">Totale</th>';continue;}
-    if(isHidden(col))continue;
+    if(isHidden(col)&&col!=='Totale')continue;
+    if(col==='Data'){h+='<th>'+col+'</th>';cols+='<col style="width:90px">';continue;}
+    if(col==='Totale'){h+='<th class="th-tot">Totale</th>';cols+='<col style="width:70px">';continue;}
     if(ni.indexOf(i)>=0){
       var desc=noteDescMap[col]||'';
       h+='<th class="'+getNoteThClass(col)+'">'+col+(desc?'<span class="th-sub">'+desc+'</span>':'')+'</th>';
+      cols+='<col style="width:80px">';
+    } else if(col==='Articolo'){
+      h+='<th>'+col+'</th>';cols+='<col style="width:140px">';
     } else {
-      h+='<th>'+col+'</th>';
+      h+='<th>'+col+'</th>';cols+='<col>';
     }
   }
   h+='</tr>';
   document.getElementById('tbl-head').innerHTML=h;
+  document.getElementById('tbl-cols').innerHTML=cols;
 }
 
 function filtra(){
