@@ -158,7 +158,8 @@
   .note-label{font-size:15px;font-weight:800;letter-spacing:1px;text-align:center;}
   .note-desc{font-size:12px;font-weight:500;color:var(--text-muted);line-height:1.3;}
   .note-qty{width:100%;text-align:center;font-size:15px;font-weight:700;padding:8px 6px;}
-  #s-rep{width:100vw;position:relative;left:50%;right:50%;margin-left:-50vw;margin-right:-50vw;padding:0 40px;}
+  #s-ins{max-width:800px;margin:0 auto;}
+  #s-rep,#s-sto{width:100vw;position:relative;left:50%;right:50%;margin-left:-50vw;margin-right:-50vw;padding:0 40px;}
 </style>
 </head>
 <body>
@@ -183,6 +184,7 @@
   <div class="tabs">
     <button class="tab on" onclick="show('ins')">Inserimento</button>
     <button class="tab" onclick="show('rep')">Riepilogo</button>
+    <button class="tab" onclick="show('sto')">Storico</button>
   </div>
 
   <div id="alert" class="alert"></div>
@@ -268,10 +270,31 @@
     </div>
   </div>
 
+  <!-- STORICO -->
+  <div id="s-sto" class="sec">
+    <div class="card-plain">
+      <div class="filters">
+        <input type="text" id="sto-rep" placeholder="Linea..." oninput="filtraSto()"/>
+        <input type="text" id="sto-art" placeholder="Desc. articolo..." oninput="filtraSto()"/>
+        <input type="date" id="sto-da" onchange="filtraSto()" title="Dal"/>
+        <input type="date" id="sto-al" onchange="filtraSto()" title="Al"/>
+        <button class="btn btn-green" style="padding:9px 18px;font-size:13px" onclick="loadSto()">↻ Aggiorna</button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead id="sto-head"></thead>
+          <tbody id="sto-body"><tr><td class="empty">Caricamento storico...</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
 </div>
 <script>
-var BASE='https://script.google.com/macros/s/AKfycbzlL1w1-9dYohC_iaAMt3oCuiDGhxdpvBIsDd3nv15DgURHZKSMCFz2Y7gARixD-HnzBQ/exec';
+var BASE='https://script.google.com/macros/s/AKfycbwM4eNAZ7mB2rJDX-FYZzyPo4QydxKOkW31fHbeNALRuQFwLPk8Sxg2aYq8Qa3QRWLUbA/exec';
 var tid=0,allRows=[],rHeaders=[],noteDescMap={},artDescMap={},dropData={art:[],rep:[]};
+var stoRows=[],stoHeaders=[];
+var stoRows=[],stoHeaders=[];
 
 // Clock
 setInterval(function(){
@@ -678,12 +701,78 @@ function showAlert(t,c){
   setTimeout(function(){e.style.display='none';},5000);
 }
 
+function loadSto(){
+  document.getElementById('sto-body').innerHTML='<tr><td class="empty">Caricamento...</td></tr>';
+  gp('read_storico',{},function(d){
+    if(!d.ok){document.getElementById('sto-body').innerHTML='<tr><td class="empty">Errore: '+(d.error||'')+'</td></tr>';return;}
+    stoHeaders=d.headers||[];
+    stoRows=(d.rows||[]).filter(function(r){return r[0];});
+    renderStoHead();
+    filtraSto();
+  });
+}
+
+function renderStoHead(){
+  var artIdx=stoHeaders.indexOf('Articolo');
+  var ni=[];
+  for(var i=artIdx>=0?artIdx+1:4;i<stoHeaders.length;i++){
+    if(stoHeaders[i]==='Totale'||isHidden(stoHeaders[i])||isNoteLibere(stoHeaders[i]))continue;
+    ni.push(i);
+  }
+  var h='<tr>';
+  for(var i=0;i<stoHeaders.length;i++){
+    var col=stoHeaders[i];
+    if(isHidden(col))continue;
+    if(col==='Totale'){h+='<th class="th-tot">Totale</th>';continue;}
+    if(isNoteLibere(col)){h+='<th style="background:#e0e7ff;color:#1a1a2e;">Note Libere</th>';continue;}
+    if(ni.indexOf(i)>=0){var desc=noteDescMap[col]||'';h+='<th class="'+getNoteThClass(col)+'">'+col+(desc?'<span class="th-sub">'+desc+'</span>':'')+'</th>';}
+    else{h+='<th>'+col+'</th>';}
+  }
+  h+='</tr>';
+  document.getElementById('sto-head').innerHTML=h;
+}
+
+function filtraSto(){
+  var rep=document.getElementById('sto-rep').value.toLowerCase();
+  var art=document.getElementById('sto-art').value.toLowerCase();
+  var da=document.getElementById('sto-da').value;
+  var al=document.getElementById('sto-al').value;
+  var artIdx=stoHeaders.indexOf('Articolo');
+  var ni=[];
+  for(var i=artIdx>=0?artIdx+1:4;i<stoHeaders.length;i++){
+    if(stoHeaders[i]==='Totale'||isHidden(stoHeaders[i])||isNoteLibere(stoHeaders[i]))continue;
+    ni.push(i);
+  }
+  var f=stoRows.filter(function(r){
+    if(rep&&String(r[1]||'').toLowerCase().indexOf(rep)<0)return false;
+    if(art){var cod=String(r[artIdx>=0?artIdx:2]||'');var desc=(artDescMap[cod]||'').toLowerCase();if(desc.indexOf(art)<0&&cod.toLowerCase().indexOf(art)<0)return false;}
+    if(da||al){var iso=toISO(formatDate(r[0]));if(da&&iso<da)return false;if(al&&iso>al)return false;}
+    return true;
+  });
+  var tb=document.getElementById('sto-body');
+  if(!f.length){tb.innerHTML='<tr><td colspan="'+(stoHeaders.filter(function(h){return!isHidden(h);}).length)+'" class="empty">Nessun dato</td></tr>';return;}
+  tb.innerHTML=f.map(function(r){
+    var html='<tr>';
+    for(var i=0;i<stoHeaders.length;i++){
+      var col=stoHeaders[i],val=r[i]!==undefined?r[i]:'';
+      if(isHidden(col))continue;
+      if(col==='Data'){html+='<td>'+formatDate(val)+'</td>';continue;}
+      if(col==='Totale'){html+='<td class="td-tot"><span class="badge">'+(parseFloat(val)||0)+'</span></td>';continue;}
+      if(isNoteLibere(col)){html+='<td style="color:var(--text-muted);font-size:12px;text-align:left;">'+String(val||'')+'</td>';continue;}
+      if(ni.indexOf(i)>=0){var n=parseFloat(val)||0,u=col.toUpperCase(),tdcls=n===0?'td-zero':(u==='A1'?'td-a1':u==='B1'?'td-b1':u==='C1'?'td-c1':u==='D1'?'td-d1':'');html+='<td class="'+tdcls+'">'+(n===0?'—':n)+'</td>';continue;}
+      html+='<td>'+String(val)+'</td>';
+    }
+    return html+'</tr>';
+  }).join('');
+}
+
 function show(n){
   document.querySelectorAll('.sec').forEach(function(s){s.classList.remove('on');});
   document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('on');});
   document.getElementById('s-'+n).classList.add('on');
-  document.querySelectorAll('.tab')[{ins:0,rep:1}[n]].classList.add('on');
+  document.querySelectorAll('.tab')[{ins:0,rep:1,sto:2}[n]].classList.add('on');
   if(n==='rep')loadR();
+  if(n==='sto')loadSto();
 }
 
 // Auto-refresh ogni 5 minuti
