@@ -373,7 +373,6 @@ function buildDrop(type,data,skip){
       artCollMap[nome]=coll;
     }
     var label=desc?nome+' — '+desc:nome;
-    if(coll) label+=' ['+coll+']';
     dropData[type].push({val:nome,label:label,coll:coll});
   }
 }
@@ -382,14 +381,15 @@ function filterDrop(type){
   var list=document.getElementById('drop-'+type);
   var items=dropData[type].filter(function(d){return d.label.toLowerCase().indexOf(txt)>=0;});
   list.innerHTML=items.length?items.map(function(d){
-    var baseLabel=d.val+(artDescMap[d.val]?' — '+artDescMap[d.val]:'');
-    // Evidenzia collezione in fucsia solo se presente e non vuota
-    if(type==='art'&&d.coll&&d.coll.trim()){
-      baseLabel+=' <span style="color:#e91e8c;font-weight:700;">['+d.coll+']</span>';
-    }
     var safe=txt.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
-    var hl=safe?baseLabel.replace(new RegExp('('+safe+')','gi'),'<mark>$1</mark>'):baseLabel;
-    return '<div class="dropdown-item" onmousedown="selectDrop(\''+type+'\',\''+d.val.replace(/\\/g,'\\\\').replace(/'/g,'\\\'')+'\')">'+ hl+'</div>';
+    // Costruisci testo base senza collezione
+    var desc=artDescMap[d.val]||'';
+    var baseText=type==='rep'?(d.val+(desc?' — '+desc:'')):(d.val+(desc?' — '+desc:''));
+    // Evidenzia match nel testo base
+    var hlText=safe?baseText.replace(new RegExp('('+safe+')','gi'),'<mark>$1</mark>'):baseText;
+    // Aggiungi collezione in fucsia DOPO l'highlight, solo se presente
+    var coll=(type==='art'&&d.coll&&d.coll.trim())?'<span style="color:#e91e8c;font-weight:700;"> ['+d.coll+']</span>':'';
+    return '<div class="dropdown-item" onmousedown="selectDrop(\''+type+'\',\''+d.val.replace(/\\/g,'\\\\').replace(/'/g,'\\\'')+'\'">'+hlText+coll+'</div>';
   }).join(''):'<div class="dropdown-item" style="color:var(--text-dim)">Nessun risultato</div>';
   list.classList.add('open');
   document.getElementById('f'+type).value='';
