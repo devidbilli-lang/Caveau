@@ -538,6 +538,8 @@ function renderBarChart(rows){
     }).join('');
   }catch(e){console.error('renderBarChart error:',e);}
 }
+
+function clearErrors(){
   ['data','rep','art','note'].forEach(function(f){
     var el=document.getElementById('err-'+f);
     if(el){el.textContent='';el.classList.remove('show');}
