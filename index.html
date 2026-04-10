@@ -125,7 +125,13 @@
 
   <header>
     <div class="brand">
-      <div class="brand-icon">CV</div>
+    <div class="brand-icon">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="3" y="11" width="18" height="11" rx="2" fill="white" opacity="0.9"/>
+          <path d="M7 11V7a5 5 0 0 1 10 0v4" stroke="white" stroke-width="2.2" stroke-linecap="round" fill="none"/>
+          <circle cx="12" cy="16" r="1.5" fill="#6c63ff"/>
+        </svg>
+      </div>
       <div>
         <div class="brand-name">Caveau</div>
         <div class="brand-sub">Gestione Prodotto Finito</div>
@@ -209,6 +215,11 @@
       </div>
     </div>
 
+    <div class="card" id="linechart-card" style="display:none;margin-bottom:18px;">
+      <div class="card-title" id="linechart-title">Andamento B1 nel Tempo</div>
+      <canvas id="lineChart" height="90"></canvas>
+    </div>
+
     <div class="card">
       <div class="card-title">Filtri</div>
       <div class="filters">
@@ -235,13 +246,25 @@ var allRows = [];
 var rHeaders = [];      // es: ['Data','Reparto','Articolo','A1','B1','C1','Totale']
 var noteDescMap = {};   // es: { 'A1': 'Approvato', 'B1': 'Non Conforme', ... }
 var dropData = {art:[],rep:[]};
+var lineChartInst = null;
 
 setInterval(function(){
   var n=new Date();
   document.getElementById('clk').textContent=n.getHours().toString().padStart(2,'0')+':'+n.getMinutes().toString().padStart(2,'0');
 },1000);
 
-document.getElementById('fdata').value=new Date().toISOString().slice(0,10);
+function todayLocal(){
+  var n=new Date();
+  return n.getFullYear()+'-'+(n.getMonth()+1).toString().padStart(2,'0')+'-'+n.getDate().toString().padStart(2,'0');
+}
+function formatDate(s){
+  var d=String(s).slice(0,10);
+  if(!d||d.length<10)return d;
+  var p=d.split('-');
+  return p.length===3?p[2]+'/'+p[1]+'/'+p[0]:d;
+}
+
+document.getElementById('fdata').value=todayLocal();
 
 function setConn(s,t){var e=document.getElementById('conn');e.className='conn-pill '+s;document.getElementById('conn-txt').textContent=t;}
 
@@ -369,6 +392,7 @@ function renderHead(){
   var h='<tr>';
   // Data, Reparto, Articolo
   h+='<th>Data</th><th>Reparto</th><th>Articolo</th>';
+  // (Quantità rimossa)
   // Colonne nota con descrizione sotto
   noteIdx.forEach(function(i){
     var cod=rHeaders[i];
@@ -412,6 +436,7 @@ function filtra(){
   var barData=Object.keys(artMap).map(function(k){return{art:k,qty:artMap[k]};});
   barData.sort(function(a,b){return b.qty-a.qty;});
   renderChart(barData);
+  renderLineChart(f);
 
   // Tabella
   var tb=document.getElementById('tb');
@@ -422,7 +447,7 @@ function filtra(){
 
   tb.innerHTML=f.map(function(r){
     var html='<tr>';
-    html+='<td>'+String(r[0]).slice(0,10)+'</td>';
+    html+='<td>'+formatDate(r[0])+'</td>';
     html+='<td>'+String(r[1]||'')+'</td>';
     html+='<td>'+String(r[2]||'')+'</td>';
     noteIdx.forEach(function(i){
@@ -444,7 +469,6 @@ function renderChart(data){
   var max=data[0].qty||1;
   el.innerHTML=data.map(function(d){
     var pct=Math.round((d.qty/max)*100);
-    // Etichetta: mostra solo la parte descrittiva se formato COD.XX.YY
     var lbl=d.art;
     return '<div class="bar-row">'+
       '<div class="bar-label" title="'+lbl+'">'+lbl+'</div>'+
@@ -452,6 +476,94 @@ function renderChart(data){
       '<div class="bar-val">'+d.qty+'</div>'+
       '</div>';
   }).join('');
+}
+
+function renderLineChart(rows){
+  // Trova la prima colonna nota con dati (preferisce B1)
+  var b1idx = rHeaders.indexOf('B1');
+  if(b1idx<0){
+    // cerca prima colonna nota con almeno un valore
+    for(var i=3;i<rHeaders.length;i++){
+      if(rHeaders[i]==='Totale')break;
+      var hasVal=rows.some(function(r){return parseFloat(r[i])||0;});
+      if(hasVal){b1idx=i;break;}
+    }
+  }
+  var card=document.getElementById('linechart-card');
+  if(b1idx<0||!rows.length){card.style.display='none';return;}
+  var colName=rHeaders[b1idx];
+  var desc=noteDescMap[colName]||'';
+  document.getElementById('linechart-title').textContent='Andamento '+colName+(desc?' — '+desc:'')+' nel Tempo';
+
+  // Aggrega per data
+  var dateMap={};
+  rows.forEach(function(r){
+    var d=formatDate(r[0]);
+    if(!d)return;
+    dateMap[d]=(dateMap[d]||0)+(parseFloat(r[b1idx])||0);
+  });
+  var dates=Object.keys(dateMap).sort(function(a,b){
+    var pa=a.split('/'),pb=b.split('/');
+    var da=new Date(pa[2],pa[1]-1,pa[0]),db=new Date(pb[2],pb[1]-1,pb[0]);
+    return da-db;
+  });
+  var vals=dates.map(function(d){return dateMap[d];});
+  if(!dates.length){card.style.display='none';return;}
+
+  card.style.display='block';
+  var canvas=document.getElementById('lineChart');
+  var ctx=canvas.getContext('2d');
+  var W=canvas.parentElement.offsetWidth-48;
+  var H=120;
+  canvas.width=W; canvas.height=H;
+  ctx.clearRect(0,0,W,H);
+
+  var pad={l:30,r:20,t:10,b:28};
+  var maxV=Math.max.apply(null,vals)||1;
+  var minV=0;
+  var xStep=(W-pad.l-pad.r)/(dates.length-1||1);
+
+  function px(i){return pad.l+i*xStep;}
+  function py(v){return pad.t+(H-pad.t-pad.b)*(1-(v-minV)/(maxV-minV));}
+
+  // Grid lines
+  ctx.strokeStyle='rgba(108,99,255,0.1)';
+  ctx.lineWidth=1;
+  [0,0.25,0.5,0.75,1].forEach(function(f){
+    var y=pad.t+(H-pad.t-pad.b)*f;
+    ctx.beginPath();ctx.moveTo(pad.l,y);ctx.lineTo(W-pad.r,y);ctx.stroke();
+  });
+
+  // Line gradient
+  var grad=ctx.createLinearGradient(0,0,W,0);
+  grad.addColorStop(0,'#6c63ff');grad.addColorStop(1,'#4f46e5');
+  ctx.strokeStyle=grad;ctx.lineWidth=2.5;ctx.lineJoin='round';ctx.lineCap='round';
+  ctx.beginPath();
+  dates.forEach(function(d,i){ctx.lineTo(px(i),py(vals[i]));});
+  ctx.stroke();
+
+  // Fill
+  var fillGrad=ctx.createLinearGradient(0,pad.t,0,H-pad.b);
+  fillGrad.addColorStop(0,'rgba(108,99,255,0.25)');fillGrad.addColorStop(1,'rgba(108,99,255,0)');
+  ctx.fillStyle=fillGrad;
+  ctx.beginPath();
+  ctx.moveTo(px(0),H-pad.b);
+  dates.forEach(function(d,i){ctx.lineTo(px(i),py(vals[i]));});
+  ctx.lineTo(px(dates.length-1),H-pad.b);
+  ctx.closePath();ctx.fill();
+
+  // Dots + labels
+  dates.forEach(function(d,i){
+    ctx.beginPath();ctx.arc(px(i),py(vals[i]),4,0,Math.PI*2);
+    ctx.fillStyle='#6c63ff';ctx.fill();
+    ctx.strokeStyle='#0d0d1a';ctx.lineWidth=2;ctx.stroke();
+    // val above dot
+    ctx.fillStyle='#a5b4fc';ctx.font='bold 10px Montserrat,sans-serif';ctx.textAlign='center';
+    ctx.fillText(vals[i],px(i),py(vals[i])-8);
+    // date below
+    ctx.fillStyle='#6b6b8a';ctx.font='9px Montserrat,sans-serif';
+    ctx.fillText(d,px(i),H-6);
+  });
 }
 
 // SALVA
@@ -470,7 +582,7 @@ function salva(){
 }
 
 function resetF(){
-  document.getElementById('fdata').value=new Date().toISOString().slice(0,10);
+  document.getElementById('fdata').value=todayLocal();
   clearSrch('rep');clearSrch('art');
   document.getElementById('fqta').value='';
   document.getElementById('fnote').value='';
