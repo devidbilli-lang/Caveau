@@ -485,22 +485,22 @@ function salva(){
   var noteEntries=[];
   Object.keys(noteDescMap).forEach(function(cod){
     var el=document.getElementById('qty-'+cod);
-    if(el){var v=parseFloat(el.value)||0;if(v>0)noteEntries.push({cod:cod,qty:v});}
+    if(el){var v=parseFloat(el.value)||0;if(v>0)noteEntries.push(cod+':'+v);}
   });
   if(noteEntries.length===0){setError('note','Inserisci almeno una quantità');ok=false;}
   if(!ok)return;
 
-  // Salva ogni nota separatamente
-  var pending=noteEntries.length,hasError=false;
-  noteEntries.forEach(function(entry){
-    gp('write',{data:data,reparto:rep,articolo:art,quantita:entry.qty,note:entry.cod,note_libere:nlib,foglio:'Riepilogo'},function(r){
-      pending--;
-      if(!r.ok)hasError=true;
-      if(pending===0){
-        if(hasError)showAlert('Errore nel salvataggio','err');
-        else{showAlert('✓ Movimento salvato!','ok');resetF();setTimeout(loadR,1500);}
-      }
-    });
+  // Manda tutto in una sola chiamata
+  gp('write',{
+    data:data,
+    reparto:rep,
+    articolo:art,
+    note:noteEntries.join(','),
+    note_libere:nlib,
+    foglio:'Riepilogo'
+  },function(r){
+    if(r.ok){showAlert('✓ Movimento salvato!','ok');resetF();setTimeout(loadR,1500);}
+    else{showAlert('Errore: '+(r.error||'sconosciuto'),'err');}
   });
 }
 function clearSrch(type){
