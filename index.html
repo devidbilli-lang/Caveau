@@ -184,7 +184,7 @@
     <div class="card">
       <div class="card-title">Nuovo Movimento</div>
 
-      <!-- Riga 1: Data | Reparto -->
+      <!-- Riga 1: Data | Tipologia Nota -->
       <div class="grid" style="margin-bottom:16px">
         <div class="fg">
           <label>Data <span style="color:var(--red)">*</span></label>
@@ -192,19 +192,13 @@
           <span class="field-err" id="err-data"></span>
         </div>
         <div class="fg">
-          <label>Reparto <span style="color:var(--red)">*</span></label>
-          <div class="search-wrap">
-            <input type="text" id="frep-txt" placeholder="Cerca reparto..." autocomplete="off"
-              oninput="filterDrop('rep')" onfocus="openDrop('rep')" onblur="blurDrop('rep')"/>
-            <button class="clear-btn" onmousedown="clearSrch('rep')">✕</button>
-            <div class="dropdown-list" id="drop-rep"></div>
-          </div>
-          <input type="hidden" id="frep"/>
-          <span class="field-err" id="err-rep"></span>
+          <label>Tipologia Nota <span style="color:var(--red)">*</span></label>
+          <select id="fnote" onchange="colorNote(this)"><option value="">— nessuna —</option></select>
+          <span class="field-err" id="err-note"></span>
         </div>
       </div>
 
-      <!-- Riga 2: Articolo | Quantità | Tipologia Nota -->
+      <!-- Riga 2: Articolo | Quantità | Reparto -->
       <div class="grid-3" style="margin-bottom:16px">
         <div class="fg">
           <label>Articolo <span style="color:var(--red)">*</span></label>
@@ -223,9 +217,15 @@
           <span class="field-err" id="err-qta"></span>
         </div>
         <div class="fg">
-          <label>Tipologia Nota <span style="color:var(--red)">*</span></label>
-          <select id="fnote" onchange="colorNote(this)"><option value="">— nessuna —</option></select>
-          <span class="field-err" id="err-note"></span>
+          <label>Reparto <span style="color:var(--red)">*</span></label>
+          <div class="search-wrap">
+            <input type="text" id="frep-txt" placeholder="Cerca reparto..." autocomplete="off"
+              oninput="filterDrop('rep')" onfocus="openDrop('rep')" onblur="blurDrop('rep')"/>
+            <button class="clear-btn" onmousedown="clearSrch('rep')">✕</button>
+            <div class="dropdown-list" id="drop-rep"></div>
+          </div>
+          <input type="hidden" id="frep"/>
+          <span class="field-err" id="err-rep"></span>
         </div>
       </div>
 
