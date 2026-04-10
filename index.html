@@ -120,9 +120,9 @@
     border-bottom:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
   }
   thead th.th-note{background:rgba(108,99,255,0.85);}
-  thead th.th-note-a1{background:#dc2626;}
-  thead th.th-note-b1{background:#ea580c;}
-  thead th.th-note-c1{background:#ea580c;}
+  thead th.th-note-a1{background:#f87171;}
+  thead th.th-note-b1{background:#fb923c;}
+  thead th.th-note-c1{background:#fbbf24;color:#1a1a2e;}
   thead th.th-tot{background:rgba(79,70,229,1);}
   .th-sub{font-size:9px;font-weight:500;color:rgba(255,255,255,0.8);display:block;margin-top:3px;text-transform:none;letter-spacing:0;white-space:normal;line-height:1.3;}
   .opt-a1{color:#dc2626;font-weight:700;}
@@ -530,14 +530,15 @@ function getNoteIndices(){
   return r;
 }
 
-var NOTE_COLORS={'A1':'#dc2626','B1':'#ea580c','C1':'#ea580c'};
+var NOTE_COLORS={'A1':'#f87171','B1':'#fb923c','C1':'#fbbf24'};
 var NOTE_DEFAULT='#6c63ff';
 
 function getNoteColor(cod){return NOTE_COLORS[cod.toUpperCase()]||NOTE_DEFAULT;}
 function getNoteThClass(cod){
   var u=cod.toUpperCase();
   if(u==='A1')return'th-note-a1';
-  if(u==='B1'||u==='C1')return'th-note-b1';
+  if(u==='B1')return'th-note-b1';
+  if(u==='C1')return'th-note-c1';
   return'th-note';
 }
 
