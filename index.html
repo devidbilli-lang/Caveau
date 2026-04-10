@@ -382,12 +382,12 @@ function filterDrop(type){
   var list=document.getElementById('drop-'+type);
   var items=dropData[type].filter(function(d){return d.label.toLowerCase().indexOf(txt)>=0;});
   list.innerHTML=items.length?items.map(function(d){
-    var safe=txt.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
-    var baseLabel=d.label;
-    // Evidenzia collezione in fucsia se presente
-    if(type==='art'&&d.coll){
-      baseLabel=baseLabel.replace('['+d.coll+']','<span style="color:#e91e8c;font-weight:700;">['+d.coll+']</span>');
+    var baseLabel=d.val+(artDescMap[d.val]?' — '+artDescMap[d.val]:'');
+    // Evidenzia collezione in fucsia solo se presente e non vuota
+    if(type==='art'&&d.coll&&d.coll.trim()){
+      baseLabel+=' <span style="color:#e91e8c;font-weight:700;">['+d.coll+']</span>';
     }
+    var safe=txt.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
     var hl=safe?baseLabel.replace(new RegExp('('+safe+')','gi'),'<mark>$1</mark>'):baseLabel;
     return '<div class="dropdown-item" onmousedown="selectDrop(\''+type+'\',\''+d.val.replace(/\\/g,'\\\\').replace(/'/g,'\\\'')+'\')">'+ hl+'</div>';
   }).join(''):'<div class="dropdown-item" style="color:var(--text-dim)">Nessun risultato</div>';
