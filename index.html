@@ -63,7 +63,7 @@
   .alert.inf{background:#eff6ff;color:#3b82f6;border:1.5px solid #93c5fd;}
 
   /* CARD */
-  .card{background:#f2f2f5;border:2px solid var(--accent);border-radius:16px;padding:24px;margin-bottom:18px;box-shadow:0 0 32px 6px rgba(242,110,255,0.22);}
+  .card{background:#f2f2f5;border:2.5px solid #f26eff;border-radius:16px;padding:24px;margin-bottom:18px;box-shadow:0 0 16px 4px rgba(242,110,255,0.6),0 0 48px 12px rgba(242,110,255,0.25),inset 0 0 0 1px rgba(242,110,255,0.15);}
   .card-title{font-size:12px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--accent);margin-bottom:20px;text-align:center;display:flex;align-items:center;justify-content:center;gap:10px;}
   .card-title::before,.card-title::after{content:'';flex:1;height:1.5px;background:rgba(242,110,255,0.3);}
 
@@ -80,7 +80,7 @@
   }
   input:focus,select:focus,textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-glow);}
   select option{background:#fff;}
-  textarea{resize:vertical;min-height:80px;text-align:left;}
+  textarea{resize:vertical;min-height:80px;text-align:center;}
 
   .card-plain{background:var(--surface);border:1.5px solid var(--border);border-radius:16px;padding:24px;margin-bottom:18px;box-shadow:var(--shadow);}
   .card-plain .card-title::before,.card-plain .card-title::after{content:'';flex:1;height:1.5px;background:var(--border);}
@@ -91,7 +91,7 @@
   .field-err.show{display:block;}
   .input-err input,.input-err select{border-color:var(--red)!important;box-shadow:0 0 0 3px rgba(220,38,38,0.15)!important;}
   .search-wrap{position:relative;}
-  .search-wrap input{padding-right:36px;text-align:left;}
+  .search-wrap input{padding-right:36px;text-align:center;}
   .clear-btn{position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:15px;padding:2px 4px;}
   .clear-btn:hover{color:var(--text);}
   .dropdown-list{position:absolute;top:calc(100% + 4px);left:0;right:0;background:#fff;border:1.5px solid var(--accent);border-radius:10px;max-height:220px;overflow-y:auto;z-index:100;display:none;box-shadow:0 8px 24px rgba(242,110,255,0.12);}
@@ -211,7 +211,7 @@
           <div class="fg" style="margin-bottom:14px">
             <label>Articolo <span style="color:var(--red)">*</span></label>
             <div class="search-wrap">
-              <input type="text" id="fart-txt" placeholder="Cerca articolo..." autocomplete="off"
+              <input type="text" id="fart-txt" placeholder="Cerca articolo..." autocomplete="off" style="text-align:center;"
                 oninput="filterDrop('art')" onfocus="openDrop('art')" onblur="blurDrop('art')"/>
               <button class="clear-btn" onmousedown="clearSrch('art')">✕</button>
               <div class="dropdown-list" id="drop-art"></div>
