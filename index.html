@@ -231,7 +231,7 @@
       <div class="card-title">Filtri</div>
       <div class="filters">
         <input type="text" id="r-rep" placeholder="🏭 Reparto..." oninput="filtra()"/>
-        <input type="text" id="r-art" placeholder="📦 Articolo..." oninput="filtra()"/>
+        <input type="text" id="r-art" placeholder="📦 Desc. articolo..." oninput="filtra()"/>
         <input type="date" id="rda" onchange="filtra()" title="Dal"/>
         <input type="date" id="ral" onchange="filtra()" title="Al"/>
         <button class="btn btn-green" style="padding:9px 18px;font-size:13px" onclick="loadR()">↻ Aggiorna</button>
@@ -248,7 +248,7 @@
 </div>
 <script>
 var BASE='https://script.google.com/macros/s/AKfycbwEdjaFi9jcYzzG-w5bfLye4jwOrSmikKSRXghnIUSJo9tvKGCQfyI4OTghVPqo0IdBqA/exec';
-var tid=0,allRows=[],rHeaders=[],noteDescMap={},dropData={art:[],rep:[]};
+var tid=0,allRows=[],rHeaders=[],noteDescMap={},artDescMap={},dropData={art:[],rep:{}};
 var NOTE_COLORS=['#6c63ff','#10b981','#f59e0b','#ef4444','#06b6d4','#a855f7'];
 
 // Clock
@@ -300,7 +300,9 @@ function buildDrop(type,data,skip){
   dropData[type]=[];
   for(var i=skip?1:0;i<data.length;i++){
     if(!data[i][0])continue;
-    dropData[type].push({val:String(data[i][0]),label:data[i][1]?data[i][0]+' — '+data[i][1]:String(data[i][0])});
+    var cod=String(data[i][0]),desc=data[i][1]?String(data[i][1]):'';
+    dropData[type].push({val:cod,label:desc?cod+' — '+desc:cod});
+    if(type==='art') artDescMap[cod]=desc;
   }
 }
 function filterDrop(type){
@@ -409,7 +411,11 @@ function filtra(){
 
   var f=allRows.filter(function(r){
     if(rep&&String(r[1]||'').toLowerCase().indexOf(rep)<0)return false;
-    if(art&&String(r[2]||'').toLowerCase().indexOf(art)<0)return false;
+    if(art){
+      var cod=String(r[2]||'');
+      var desc=(artDescMap[cod]||cod).toLowerCase();
+      if(desc.toLowerCase().indexOf(art)<0&&cod.toLowerCase().indexOf(art)<0)return false;
+    }
     var d=formatDate(r[0]);
     // confronto con filtri data (converti GG/MM/AAAA → AAAA-MM-GG per confronto)
     if(da||al){
