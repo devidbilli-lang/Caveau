@@ -248,20 +248,23 @@ function todayLocal(){
   return n.getFullYear()+'-'+(n.getMonth()+1).toString().padStart(2,'0')+'-'+n.getDate().toString().padStart(2,'0');
 }
 
-// Formatta data → GG/MM/AAAA gestendo tutti i formati Sheets
+// Formatta data → GG/MM/AAAA gestendo UTC ISO da Sheets
 function formatDate(v){
   if(!v&&v!==0)return'';
   var s=String(v);
+  // Formato ISO con UTC es: 2026-04-09T22:00:00.000Z → aggiungi offset locale
+  if(s.indexOf('T')>0){
+    var d=new Date(s);
+    var local=new Date(d.getTime()-d.getTimezoneOffset()*60000);
+    var p=local.toISOString().slice(0,10).split('-');
+    return p[2]+'/'+p[1]+'/'+p[0];
+  }
   // Formato Date(AAAA,MM,GG) da Sheets
   var m=s.match(/Date\((\d+),(\d+),(\d+)\)/);
   if(m)return String(m[3]).padStart(2,'0')+'/'+String(parseInt(m[2])+1).padStart(2,'0')+'/'+m[1];
-  // Formato ISO AAAA-MM-GG
-  var iso=s.slice(0,10);
-  var p=iso.split('-');
-  if(p.length===3&&p[0].length===4&&parseInt(p[0])>2000)
-    return p[2].padStart(2,'0')+'/'+p[1].padStart(2,'0')+'/'+p[0];
-  // Già GG/MM/AAAA
-  if(s.match(/^\d{2}\/\d{2}\/\d{4}/))return s.slice(0,10);
+  // Formato ISO AAAA-MM-GG senza ora
+  var p=s.slice(0,10).split('-');
+  if(p.length===3&&p[0].length===4)return p[2].padStart(2,'0')+'/'+p[1].padStart(2,'0')+'/'+p[0];
   return s.slice(0,10);
 }
 
