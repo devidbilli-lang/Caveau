@@ -398,7 +398,7 @@ function renderPie(rows){
     if(pct>5){
       ctx.fillStyle='#fff';ctx.font='bold 13px Montserrat,sans-serif';
       ctx.textAlign='center';ctx.textBaseline='middle';
-      ctx.fillText(pct+'%',cx+Math.cos(mid)*58,cy+Math.sin(mid)*58);
+      ctx.fillText(totals[k],cx+Math.cos(mid)*58,cy+Math.sin(mid)*58);
     }
     startAngle+=slice;
   });
@@ -406,10 +406,7 @@ function renderPie(rows){
   ctx.fillStyle='#1a1a2e';ctx.font='bold 18px Montserrat,sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';
   ctx.fillText(total,cx,cy-8);
   ctx.font='600 10px Montserrat,sans-serif';ctx.fillStyle='#6b6b8a';ctx.fillText('TOT',cx,cy+10);
-  legend.innerHTML=keys.map(function(k){
-    var col=getNoteColor(k),desc=noteDescMap[k]||k;
-    return '<div class="pie-leg-row"><div class="pie-leg-label"><div class="pie-leg-dot" style="background:'+col+'"></div>'+k+' — '+desc+'</div><div style="font-weight:800;color:'+col+'">'+totals[k]+'</div></div>';
-  }).join('');
+  legend.innerHTML='';
 }
 
 function clearErrors(){
