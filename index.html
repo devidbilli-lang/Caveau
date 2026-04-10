@@ -410,11 +410,15 @@ function loadR(){
   });
 }
 
-var HIDDEN=['note','note libere','note_libere','codice','notes'];
+var HIDDEN=['note','note libere','note_libere','codice','notes','ubicazione'];
 function isHidden(col){return HIDDEN.indexOf(col.toLowerCase())>=0;}
+
 function getNoteIndices(){
   var r=[];
-  for(var i=3;i<rHeaders.length;i++){
+  // Note columns start after Articolo and before Totale
+  var artIdx=rHeaders.indexOf('Articolo');
+  var start=artIdx>=0?artIdx+1:4;
+  for(var i=start;i<rHeaders.length;i++){
     if(rHeaders[i]==='Totale')break;
     if(!isHidden(rHeaders[i]))r.push(i);
   }
@@ -422,17 +426,21 @@ function getNoteIndices(){
 }
 
 function renderHead(){
-  var ni=getNoteIndices(),totIdx=rHeaders.indexOf('Totale');
+  var ni=getNoteIndices();
+  var totIdx=rHeaders.indexOf('Totale');
   var h='<tr>';
-  // Mostra tutte le colonne fino alle note (Data, Linea/Reparto, Articolo, ...)
-  h+='<th>'+( rHeaders[0]||'Data')+'</th>';
-  h+='<th>'+(rHeaders[1]||'Linea')+'</th>';
-  h+='<th>'+(rHeaders[2]||'Articolo')+'</th>';
-  ni.forEach(function(i){
-    var cod=rHeaders[i],desc=noteDescMap[cod]||'';
-    h+='<th class="th-note">'+cod+(desc?'<span class="th-sub">'+desc+'</span>':'')+'</th>';
-  });
-  if(totIdx>=0)h+='<th class="th-tot">Totale</th>';
+  // Mostra tutte le intestazioni dal foglio tranne quelle nascoste e Totale
+  for(var i=0;i<rHeaders.length;i++){
+    var col=rHeaders[i];
+    if(col==='Totale'){h+='<th class="th-tot">Totale</th>';continue;}
+    if(isHidden(col))continue;
+    if(ni.indexOf(i)>=0){
+      var desc=noteDescMap[col]||'';
+      h+='<th class="th-note">'+col+(desc?'<span class="th-sub">'+desc+'</span>':'')+'</th>';
+    } else {
+      h+='<th>'+col+'</th>';
+    }
+  }
   h+='</tr>';
   document.getElementById('tbl-head').innerHTML=h;
 }
@@ -462,21 +470,29 @@ function filtra(){
 
   var tb=document.getElementById('tb');
   if(!f.length){
-    tb.innerHTML='<tr><td colspan="'+(3+ni.length+1)+'" class="empty">Nessun dato trovato</td></tr>';
+    tb.innerHTML='<tr><td colspan="'+rHeaders.filter(function(h){return!isHidden(h);}).length+'" class="empty">Nessun dato trovato</td></tr>';
     return;
   }
+  var ni=getNoteIndices();
+  var totIdx=rHeaders.indexOf('Totale');
   tb.innerHTML=f.map(function(r){
     var html='<tr>';
-    html+='<td>'+formatDate(r[0])+'</td>';
-    html+='<td>'+String(r[1]||'')+'</td>';
-    html+='<td>'+String(r[2]||'')+'</td>';
-    ni.forEach(function(i){
-      var n=parseFloat(r[i])||0;
-      html+='<td class="'+(n===0?'td-zero':'')+'">'+(n===0?'—':n)+'</td>';
-    });
-    if(totIdx>=0){
-      var tv=parseFloat(r[totIdx])||0;
-      html+='<td class="td-tot"><span class="badge">'+tv+'</span></td>';
+    for(var i=0;i<rHeaders.length;i++){
+      var col=rHeaders[i];
+      if(isHidden(col)&&col!=='Totale') continue;
+      var val=r[i]!==undefined?r[i]:'';
+      if(col==='Data'){html+='<td>'+formatDate(val)+'</td>';continue;}
+      if(col==='Totale'){
+        var tv=parseFloat(val)||0;
+        html+='<td class="td-tot"><span class="badge">'+tv+'</span></td>';
+        continue;
+      }
+      if(ni.indexOf(i)>=0){
+        var n=parseFloat(val)||0;
+        html+='<td class="'+(n===0?'td-zero':'')+'">'+(n===0?'—':n)+'</td>';
+        continue;
+      }
+      html+='<td>'+String(val)+'</td>';
     }
     html+='</tr>';
     return html;
