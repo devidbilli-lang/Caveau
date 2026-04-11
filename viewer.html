@@ -365,10 +365,10 @@ function renderBarChart(rows){
   }catch(err){}
 }
 
-// Auto-refresh ogni 5 minuti
+// Auto-refresh ogni 60 secondi
 setInterval(function(){
   if(document.getElementById('app-screen').style.display!=='none') loadR();
-}, 5*60*1000);
+}, 60*1000);
 </script>
 </body>
 </html>
