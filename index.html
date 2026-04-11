@@ -902,12 +902,11 @@ function filtraSto(){
   console.log('prima riga storico:',stoRows[0]);
   var f=stoRows.filter(function(r){
     if(rep){
-      // Cerca in Linea e in Nome
       var lineaVal=lineaIdx>=0?String(r[lineaIdx]||'').toLowerCase():'';
       var nomeVal=nomeIdx>=0?String(r[nomeIdx]||'').toLowerCase():'';
-      if(lineaVal.indexOf(rep)<0&&nomeVal.indexOf(rep)<0)return false;
+      if(lineaVal.indexOf(rep)<0&&nomeVal.indexOf(rep)<0){console.log('scartata per rep');return false;}
     }
-    if(art){var cod=String(r[artIdx>=0?artIdx:4]||'');var desc=(artDescMap[cod]||'').toLowerCase();if(desc.indexOf(art)<0&&cod.toLowerCase().indexOf(art)<0)return false;}
+    if(art){var cod=String(r[artIdx>=0?artIdx:4]||'');var desc=(artDescMap[cod]||'').toLowerCase();if(desc.indexOf(art)<0&&cod.toLowerCase().indexOf(art)<0){console.log('scartata per art');return false;}}
     if(cluster){
       var found=false;
       ni.forEach(function(i){
@@ -917,9 +916,9 @@ function filtraSto(){
         var desc=(noteDescMap[stoHeaders[i]]||'').toLowerCase();
         if(desc.indexOf(cluster)>=0&&qty>0)found=true;
       });
-      if(!found)return false;
+      if(!found){console.log('scartata per cluster');return false;}
     }
-    if(da||al){var iso=toISO(formatDate(r[0]));if(da&&iso<da)return false;if(al&&iso>al)return false;}
+    if(da||al){var iso=toISO(formatDate(r[0]));if(da&&iso<da){console.log('scartata per da');return false;}if(al&&iso>al){console.log('scartata per al');return false;}}
     return true;
   });
   var tb=document.getElementById('sto-body');
