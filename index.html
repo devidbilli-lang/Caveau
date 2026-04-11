@@ -314,7 +314,6 @@
 var BASE='https://script.google.com/macros/s/AKfycbw2hteCu-l74pn7mtIeWQDI_gvqfO2s82iCb3amKJ0cMKrDVF68nW6kqrXIvBefNfyp1g/exec';
 var tid=0,allRows=[],rHeaders=[],noteDescMap={},artDescMap={},artCollMap={},dropData={art:[],rep:[]};
 var stoRows=[],stoHeaders=[];
-var stoRows=[],stoHeaders=[];
 
 // Clock
 setInterval(function(){
@@ -871,14 +870,21 @@ function filtraSto(){
   var da=document.getElementById('sto-da').value;
   var al=document.getElementById('sto-al').value;
   var artIdx=stoHeaders.indexOf('Articolo');
+  var lineaIdx=stoHeaders.indexOf('Linea');
+  var nomeIdx=stoHeaders.indexOf('Nome');
   var ni=[];
-  for(var i=artIdx>=0?artIdx+1:4;i<stoHeaders.length;i++){
+  for(var i=artIdx>=0?artIdx+1:5;i<stoHeaders.length;i++){
     if(stoHeaders[i]==='Totale'||isHidden(stoHeaders[i])||isNoteLibere(stoHeaders[i]))continue;
     ni.push(i);
   }
   var f=stoRows.filter(function(r){
-    if(rep&&String(r[1]||'').toLowerCase().indexOf(rep)<0)return false;
-    if(art){var cod=String(r[artIdx>=0?artIdx:2]||'');var desc=(artDescMap[cod]||'').toLowerCase();if(desc.indexOf(art)<0&&cod.toLowerCase().indexOf(art)<0)return false;}
+    if(rep){
+      // Cerca in Linea e in Nome
+      var lineaVal=lineaIdx>=0?String(r[lineaIdx]||'').toLowerCase():'';
+      var nomeVal=nomeIdx>=0?String(r[nomeIdx]||'').toLowerCase():'';
+      if(lineaVal.indexOf(rep)<0&&nomeVal.indexOf(rep)<0)return false;
+    }
+    if(art){var cod=String(r[artIdx>=0?artIdx:4]||'');var desc=(artDescMap[cod]||'').toLowerCase();if(desc.indexOf(art)<0&&cod.toLowerCase().indexOf(art)<0)return false;}
     if(cluster){
       var found=false;
       ni.forEach(function(i){
