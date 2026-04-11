@@ -116,6 +116,8 @@
   /* TABLE — full width, no scroll */
   .table-wrap{border-radius:12px;overflow:hidden;border:1.5px solid var(--border);width:100%;box-shadow:var(--shadow);}
   table{width:100%;border-collapse:collapse;table-layout:auto;}
+  .col-note-libere{width:180px;min-width:180px;max-width:180px;}
+  tbody td.td-note-lib{width:180px;min-width:180px;max-width:180px;white-space:normal;word-break:break-word;font-size:13px;text-align:center;font-weight:500;}
   thead th{
     background:linear-gradient(135deg,var(--accent),var(--accent2));
     padding:11px 6px;text-align:center;
@@ -184,7 +186,6 @@
   <div class="tabs">
     <button class="tab on" onclick="show('ins')">Inserimento</button>
     <button class="tab" onclick="show('rep')">Riepilogo</button>
-    <button class="tab" onclick="show('sto')">Storico</button>
   </div>
 
   <div id="alert" class="alert"></div>
@@ -291,41 +292,11 @@
   </div>
 
   <!-- STORICO -->
-  <div id="s-sto" class="sec">
-    <div class="card-plain">
-      <div class="filters">
-        <input type="text" id="sto-rep" placeholder="Linea..." oninput="filtraSto()"/>
-        <input type="text" id="sto-art" placeholder="Desc. articolo..." oninput="filtraSto()"/>
-        <input type="text" id="sto-cluster" placeholder="Cluster caveau..." oninput="filtraSto()"/>
-        <input type="date" id="sto-da" onchange="filtraSto()" title="Dal"/>
-        <input type="date" id="sto-al" onchange="filtraSto()" title="Al"/>
-        <button class="btn btn-green" style="padding:9px 18px;font-size:13px" onclick="loadSto()">↻ Aggiorna</button>
-      </div>
-      <div class="rep-layout">
-        <div class="table-wrap">
-          <table>
-            <thead id="sto-head"></thead>
-            <tbody id="sto-body"><tr><td class="empty">Caricamento storico...</td></tr></tbody>
-          </table>
-        </div>
-        <div style="display:flex;flex-direction:column;gap:16px;position:sticky;top:16px;">
-          <div id="sto-bar-card" style="background:var(--surface);border:2px solid #f26eff;border-radius:16px;padding:20px;box-shadow:0 0 16px 4px rgba(242,110,255,0.5),0 0 48px 12px rgba(242,110,255,0.2);">
-            <div id="sto-bar-chart" style="max-height:400px;overflow-y:auto;"><div style="color:var(--text-muted);font-size:12px;text-align:center;">Caricamento...</div></div>
-          </div>
-          <div class="pie-card" style="position:static;">
-            <canvas id="stoPieChart" width="200" height="200"></canvas>
-            <div id="sto-pie-legend"></div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
 
 </div>
 <script>
 var BASE='https://script.google.com/macros/s/AKfycbyq-EsB81EvJtMqlNVAteJXEe97aZX664mXybTfhfnjj5SEW8VAufGhEJp68_7whNnDug/exec';
 var tid=0,allRows=[],rHeaders=[],noteDescMap={},artDescMap={},artCollMap={},dropData={art:[],rep:[]};
-var stoRows=[],stoHeaders=[];
 
 // Clock
 setInterval(function(){
@@ -544,91 +515,6 @@ function renderBarChart(rows){
     }).join('');
   }catch(err){console.error('renderBarChart:',err);}
 }
-
-function renderStoPie(rows){
-  var canvas=document.getElementById('stoPieChart');
-  var legend=document.getElementById('sto-pie-legend');
-  if(!canvas||!legend)return;
-  // Trova ultima data
-  var lastDate='';
-  rows.forEach(function(r){var d=String(r[0]||'');if(d>lastDate)lastDate=d;});
-  var lastRows=rows.filter(function(r){return String(r[0]||'')===lastDate;});
-  var artIdx=stoHeaders.indexOf('Articolo');
-  var ni=[];
-  for(var i=artIdx>=0?artIdx+1:5;i<stoHeaders.length;i++){
-    if(stoHeaders[i]==='Totale'||isHidden(stoHeaders[i])||isNoteLibere(stoHeaders[i]))continue;
-    ni.push(i);
-  }
-  var totals={};
-  ni.forEach(function(i){totals[stoHeaders[i]]=0;});
-  lastRows.forEach(function(r){ni.forEach(function(i){totals[stoHeaders[i]]+=(parseFloat(r[i])||0);});});
-  var keys=Object.keys(totals).filter(function(k){return totals[k]>0;});
-  var total=keys.reduce(function(s,k){return s+totals[k];},0);
-  var ctx=canvas.getContext('2d');
-  ctx.clearRect(0,0,canvas.width,canvas.height);
-  if(!total){
-    ctx.fillStyle='#e8e8f0';ctx.beginPath();ctx.arc(100,100,90,0,Math.PI*2);ctx.fill();
-    ctx.beginPath();ctx.arc(100,100,44,0,Math.PI*2);ctx.fillStyle='#fff';ctx.fill();
-    legend.innerHTML='<div style="font-size:11px;color:var(--text-muted);text-align:center;margin-top:6px;">'+lastDate||'Nessun dato'+'</div>';
-    return;
-  }
-  var startAngle=-Math.PI/2,cx=100,cy=100,r=90;
-  keys.forEach(function(k){
-    var slice=(totals[k]/total)*Math.PI*2;
-    var col=getNoteColor(k);
-    ctx.beginPath();ctx.moveTo(cx,cy);ctx.arc(cx,cy,r,startAngle,startAngle+slice);
-    ctx.closePath();ctx.fillStyle=col;ctx.fill();
-    ctx.strokeStyle='#fff';ctx.lineWidth=2;ctx.stroke();
-    startAngle+=slice;
-  });
-  ctx.beginPath();ctx.arc(cx,cy,44,0,Math.PI*2);ctx.fillStyle='#ffffff';ctx.fill();
-  ctx.fillStyle='#1a1a2e';ctx.font='bold 18px Montserrat,sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';
-  ctx.fillText(total,cx,cy-8);
-  var img=new Image();
-  img.src='data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" fill="%23f26eff"/><path d="M7 11V7a5 5 0 0 1 10 0v4" stroke="%23f26eff" stroke-width="2.2" stroke-linecap="round" fill="none"/><circle cx="12" cy="16.5" r="1.8" fill="white"/></svg>';
-  img.onload=function(){ctx.drawImage(img,cx-12,cy+4,24,24);};
-  legend.innerHTML='<div style="font-size:10px;color:var(--text-muted);text-align:center;margin-bottom:6px;">'+lastDate+'</div>'+
-    '<table style="width:100%;border-collapse:collapse;font-size:13px;"><thead><tr>'+
-    keys.map(function(k){var col=getNoteColor(k);return'<th style="background:'+col+';color:#fff;padding:6px 10px;font-weight:800;">'+k+'</th>';}).join('')+
-    '</tr></thead><tbody><tr>'+
-    keys.map(function(k){var col=getNoteColor(k);return'<td style="text-align:center;padding:8px 10px;font-weight:800;color:'+col+';border-bottom:1px solid #e0e0ec;">'+totals[k]+'</td>';}).join('')+
-    '</tr></tbody></table>';
-}
-
-function renderStoBar(rows){
-  try{
-    var barDiv=document.getElementById('sto-bar-chart');
-    if(!barDiv)return;
-    var artIdx=stoHeaders.indexOf('Articolo');
-    var totIdx=stoHeaders.indexOf('Totale');
-    if(artIdx<0||totIdx<0)return;
-    // Ultima data
-    var lastDate='';
-    rows.forEach(function(r){var d=String(r[0]||'');if(d>lastDate)lastDate=d;});
-    var lastRows=rows.filter(function(r){return String(r[0]||'')===lastDate;});
-    var artTotals={};
-    lastRows.forEach(function(r){
-      var cod=String(r[artIdx]||'').trim();
-      var tot=parseFloat(r[totIdx])||0;
-      if(!cod||tot<=0)return;
-      artTotals[cod]=(artTotals[cod]||0)+tot;
-    });
-    var entries=Object.keys(artTotals).map(function(k){return{cod:k,tot:artTotals[k]};}).sort(function(a,b){return b.tot-a.tot;});
-    if(!entries.length){barDiv.innerHTML='<div style="color:var(--text-muted);font-size:12px;text-align:center;">Nessun dato</div>';return;}
-    barDiv.innerHTML=entries.map(function(e){
-      var desc=artDescMap[e.cod]||'';
-      var coll=artCollMap[e.cod]||'';
-      return '<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 4px;border-bottom:1px solid var(--border);">'+
-        '<div style="flex:1;min-width:0;padding-right:6px;">'+
-          '<div style="font-size:12px;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+e.cod+'</div>'+
-          (desc?'<div style="font-size:10px;color:var(--text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+desc+'</div>':'')+
-          (coll?'<div style="font-size:10px;color:#e91e8c;font-weight:700;">'+coll+'</div>':'')+
-        '</div>'+
-        '<span style="background:#f26eff;color:#fff;font-size:12px;font-weight:800;padding:2px 8px;border-radius:20px;flex-shrink:0;">'+e.tot+'</span>'+
-      '</div>';
-    }).join('');
-  }catch(err){}
-}
 function clearErrors(){
   ['data','rep','art','note'].forEach(function(f){
     var el=document.getElementById('err-'+f);
@@ -813,7 +699,7 @@ function renderHead(){
     var col=rHeaders[i];
     if(isHidden(col))continue;
     if(col==='Totale'){h+='<th class="th-tot">Totale</th>';continue;}
-    if(isNoteLibere(col)){h+='<th style="background:linear-gradient(135deg,#f26eff,#d400e8);color:#fff;min-width:180px;">Note Libere</th>';continue;}
+    if(isNoteLibere(col)){h+='<th class="col-note-libere" style="background:linear-gradient(135deg,#f26eff,#d400e8);color:#fff;">Note Libere</th>';continue;}
     if(ni.indexOf(i)>=0){
       var desc=noteDescMap[col]||'';
       h+='<th class="'+getNoteThClass(col)+'">'+col+(desc?'<span class="th-sub">'+desc+'</span>':'')+'</th>';
@@ -865,7 +751,6 @@ function filtra(){
 
   renderPie(f);
   renderBarChart(f);
-
   var tb=document.getElementById('tb');
   if(!f.length){
     tb.innerHTML='<tr><td colspan="'+rHeaders.filter(function(h){return!isHidden(h);}).length+'" class="empty">Nessun dato trovato</td></tr>';
@@ -928,115 +813,13 @@ function showAlert(t,c){
   setTimeout(function(){e.style.display='none';},5000);
 }
 
-function loadSto(){
-  document.getElementById('sto-body').innerHTML='<tr><td class="empty">Caricamento...</td></tr>';
-  function doLoad(){
-    gp('read_storico',{},function(d){
-      if(!d.ok){
-        document.getElementById('sto-body').innerHTML='<tr><td class="empty">Errore: '+(d.error||'sconosciuto')+'</td></tr>';
-        return;
-      }
-      stoHeaders=d.headers||[];
-      stoRows=(d.rows||[]).filter(function(r){return r[0];});
-      if(!stoRows.length){
-        document.getElementById('sto-body').innerHTML='<tr><td class="empty">Nessun dato nello storico</td></tr>';
-        return;
-      }
-      renderStoHead();
-      filtraSto();
-    });
-  }
-  if(Object.keys(artDescMap).length===0){
-    gp('read',{sheet:'Articoli'},function(da){
-      buildDrop('art',da.data||[],hdr(da.data||[]));
-      doLoad();
-    });
-  } else {
-    doLoad();
-  }
-}
-
-function renderStoHead(){
-  if(!stoHeaders.length)return;
-  var artIdx=stoHeaders.indexOf('Articolo');
-  var ni=[];
-  for(var i=0;i<stoHeaders.length;i++){
-    var h=stoHeaders[i];
-    if(i<=artIdx)continue;
-    if(h==='Totale'||isHidden(h)||isNoteLibere(h))continue;
-    ni.push(i);
-  }
-  var h='<tr>';
-  for(var i=0;i<stoHeaders.length;i++){
-    var col=stoHeaders[i];
-    if(isHidden(col))continue;
-    if(col==='Totale'){h+='<th class="th-tot">Totale</th>';continue;}
-    if(isNoteLibere(col)){h+='<th style="background:linear-gradient(135deg,#f26eff,#d400e8);color:#fff;min-width:180px;">Note Libere</th>';continue;}
-    if(ni.indexOf(i)>=0){var desc=noteDescMap[col]||'';h+='<th class="'+getNoteThClass(col)+'">'+col+(desc?'<span class="th-sub">'+desc+'</span>':'')+'</th>';}
-    else{h+='<th>'+col+'</th>';}
-  }
-  h+='</tr>';
-  document.getElementById('sto-head').innerHTML=h;
-}
-
-function filtraSto(){
-  var rep=document.getElementById('sto-rep').value.toLowerCase();
-  var art=document.getElementById('sto-art').value.toLowerCase();
-  var cluster=document.getElementById('sto-cluster').value.toLowerCase();
-  var da=document.getElementById('sto-da').value;
-  var al=document.getElementById('sto-al').value;
-  var artIdx=stoHeaders.indexOf('Articolo');
-  var lineaIdx=stoHeaders.indexOf('Linea');
-  var nomeIdx=stoHeaders.indexOf('Nome');
-  var ni=[];
-  for(var i=artIdx>=0?artIdx+1:5;i<stoHeaders.length;i++){
-    if(stoHeaders[i]==='Totale'||isHidden(stoHeaders[i])||isNoteLibere(stoHeaders[i]))continue;
-    ni.push(i);
-  }
-  var f=stoRows.filter(function(r){
-    if(rep){
-      var lineaVal=lineaIdx>=0?String(r[lineaIdx]||'').toLowerCase():'';
-      var nomeVal=nomeIdx>=0?String(r[nomeIdx]||'').toLowerCase():'';
-    }
-    if(cluster){
-      var found=false;
-      ni.forEach(function(i){
-        var colName=stoHeaders[i].toLowerCase();
-        var qty=parseFloat(r[i])||0;
-        if(colName.indexOf(cluster)>=0&&qty>0)found=true;
-        var desc=(noteDescMap[stoHeaders[i]]||'').toLowerCase();
-        if(desc.indexOf(cluster)>=0&&qty>0)found=true;
-      });
-    }
-    return true;
-  });
-  var tb=document.getElementById('sto-body');
-  renderStoPie(f);
-  renderStoBar(f);
-  if(!f.length){tb.innerHTML='<tr><td colspan="'+(stoHeaders.filter(function(h){return!isHidden(h);}).length)+'" class="empty">Nessun dato</td></tr>';return;}
-  tb.innerHTML=f.map(function(r){
-    var html='<tr>';
-    for(var i=0;i<stoHeaders.length;i++){
-      var col=stoHeaders[i],val=r[i]!==undefined?r[i]:'';
-      if(isHidden(col))continue;
-      if(col==='Data'){html+='<td>'+formatDate(val)+'</td>';continue;}
-      if(col==='Totale'){html+='<td class="td-tot"><span class="badge">'+(parseFloat(val)||0)+'</span></td>';continue;}
-      if(isNoteLibere(col)){html+='<td style="font-size:13px;text-align:center;font-weight:500;white-space:normal;word-break:break-word;">'+String(val||'')+'</td>';continue;}
-      if(col==='Articolo'){var coll=artCollMap[String(val)]||'';var desc=artDescMap[String(val)]||'';html+='<td>'+String(val)+(desc?'<br><span style="color:var(--text-muted);font-size:11px;font-weight:600;">'+desc+'</span>':'')+(coll?'<br><span style="color:#e91e8c;font-size:11px;font-weight:700;">'+coll+'</span>':'')+'</td>';continue;}
-      if(ni.indexOf(i)>=0){var n=parseFloat(val)||0,u=col.toUpperCase();if(n===0){html+='<td class="td-zero">—</td>';}else{var bg=u==='A1'?'#60a5fa':u==='B1'?'#fb923c':u==='C1'?'#fbbf24':u==='D1'?'#f87171':'#f26eff';html+='<td><span style="display:inline-block;padding:3px 10px;border-radius:20px;font-size:12px;font-weight:800;background:'+bg+';color:#fff;">'+n+'</span></td>';}continue;}
-      html+='<td>'+String(val)+'</td>';
-    }
-    return html+'</tr>';
-  }).join('');
-}
 
 function show(n){
   document.querySelectorAll('.sec').forEach(function(s){s.classList.remove('on');});
   document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('on');});
   document.getElementById('s-'+n).classList.add('on');
-  document.querySelectorAll('.tab')[{ins:0,rep:1,sto:2}[n]].classList.add('on');
+  document.querySelectorAll('.tab')[{ins:0,rep:1}[n]].classList.add('on');
   if(n==='rep')loadR();
-  if(n==='sto')loadSto();
 }
 
 // Auto-refresh ogni 5 minuti
