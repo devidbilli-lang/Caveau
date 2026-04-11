@@ -899,6 +899,7 @@ function filtraSto(){
     ni.push(i);
   }
   console.log('filtraSto: stoRows=',stoRows.length,'artIdx=',artIdx,'lineaIdx=',lineaIdx,'ni=',ni);
+  console.log('prima riga storico:',stoRows[0]);
   var f=stoRows.filter(function(r){
     if(rep){
       // Cerca in Linea e in Nome
