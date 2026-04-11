@@ -110,13 +110,13 @@
   .btn-green:hover{opacity:0.9;transform:translateY(-1px);}
 
   /* FILTERS */
-  .filters{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:18px;position:sticky;top:0;z-index:10;background:var(--surface);padding:12px 0;border-bottom:1.5px solid var(--border);}
+  .filters{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:0;position:sticky;top:0;z-index:20;background:var(--bg);padding:12px 0;border-bottom:1.5px solid var(--border);}
   thead{position:sticky;top:0;z-index:9;}
-  thead th{position:sticky;top:0;}
+  thead th{position:sticky;top:55px;z-index:10;}
   .filters input[type=text],.filters input[type=date]{max-width:200px;width:auto;padding:10px 14px;font-size:14px;font-weight:600;text-align:left;}
 
   /* TABLE — full width, no scroll */
-  .table-wrap{border-radius:12px;overflow:hidden;border:1.5px solid var(--border);width:100%;box-shadow:var(--shadow);}
+  .table-wrap{border-radius:12px;overflow:visible;border:1.5px solid var(--border);width:100%;box-shadow:var(--shadow);}
   table{width:100%;border-collapse:collapse;table-layout:auto;}
   .col-note-libere{width:180px;min-width:180px;max-width:180px;}
   tbody td.td-note-lib{width:180px;min-width:180px;max-width:180px;white-space:normal;word-break:break-word;font-size:13px;text-align:center;font-weight:500;}
