@@ -806,8 +806,6 @@ function filtra(){
   // Grafici: usa data del filtro se presente, altrimenti ultima data
   var gDate=selectedDate||(dateList.length?dateList[0]:'');
   var fGrafici=allRows.filter(function(r){return formatDate(r[0])===gDate;});
-  var lbl=document.getElementById('g-data-label');
-  if(lbl)lbl.textContent=gDate||'—';
   renderPie(fGrafici);
   renderBarChart(fGrafici);
   var tb=document.getElementById('tb');
