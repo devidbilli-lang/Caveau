@@ -842,6 +842,7 @@ function loadSto(){
       }
       stoHeaders=d.headers||[];
       stoRows=(d.rows||[]).filter(function(r){return r[0];});
+      console.log('Storico: headers=',stoHeaders.length,'rows=',stoRows.length);
       if(!stoRows.length){
         document.getElementById('sto-body').innerHTML='<tr><td class="empty">Nessun dato nello storico</td></tr>';
         return;
@@ -861,10 +862,13 @@ function loadSto(){
 }
 
 function renderStoHead(){
+  if(!stoHeaders.length)return;
   var artIdx=stoHeaders.indexOf('Articolo');
   var ni=[];
-  for(var i=artIdx>=0?artIdx+1:4;i<stoHeaders.length;i++){
-    if(stoHeaders[i]==='Totale'||isHidden(stoHeaders[i])||isNoteLibere(stoHeaders[i]))continue;
+  for(var i=0;i<stoHeaders.length;i++){
+    var h=stoHeaders[i];
+    if(i<=artIdx)continue;
+    if(h==='Totale'||isHidden(h)||isNoteLibere(h))continue;
     ni.push(i);
   }
   var h='<tr>';
