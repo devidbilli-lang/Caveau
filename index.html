@@ -636,29 +636,31 @@ function init(){
 }
 
 // RIEPILOGO
+function getLastDate(rows){
+  var last='';
+  rows.forEach(function(r){
+    var d=toISO(formatDate(r[0]));
+    if(d>last)last=d;
+  });
+  return last;
+}
+
 function loadR(){
   document.getElementById('tb').innerHTML='<tr><td class="empty">Caricamento...</td></tr>';
-  // Assicura che artDescMap sia popolato prima di filtrare
+  function doRender(d){
+    if(!d.ok){document.getElementById('tb').innerHTML='<tr><td class="empty">Errore: '+(d.error||'')+'</td></tr>';return;}
+    rHeaders=d.headers||[];
+    allRows=(d.rows||[]).filter(function(r){return r[0];});
+    renderHead();
+    filtra();
+  }
   if(Object.keys(artDescMap).length===0){
     gp('read',{sheet:'Articoli'},function(da){
-      var A=da.data||[];
-      buildDrop('art',A,hdr(A));
-      gp('read_riepilogo',{},function(d){
-        if(!d.ok){document.getElementById('tb').innerHTML='<tr><td class="empty">Errore: '+(d.error||'')+'</td></tr>';return;}
-        rHeaders=d.headers||[];
-        allRows=(d.rows||[]).filter(function(r){return r[0];});
-        renderHead();
-        filtra();
-      });
+      buildDrop('art',da.data||[],hdr(da.data||[]));
+      gp('read_riepilogo',{},doRender);
     });
   } else {
-    gp('read_riepilogo',{},function(d){
-      if(!d.ok){document.getElementById('tb').innerHTML='<tr><td class="empty">Errore: '+(d.error||'')+'</td></tr>';return;}
-      rHeaders=d.headers||[];
-      allRows=(d.rows||[]).filter(function(r){return r[0];});
-      renderHead();
-      filtra();
-    });
+    gp('read_riepilogo',{},doRender);
   }
 }
 
@@ -749,8 +751,16 @@ function filtra(){
     return true;
   });
 
-  renderPie(f);
-  renderBarChart(f);
+  // Grafici: se filtro data attivo usa quelle righe, altrimenti ultima data
+  var fGrafici;
+  if(da||al){
+    fGrafici=f;
+  } else {
+    var last=getLastDate(allRows);
+    fGrafici=f.filter(function(r){return toISO(formatDate(r[0]))===last;});
+  }
+  renderPie(fGrafici);
+  renderBarChart(fGrafici);
   var tb=document.getElementById('tb');
   if(!f.length){
     tb.innerHTML='<tr><td colspan="'+rHeaders.filter(function(h){return!isHidden(h);}).length+'" class="empty">Nessun dato trovato</td></tr>';
