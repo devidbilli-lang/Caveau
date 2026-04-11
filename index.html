@@ -863,6 +863,7 @@ function loadSto(){
 
 function renderStoHead(){
   if(!stoHeaders.length)return;
+  console.log('renderStoHead stoHeaders=',stoHeaders);
   var artIdx=stoHeaders.indexOf('Articolo');
   var ni=[];
   for(var i=0;i<stoHeaders.length;i++){
