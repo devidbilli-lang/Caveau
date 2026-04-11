@@ -115,11 +115,7 @@
 
   /* TABLE — full width, no scroll */
   .table-wrap{border-radius:12px;overflow:hidden;border:1.5px solid var(--border);width:100%;box-shadow:var(--shadow);}
-  table{width:100%;border-collapse:collapse;table-layout:fixed;}
-  thead th:nth-child(1){width:88px;}  /* Data */
-  thead th:nth-child(2){width:110px;} /* Nome */
-  thead th:nth-child(3){width:70px;}  /* Linea */
-  thead th:nth-child(4){width:70px;}  /* Ubicazione */
+  table{width:100%;border-collapse:collapse;table-layout:auto;}
   thead th{
     background:linear-gradient(135deg,var(--accent),var(--accent2));
     padding:11px 6px;text-align:center;
@@ -148,13 +144,7 @@
   .pie-leg-row{display:flex;align-items:center;justify-content:space-between;font-size:13px;font-weight:600;}
   .pie-leg-dot{width:12px;height:12px;border-radius:3px;flex-shrink:0;margin-right:8px;}
   .pie-leg-label{display:flex;align-items:center;flex:1;}
-  thead th:nth-child(1){width:88px;}
-  thead th:nth-child(2){width:110px;}
-  thead th:nth-child(3){width:68px;}
-  thead th:nth-child(4){width:68px;}
-  thead th:nth-child(5){width:160px;} /* Articolo */
-  tbody td{padding:10px 6px;text-align:center;border-bottom:1px solid var(--border);color:var(--text);font-weight:500;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-  tbody td:nth-child(5){white-space:normal;overflow:visible;}
+  tbody td{padding:10px 6px;text-align:center;border-bottom:1px solid var(--border);color:var(--text);font-weight:500;font-size:13px;white-space:nowrap;}
   tbody tr:last-child td{border-bottom:none;}
   tbody tr:nth-child(even){background:#f8f8fd;}
   tbody tr:hover{background:#eeeeff;}
