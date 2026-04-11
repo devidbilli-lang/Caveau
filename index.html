@@ -922,6 +922,7 @@ function filtraSto(){
     return true;
   });
   var tb=document.getElementById('sto-body');
+  console.log('f.length=',f.length,'stoRows=',stoRows.length);
   if(!f.length){tb.innerHTML='<tr><td colspan="'+(stoHeaders.filter(function(h){return!isHidden(h);}).length)+'" class="empty">Nessun dato</td></tr>';return;}
   tb.innerHTML=f.map(function(r){
     var html='<tr>';
