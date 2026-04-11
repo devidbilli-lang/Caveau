@@ -129,17 +129,17 @@
     border-bottom:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
   }
   thead th.th-note{background:rgba(242,110,255,0.85);}
-  thead th.th-note-a1{background:#60a5fa;color:#fff;font-size:15px;vertical-align:middle;}
-  thead th.th-note-b1{background:#fb923c;color:#fff;font-size:15px;vertical-align:middle;}
-  thead th.th-note-c1{background:#fbbf24;color:#fff;font-size:15px;vertical-align:middle;}
-  thead th.th-note-d1{background:#f87171;color:#fff;font-size:15px;vertical-align:middle;}
+  thead th.th-note-a1{background:#97fdff;color:#fff;font-size:15px;vertical-align:middle;}
+  thead th.th-note-b1{background:#ffc572;color:#fff;font-size:15px;vertical-align:middle;}
+  thead th.th-note-c1{background:#feff93;color:#fff;font-size:15px;vertical-align:middle;}
+  thead th.th-note-d1{background:#ff5e5e;color:#fff;font-size:15px;vertical-align:middle;}
   thead th{vertical-align:middle;}
   thead th.th-tot{background:#86efac;color:#1a1a2e;vertical-align:middle;}
   .th-sub{font-size:10px;font-weight:600;color:rgba(255,255,255,0.85);display:block;margin-top:3px;text-transform:none;letter-spacing:0;white-space:normal;line-height:1.3;}
-  .td-a1{color:#60a5fa;font-weight:700;}
-  .td-b1{color:#fb923c;font-weight:700;}
-  .td-c1{color:#fbbf24;font-weight:700;}
-  .td-d1{color:#f87171;font-weight:700;}
+  .td-a1{color:#97fdff;font-weight:700;}
+  .td-b1{color:#ffc572;font-weight:700;}
+  .td-c1{color:#feff93;font-weight:700;}
+  .td-d1{color:#ff5e5e;font-weight:700;}
   .td-tot{font-weight:800;color:#1a1a2e;}
   .badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:12px;font-weight:800;background:#86efac;color:#1a1a2e;}
   /* pie chart layout */
@@ -257,7 +257,7 @@
       </div>
 
       <div class="acts" style="margin-top:20px">
-        <button class="btn" onclick="resetF()" style="background:#fbbf24;color:#1a1a2e;border-color:#fbbf24;font-weight:800;">✕ Pulisci</button>
+        <button class="btn" onclick="resetF()" style="background:#feff93;color:#1a1a2e;border-color:#fbbf24;font-weight:800;">✕ Pulisci</button>
         <button class="btn btn-primary" onclick="salva()">✓ Salva Movimento</button>
       </div>
     </div>
@@ -733,7 +733,7 @@ function clearDataFiltro(){
   document.getElementById('drop-data').classList.remove('open');
   filtra();
 }
-var NOTE_COLORS={'A1':'#60a5fa','B1':'#fb923c','C1':'#fbbf24','D1':'#f87171'};
+var NOTE_COLORS={'A1':'#97fdff','B1':'#ffc572','C1':'#feff93','D1':'#ff5e5e'};
 var NOTE_DEFAULT='#f26eff';
 
 function getNoteColor(cod){return NOTE_COLORS[cod.toUpperCase()]||NOTE_DEFAULT;}
