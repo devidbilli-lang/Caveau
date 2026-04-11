@@ -110,7 +110,9 @@
   .btn-green:hover{opacity:0.9;transform:translateY(-1px);}
 
   /* FILTERS */
-  .filters{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:18px;}
+  .filters{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:18px;position:sticky;top:0;z-index:10;background:var(--surface);padding:12px 0;border-bottom:1.5px solid var(--border);}
+  thead{position:sticky;top:0;z-index:9;}
+  thead th{position:sticky;top:0;}
   .filters input[type=text],.filters input[type=date]{max-width:200px;width:auto;padding:10px 14px;font-size:14px;font-weight:600;text-align:left;}
 
   /* TABLE — full width, no scroll */
