@@ -732,6 +732,7 @@ function clearDataFiltro(){
   document.getElementById('drop-data').classList.remove('open');
   filtra();
 }
+var NOTE_COLORS={'A1':'#60a5fa','B1':'#fb923c','C1':'#fbbf24','D1':'#f87171'};
 var NOTE_DEFAULT='#f26eff';
 
 function getNoteColor(cod){return NOTE_COLORS[cod.toUpperCase()]||NOTE_DEFAULT;}
@@ -804,8 +805,8 @@ function filtra(){
   if(selectedDate){
     fGrafici=f;
   } else {
-    var last=getLastDate(allRows);
-    fGrafici=allRows.filter(function(r){return formatDate(r[0])===formatDate(last)||toISO(formatDate(r[0]))===last;});
+    var lastISO=getLastDate(allRows);
+    fGrafici=allRows.filter(function(r){return toISO(formatDate(r[0]))===lastISO;});
   }
   renderPie(fGrafici);
   renderBarChart(fGrafici);
