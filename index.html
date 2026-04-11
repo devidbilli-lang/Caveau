@@ -834,13 +834,30 @@ function showAlert(t,c){
 
 function loadSto(){
   document.getElementById('sto-body').innerHTML='<tr><td class="empty">Caricamento...</td></tr>';
-  gp('read_storico',{},function(d){
-    if(!d.ok){document.getElementById('sto-body').innerHTML='<tr><td class="empty">Errore: '+(d.error||'')+'</td></tr>';return;}
-    stoHeaders=d.headers||[];
-    stoRows=(d.rows||[]).filter(function(r){return r[0];});
-    renderStoHead();
-    filtraSto();
-  });
+  function doLoad(){
+    gp('read_storico',{},function(d){
+      if(!d.ok){
+        document.getElementById('sto-body').innerHTML='<tr><td class="empty">Errore: '+(d.error||'sconosciuto')+'</td></tr>';
+        return;
+      }
+      stoHeaders=d.headers||[];
+      stoRows=(d.rows||[]).filter(function(r){return r[0];});
+      if(!stoRows.length){
+        document.getElementById('sto-body').innerHTML='<tr><td class="empty">Nessun dato nello storico</td></tr>';
+        return;
+      }
+      renderStoHead();
+      filtraSto();
+    });
+  }
+  if(Object.keys(artDescMap).length===0){
+    gp('read',{sheet:'Articoli'},function(da){
+      buildDrop('art',da.data||[],hdr(da.data||[]));
+      doLoad();
+    });
+  } else {
+    doLoad();
+  }
 }
 
 function renderStoHead(){
