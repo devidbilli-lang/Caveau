@@ -843,7 +843,6 @@ function loadSto(){
       }
       stoHeaders=d.headers||[];
       stoRows=(d.rows||[]).filter(function(r){return r[0];});
-      console.log('Storico: headers=',stoHeaders.length,'rows=',stoRows.length);
       if(!stoRows.length){
         document.getElementById('sto-body').innerHTML='<tr><td class="empty">Nessun dato nello storico</td></tr>';
         return;
@@ -864,7 +863,6 @@ function loadSto(){
 
 function renderStoHead(){
   if(!stoHeaders.length)return;
-  console.log('renderStoHead stoHeaders=',stoHeaders);
   var artIdx=stoHeaders.indexOf('Articolo');
   var ni=[];
   for(var i=0;i<stoHeaders.length;i++){
@@ -900,15 +898,11 @@ function filtraSto(){
     if(stoHeaders[i]==='Totale'||isHidden(stoHeaders[i])||isNoteLibere(stoHeaders[i]))continue;
     ni.push(i);
   }
-  console.log('filtraSto: stoRows=',stoRows.length,'artIdx=',artIdx,'lineaIdx=',lineaIdx,'ni=',ni);
-  console.log('prima riga storico:',stoRows[0]);
   var f=stoRows.filter(function(r){
     if(rep){
       var lineaVal=lineaIdx>=0?String(r[lineaIdx]||'').toLowerCase():'';
       var nomeVal=nomeIdx>=0?String(r[nomeIdx]||'').toLowerCase():'';
-      if(lineaVal.indexOf(rep)<0&&nomeVal.indexOf(rep)<0){console.log('scartata per rep');return false;}
     }
-    if(art){var cod=String(r[artIdx>=0?artIdx:4]||'');var desc=(artDescMap[cod]||'').toLowerCase();if(desc.indexOf(art)<0&&cod.toLowerCase().indexOf(art)<0){console.log('scartata per art');return false;}}
     if(cluster){
       var found=false;
       ni.forEach(function(i){
@@ -918,13 +912,10 @@ function filtraSto(){
         var desc=(noteDescMap[stoHeaders[i]]||'').toLowerCase();
         if(desc.indexOf(cluster)>=0&&qty>0)found=true;
       });
-      if(!found){console.log('scartata per cluster');return false;}
     }
-    if(da||al){var iso=toISO(formatDate(r[0]));if(da&&iso<da){console.log('scartata per da');return false;}if(al&&iso>al){console.log('scartata per al');return false;}}
     return true;
   });
   var tb=document.getElementById('sto-body');
-  console.log('f.length=',f.length,'stoRows=',stoRows.length);
   if(!f.length){tb.innerHTML='<tr><td colspan="'+(stoHeaders.filter(function(h){return!isHidden(h);}).length)+'" class="empty">Nessun dato</td></tr>';return;}
   tb.innerHTML=f.map(function(r){
     var html='<tr>';
