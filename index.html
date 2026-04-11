@@ -303,6 +303,8 @@
 </div>
 <script>
 var BASE='https://script.google.com/macros/s/AKfycbyq-EsB81EvJtMqlNVAteJXEe97aZX664mXybTfhfnjj5SEW8VAufGhEJp68_7whNnDug/exec';
+var NOTE_COLORS={'A1':'#97fdff','B1':'#ffc572','C1':'#feff93','D1':'#ff5e5e'};
+var NOTE_DEFAULT='#f26eff';
 var tid=0,allRows=[],rHeaders=[],noteDescMap={},artDescMap={},artCollMap={},dropData={art:[],rep:[]};
 
 // Clock
@@ -623,8 +625,6 @@ function fillNote(data,skip){
   if(!container)return;
 var NOTE_COLORS_DARK={'A1':'#00c8cc','B1':'#e07800','C1':'#c8c800','D1':'#cc1a1a'};
 var NOTE_COLORS_BG={'A1':'#97fdff','B1':'#ffc572','C1':'#e8d800','D1':'#ff5e5e'};
-var NOTE_COLORS={'A1':'#97fdff','B1':'#ffc572','C1':'#feff93','D1':'#ff5e5e'};
-var NOTE_DEFAULT='#f26eff';
   container.innerHTML=noteList.map(function(n){
     var col=NOTE_COLORS_BG[n.cod.toUpperCase()]||getNoteColor(n.cod);
     var colDark=NOTE_COLORS_DARK[n.cod.toUpperCase()]||col;
