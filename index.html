@@ -110,7 +110,7 @@
   .btn-green:hover{opacity:0.9;transform:translateY(-1px);}
 
   /* FILTERS */
-  .filters{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:0;position:sticky;top:0;z-index:20;background:var(--bg);padding:12px 0;border-bottom:1.5px solid var(--border);}
+  .filters{display:flex;gap:16px;flex-wrap:wrap;align-items:center;margin-bottom:0;position:sticky;top:0;z-index:20;background:var(--bg);padding:12px 0;border-bottom:1.5px solid var(--border);}
   thead{position:sticky;top:0;z-index:9;}
   thead th{position:sticky;top:55px;z-index:10;}
   .filters input[type=text],.filters input[type=date]{max-width:200px;width:auto;padding:10px 14px;font-size:14px;font-weight:600;text-align:left;}
@@ -269,13 +269,13 @@
         <input type="text" id="r-rep" placeholder="Linea..." oninput="filtra()"/>
         <input type="text" id="r-art" placeholder="Desc. articolo..." oninput="filtra()"/>
         <input type="text" id="r-cluster" placeholder="Cluster caveau..." oninput="filtra()"/>
-        <div class="search-wrap" style="max-width:160px;z-index:30;">
+        <div class="search-wrap" style="max-width:160px;min-width:140px;z-index:30;">
           <input type="text" id="r-data-txt" placeholder="Data..." autocomplete="off"
             oninput="filterDataDrop()" onfocus="openDataDrop()" onblur="blurDataDrop()" style="text-align:left;padding-right:30px;"/>
           <button class="clear-btn" onmousedown="clearDataFiltro()">✕</button>
-          <div class="dropdown-list" id="drop-data"></div>
+          <div class="dropdown-list" id="drop-data" style="z-index:100;"></div>
         </div>
-        <button class="btn btn-green" style="padding:10px 18px;font-size:13px;margin-left:8px;" onclick="loadR()">↻ Aggiorna</button>
+        <button class="btn btn-green" style="padding:10px 18px;font-size:13px;flex-shrink:0;" onclick="loadR()">↻ Aggiorna</button>
       </div>
       <div class="rep-layout">
         <div class="table-wrap">
