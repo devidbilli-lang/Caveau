@@ -286,6 +286,11 @@
           </table>
         </div>
         <div style="display:flex;flex-direction:column;gap:16px;position:sticky;top:16px;">
+          <!-- Data grafici - label informativa -->
+          <div style="background:var(--surface);border:2px solid #f26eff;border-radius:12px;padding:10px 16px;box-shadow:0 0 16px 4px rgba(242,110,255,0.3);text-align:center;">
+            <div style="font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:#f26eff;margin-bottom:4px;">Data grafici</div>
+            <div id="g-data-label" style="font-size:16px;font-weight:800;color:var(--text);">—</div>
+          </div>
           <div id="bar-card" style="background:var(--surface);border:2px solid #f26eff;border-radius:16px;padding:20px;box-shadow:0 0 16px 4px rgba(242,110,255,0.5),0 0 48px 12px rgba(242,110,255,0.2);">
             <div id="bar-chart" style="max-height:400px;overflow-y:auto;"><div style="color:var(--text-muted);font-size:12px;text-align:center;">Caricamento...</div></div>
           </div>
@@ -738,9 +743,6 @@ function clearDataFiltro(){
   document.getElementById('drop-data').classList.remove('open');
   filtra();
 }
-var NOTE_COLORS={'A1':'#97fdff','B1':'#ffc572','C1':'#feff93','D1':'#ff5e5e'};
-var NOTE_DEFAULT='#f26eff';
-
 function getNoteColor(cod){return NOTE_COLORS[cod.toUpperCase()]||NOTE_DEFAULT;}
 function getNoteThClass(cod){
   var u=cod.toUpperCase();
@@ -806,14 +808,11 @@ function filtra(){
     return true;
   });
 
-  // Grafici: se data selezionata usa quelle righe, altrimenti ultima data
-  var fGrafici;
-  if(selectedDate){
-    fGrafici=f;
-  } else {
-    var lastISO=getLastDate(allRows);
-    fGrafici=allRows.filter(function(r){return toISO(formatDate(r[0]))===lastISO;});
-  }
+  // Grafici: usa data del filtro se presente, altrimenti ultima data
+  var gDate=selectedDate||(dateList.length?dateList[0]:'');
+  var fGrafici=allRows.filter(function(r){return formatDate(r[0])===gDate;});
+  var lbl=document.getElementById('g-data-label');
+  if(lbl)lbl.textContent=gDate||'—';
   renderPie(fGrafici);
   renderBarChart(fGrafici);
   var tb=document.getElementById('tb');
