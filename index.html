@@ -898,6 +898,7 @@ function filtraSto(){
     if(stoHeaders[i]==='Totale'||isHidden(stoHeaders[i])||isNoteLibere(stoHeaders[i]))continue;
     ni.push(i);
   }
+  console.log('filtraSto: stoRows=',stoRows.length,'artIdx=',artIdx,'lineaIdx=',lineaIdx,'ni=',ni);
   var f=stoRows.filter(function(r){
     if(rep){
       // Cerca in Linea e in Nome
