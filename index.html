@@ -312,7 +312,7 @@
 
 </div>
 <script>
-var BASE='https://script.google.com/macros/s/AKfycbw2hteCu-l74pn7mtIeWQDI_gvqfO2s82iCb3amKJ0cMKrDVF68nW6kqrXIvBefNfyp1g/exec';
+var BASE='https://script.google.com/macros/s/AKfycbyA6DlxMEkbaLQGWEYCfUxmTbyySDkUGKM7iB1efsMOUc-QfjwK-0n-dLkOgm2ce3ftQg/exec';
 var tid=0,allRows=[],rHeaders=[],noteDescMap={},artDescMap={},artCollMap={},dropData={art:[],rep:[]};
 var stoRows=[],stoHeaders=[];
 
@@ -637,20 +637,14 @@ function fillNote(data,skip){
 // INIT
 function init(){
   setConn('wait','Connessione...');
-  gp('read',{sheet:'Articoli'},function(da){
-    var A=da.data||[];
-    gp('read',{sheet:'Reparti'},function(dr){
-      var R=dr.data||[];
-      gp('read',{sheet:'Cluster Caveau'},function(dn){
-        var N=dn.data||[];
-        buildDrop('art',A,hdr(A));
-        buildDrop('rep',R,hdr(R));
-        fillNote(N,hdr(N));
-        setConn('ok','Connesso');
-        showAlert('Connessione riuscita!','ok');
-        loadR();
-      });
-    });
+  gp('init',{},function(d){
+    if(!d.ok){setConn('err','Errore');showAlert('Errore connessione: '+(d.error||''),'err');return;}
+    buildDrop('art',d.articoli||[],hdr(d.articoli||[]));
+    buildDrop('rep',d.reparti||[],hdr(d.reparti||[]));
+    fillNote(d.cluster||[],hdr(d.cluster||[]));
+    setConn('ok','Connesso');
+    showAlert('Connessione riuscita!','ok');
+    loadR();
   });
 }
 
@@ -944,35 +938,13 @@ function show(n){
 
 // Auto-refresh ogni 5 minuti
 setInterval(function(){
-  // Ricarica sempre i menu a tendina
-  gp('read',{sheet:'Articoli'},function(da){
-    var A=da.data||[];
-    buildDrop('art',A,hdr(A));
-    var rA=document.getElementById('r-art');
-    if(rA){
-      var cur=rA.value;
-      rA.innerHTML='<option value="">Tutti gli articoli</option>';
-      dropData['art'].forEach(function(d){
-        var o=document.createElement('option');
-        o.value=d.val;o.textContent=d.label;
-        rA.appendChild(o);
-      });
-      rA.value=cur;
-    }
+  gp('init',{},function(d){
+    if(!d.ok)return;
+    buildDrop('art',d.articoli||[],hdr(d.articoli||[]));
+    buildDrop('rep',d.reparti||[],hdr(d.reparti||[]));
+    fillNote(d.cluster||[],hdr(d.cluster||[]));
   });
-  gp('read',{sheet:'Reparti'},function(dr){
-    var R=dr.data||[];
-    buildDrop('rep',R,hdr(R));
-    var rR=document.getElementById('r-rep');
-  });
-  gp('read',{sheet:'Cluster Caveau'},function(dn){
-    var N=dn.data||[];
-    fillNote(N,hdr(N));
-  });
-  // Ricarica riepilogo solo se nella sezione
-  if(document.getElementById('s-rep').classList.contains('on')){
-    loadR();
-  }
+  if(document.getElementById('s-rep').classList.contains('on')) loadR();
 }, 5 * 60 * 1000);
 
 init();
