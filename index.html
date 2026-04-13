@@ -254,7 +254,8 @@
             <input type="hidden" id="fborsa"/>
             <div style="display:flex;gap:10px;align-items:center;">
               <input type="number" id="fborsa-qta" min="0" placeholder="Qtà" style="width:90px;text-align:center;padding:10px;border:1.5px solid rgba(242,110,255,0.4);border-radius:10px;font-size:14px;font-weight:700;"/>
-              <button class="btn btn-primary" onclick="salvaBorsa()" style="flex:1;padding:10px;">✓ Salva Borsa</button>
+              <button class="btn btn-primary" onclick="salvaBorsa()" style="flex:1;padding:10px;">✓ Aggiungi</button>
+              <button class="btn" onclick="smaltisciBorsa()" style="flex:1;padding:10px;background:#86efac;color:#1a1a2e;border-color:#86efac;font-weight:800;">↓ Smaltisci</button>
             </div>
             <span class="field-err" id="err-borsa" style="margin-top:6px;"></span>
           </div>
@@ -330,7 +331,7 @@
 
 </div>
 <script>
-var BASE='https://script.google.com/macros/s/AKfycby_dx9qa9kSDJ1RJDX-VB2_ZoQJFG_goiMgYaTL4ggvdBiCU-3eDpDHvAFd4ZtMAI_E2A/exec';
+var BASE='https://script.google.com/macros/s/AKfycbzzHM2cmOOFtJVZXCaBSeprrGEgE3JcMGHvM7ogTAxVT45goM3rh2t9hVNbcxJfakIMkQ/exec';
 var NOTE_COLORS={'A1':'#97fdff','B1':'#ffc572','C1':'#feff93','D1':'#ff5e5e'};
 var NOTE_DEFAULT='#f26eff';
 var tid=0,allRows=[],rHeaders=[],noteDescMap={},artDescMap={},artCollMap={},dropData={art:[],rep:[],borsa:[]};
@@ -692,6 +693,26 @@ function salvaBorsa(){
   gp('write_borsa',{articolo:art,descrizione:desc,quantita:qta},function(r){
     if(r.ok){
       showAlert('✓ Borsa Ferma salvata!','ok');
+      clearSrch('borsa');
+      document.getElementById('fborsa-qta').value='';
+      loadBorseFerme();
+    } else {
+      showAlert('Errore: '+(r.error||'sconosciuto'),'err');
+    }
+  });
+}
+
+function smaltisciBorsa(){
+  var art=document.getElementById('fborsa').value;
+  var qta=parseFloat(document.getElementById('fborsa-qta').value)||0;
+  var errEl=document.getElementById('err-borsa');
+  errEl.textContent='';errEl.classList.remove('show');
+  if(!art){errEl.textContent='Seleziona un articolo';errEl.classList.add('show');return;}
+  if(qta<=0){errEl.textContent='Inserisci una quantità valida';errEl.classList.add('show');return;}
+  var desc=artDescMap[art]||'';
+  gp('write_borsa',{articolo:art,descrizione:desc,quantita:-qta},function(r){
+    if(r.ok){
+      showAlert('✓ Borsa smaltita!','ok');
       clearSrch('borsa');
       document.getElementById('fborsa-qta').value='';
       loadBorseFerme();
