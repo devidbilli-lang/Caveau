@@ -242,6 +242,22 @@
             </div>
             <span class="field-err" id="err-art"></span>
           </div>
+          <!-- Borse Ferme -->
+          <div class="fg" style="background:#fff;border:1.5px solid rgba(242,110,255,0.3);border-radius:12px;padding:14px;margin-top:4px;">
+            <label style="color:#f26eff;margin-bottom:10px;display:block;">Borsa Ferma</label>
+            <div class="search-wrap" style="margin-bottom:10px;">
+              <input type="text" id="fborsa-txt" placeholder="Cerca articolo..." autocomplete="off" style="text-align:center;"
+                oninput="filterDrop('borsa')" onfocus="openDrop('borsa')" onblur="blurDrop('borsa')"/>
+              <button class="clear-btn" onmousedown="clearSrch('borsa')">✕</button>
+              <div class="dropdown-list" id="drop-borsa"></div>
+            </div>
+            <input type="hidden" id="fborsa"/>
+            <div style="display:flex;gap:10px;align-items:center;">
+              <input type="number" id="fborsa-qta" min="0" placeholder="Qtà" style="width:90px;text-align:center;padding:10px;border:1.5px solid rgba(242,110,255,0.4);border-radius:10px;font-size:14px;font-weight:700;"/>
+              <button class="btn btn-primary" onclick="salvaBorsa()" style="flex:1;padding:10px;">✓ Salva Borsa</button>
+            </div>
+            <span class="field-err" id="err-borsa" style="margin-top:6px;"></span>
+          </div>
         </div>
 
         <!-- Colonna destra: Cluster Caveau + Note -->
@@ -297,6 +313,14 @@
             <canvas id="pieChart" width="200" height="200"></canvas>
             <div class="pie-legend" id="pie-legend"></div>
           </div>
+          <!-- Borse Ferme chart -->
+          <div id="borse-card" style="background:var(--surface);border:2px solid #f26eff;border-radius:16px;padding:20px;box-shadow:0 0 16px 4px rgba(242,110,255,0.5),0 0 48px 12px rgba(242,110,255,0.2);">
+            <div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:12px;">
+              <span style="font-size:16px;">🔒</span>
+              <span style="font-size:12px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:#f26eff;">Borse Ferme</span>
+            </div>
+            <div id="borse-chart" style="max-height:280px;overflow-y:auto;"><div style="color:var(--text-muted);font-size:12px;text-align:center;">Caricamento...</div></div>
+          </div>
         </div>
       </div>
     </div>
@@ -306,10 +330,10 @@
 
 </div>
 <script>
-var BASE='https://script.google.com/macros/s/AKfycbwvWI0_W5k9WgcK9Rmr01oRWB7NMjulPzFNbnZO-EBwwVpUuIAFSJiG-vO4II62T6UnLQ/exec';
+var BASE='https://script.google.com/macros/s/AKfycby_dx9qa9kSDJ1RJDX-VB2_ZoQJFG_goiMgYaTL4ggvdBiCU-3eDpDHvAFd4ZtMAI_E2A/exec';
 var NOTE_COLORS={'A1':'#97fdff','B1':'#ffc572','C1':'#feff93','D1':'#ff5e5e'};
 var NOTE_DEFAULT='#f26eff';
-var tid=0,allRows=[],rHeaders=[],noteDescMap={},artDescMap={},artCollMap={},dropData={art:[],rep:[]};
+var tid=0,allRows=[],rHeaders=[],noteDescMap={},artDescMap={},artCollMap={},dropData={art:[],rep:[],borsa:[]};
 
 // Clock
 setInterval(function(){
@@ -648,13 +672,61 @@ function init(){
     if(!d.ok){setConn('err','Errore');showAlert('Errore connessione: '+(d.error||''),'err');return;}
     buildDrop('art',d.articoli||[],hdr(d.articoli||[]));
     buildDrop('rep',d.reparti||[],hdr(d.reparti||[]));
+    buildDrop('borsa',d.articoli||[],hdr(d.articoli||[]));
     fillNote(d.cluster||[],hdr(d.cluster||[]));
     setConn('ok','Connesso');
     loadR();
+    loadBorseFerme();
   });
 }
 
 // RIEPILOGO
+function salvaBorsa(){
+  var art=document.getElementById('fborsa').value;
+  var qta=parseFloat(document.getElementById('fborsa-qta').value)||0;
+  var errEl=document.getElementById('err-borsa');
+  errEl.textContent='';errEl.classList.remove('show');
+  if(!art){errEl.textContent='Seleziona un articolo';errEl.classList.add('show');return;}
+  if(qta<=0){errEl.textContent='Inserisci una quantità valida';errEl.classList.add('show');return;}
+  var desc=artDescMap[art]||'';
+  gp('write_borsa',{articolo:art,descrizione:desc,quantita:qta},function(r){
+    if(r.ok){
+      showAlert('✓ Borsa Ferma salvata!','ok');
+      clearSrch('borsa');
+      document.getElementById('fborsa-qta').value='';
+      loadBorseFerme();
+    } else {
+      showAlert('Errore: '+(r.error||'sconosciuto'),'err');
+    }
+  });
+}
+
+function loadBorseFerme(){
+  var div=document.getElementById('borse-chart');
+  if(!div)return;
+  div.innerHTML='<div style="color:var(--text-muted);font-size:12px;text-align:center;">Caricamento...</div>';
+  gp('read_borse_ferme',{},function(d){
+    if(!d.ok||!d.rows||!d.rows.length){
+      div.innerHTML='<div style="color:var(--text-muted);font-size:12px;text-align:center;">Nessun dato</div>';
+      return;
+    }
+    var rows=d.rows.filter(function(r){return r[0]&&(parseFloat(r[2])||0)>0;});
+    rows.sort(function(a,b){return (parseFloat(b[2])||0)-(parseFloat(a[2])||0);});
+    div.innerHTML=rows.map(function(r){
+      var cod=String(r[0]);
+      var desc=r[1]?String(r[1]):(artDescMap[cod]||'');
+      var qta=parseFloat(r[2])||0;
+      return '<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 4px;border-bottom:1px solid var(--border);">'+
+        '<div style="flex:1;min-width:0;padding-right:6px;">'+
+          '<div style="font-size:12px;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+cod+'</div>'+
+          (desc?'<div style="font-size:10px;color:var(--text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+desc+'</div>':'')+
+        '</div>'+
+        '<span style="background:#f26eff;color:#fff;font-size:12px;font-weight:800;padding:2px 8px;border-radius:20px;flex-shrink:0;">'+qta+'</span>'+
+      '</div>';
+    }).join('');
+  });
+}
+
 function getLastDate(rows){
   var last='';
   rows.forEach(function(r){
@@ -893,9 +965,11 @@ setInterval(function(){
     if(!d.ok)return;
     buildDrop('art',d.articoli||[],hdr(d.articoli||[]));
     buildDrop('rep',d.reparti||[],hdr(d.reparti||[]));
+    buildDrop('borsa',d.articoli||[],hdr(d.articoli||[]));
     fillNote(d.cluster||[],hdr(d.cluster||[]));
   });
   if(document.getElementById('s-rep').classList.contains('on')) loadR();
+  loadBorseFerme();
 }, 5 * 60 * 1000);
 
 init();
