@@ -152,6 +152,13 @@
             <canvas id="pieChart" width="200" height="200"></canvas>
             <div id="pie-legend"></div>
           </div>
+          <div id="borse-card" style="background:var(--surface);border:2px solid #f26eff;border-radius:16px;padding:20px;box-shadow:0 0 16px 4px rgba(242,110,255,0.5),0 0 48px 12px rgba(242,110,255,0.2);">
+            <div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:12px;">
+              <span style="font-size:16px;">🔒</span>
+              <span style="font-size:12px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:#f26eff;">Borse Ferme</span>
+            </div>
+            <div id="borse-chart" style="max-height:280px;overflow-y:auto;"><div style="color:var(--text-muted);font-size:12px;text-align:center;">Caricamento...</div></div>
+          </div>
         </div>
       </div>
     </div>
@@ -225,6 +232,7 @@ function loadApp(){
       noteDescMap[String(r[0])]=r[1]?String(r[1]):'';
     });
     loadR();
+    loadBorseFerme();
   });
 }
 
@@ -371,8 +379,37 @@ function renderBarChart(rows){
 
 // Auto-refresh ogni 60 secondi
 setInterval(function(){
-  if(document.getElementById('app-screen').style.display!=='none') loadR();
+  if(document.getElementById('app-screen').style.display!=='none'){
+    loadR();
+    loadBorseFerme();
+  }
 }, 60*1000);
+
+function loadBorseFerme(){
+  var div=document.getElementById('borse-chart');
+  if(!div)return;
+  div.innerHTML='<div style="color:var(--text-muted);font-size:12px;text-align:center;">Caricamento...</div>';
+  gp('read_borse_ferme',{},function(d){
+    if(!d.ok||!d.rows||!d.rows.length){
+      div.innerHTML='<div style="color:var(--text-muted);font-size:12px;text-align:center;">Nessun dato</div>';
+      return;
+    }
+    var rows=d.rows.filter(function(r){return r[0]&&(parseFloat(r[2])||0)>0;});
+    rows.sort(function(a,b){return (parseFloat(b[2])||0)-(parseFloat(a[2])||0);});
+    div.innerHTML=rows.map(function(r){
+      var cod=String(r[0]);
+      var desc=r[1]?String(r[1]):(artDescMap[cod]||'');
+      var qta=parseFloat(r[2])||0;
+      return '<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 4px;border-bottom:1px solid var(--border);">'+
+        '<div style="flex:1;min-width:0;padding-right:6px;">'+
+          '<div style="font-size:12px;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+cod+'</div>'+
+          (desc?'<div style="font-size:10px;color:var(--text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+desc+'</div>':'')+
+        '</div>'+
+        '<span style="background:#f26eff;color:#fff;font-size:12px;font-weight:800;padding:2px 8px;border-radius:20px;flex-shrink:0;">'+qta+'</span>'+
+      '</div>';
+    }).join('');
+  });
+}
 </script>
 </body>
 </html>
