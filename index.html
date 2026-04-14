@@ -248,22 +248,23 @@ tbody tr:hover{background:#eeeeff;}
       <textarea id="af-note-lib" rows="2" style="resize:none;"></textarea>
     </div>
     <hr style="border:none;border-top:1.5px solid var(--border);margin-bottom:16px;"/>
-    <div style="border:2px solid #3b82f6;border-radius:14px;padding:16px;margin-bottom:10px;">
+    <div style="border:2px solid #3b82f6;border-radius:14px;padding:16px;margin-bottom:10px;background:rgba(59,130,246,0.03);">
       <div style="font-size:11px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:#3b82f6;margin-bottom:12px;">🔒 Borsa Ferma</div>
       <div style="display:grid;grid-template-columns:1fr 80px 100px 100px;gap:8px;align-items:end;">
         <div class="fg">
-          <label>Articolo</label>
+          <label style="color:#3b82f6;">Articolo</label>
           <div class="search-wrap">
             <input type="text" id="ffborsa-txt" placeholder="Cerca articolo..." autocomplete="off"
+              style="border-color:#3b82f6;"
               oninput="filterDrop('fborsa')" onfocus="openDrop('fborsa')" onblur="blurDrop('fborsa')"/>
             <button class="clear-btn" onmousedown="clearSrch('fborsa')">x</button>
-            <div class="dropdown-list" id="drop-fborsa"></div>
+            <div class="dropdown-list" id="drop-fborsa" style="border-color:#3b82f6;"></div>
           </div>
           <input type="hidden" id="ffborsa"/>
         </div>
         <div class="fg">
-          <label>Qtà</label>
-          <input type="number" id="fborsa-qta" min="0" placeholder="0" style="text-align:center;"/>
+          <label style="color:#3b82f6;">Qtà</label>
+          <input type="number" id="fborsa-qta" min="0" placeholder="0" style="text-align:center;border-color:#3b82f6;"/>
         </div>
         <div class="fg" style="display:flex;flex-direction:column;justify-content:flex-end;">
           <button onclick="salvaBorsa()" style="padding:10px 8px;background:#3b82f6;color:#fff;border:none;border-radius:10px;font-size:12px;font-weight:800;cursor:pointer;width:100%;white-space:nowrap;">+ Aggiungi</button>
