@@ -10,8 +10,8 @@
 :root{--bg:#f0f0f5;--surface:#fff;--border:#e0e0ec;--accent:#f26eff;--accent2:#d400e8;--accent-glow:rgba(242,110,255,0.15);--green:#059669;--red:#dc2626;--text:#1a1a2e;--text-muted:#6b6b8a;--text-dim:#b0b0c8;--shadow:0 2px 12px rgba(242,110,255,0.08);}
 *{box-sizing:border-box;margin:0;padding:0;font-family:'Montserrat',sans-serif;}
 body{background:var(--bg);color:var(--text);min-height:100vh;font-size:15px;}
-.full-wrap{width:100vw;position:relative;left:50%;right:50%;margin-left:-50vw;margin-right:-50vw;padding:0 24px;}
-.inner{max-width:1600px;margin:0 auto;}
+.full-wrap{width:100vw;position:relative;left:50%;right:50%;margin-left:-50vw;margin-right:-50vw;padding:0 16px;}
+.inner{max-width:100%;}
 header{display:flex;align-items:center;justify-content:space-between;padding:20px 0 18px;border-bottom:2px solid var(--border);margin-bottom:0;}
 .brand{display:flex;align-items:center;gap:14px;}
 .brand-icon{width:52px;height:52px;border-radius:14px;overflow:hidden;box-shadow:0 4px 16px rgba(242,110,255,0.3);flex-shrink:0;}
@@ -281,7 +281,7 @@ tbody tr:hover{background:#eeeeff;}
 <button class="fab-add" onclick="toggleAdd()">＋ Aggiungi Riga</button>
 
 <script>
-var BASE='https://script.google.com/macros/s/AKfycbwUX67uBo3bEDBNJqc5ekbjUHTXRNjPLLg-hpDkTeHye3RoKomMg_p8jw2q23pSni9zHQ/exec';
+var BASE='https://script.google.com/macros/s/AKfycbw7Ul_xAGHacuQmZsMgo1pv0t3-tKNPoqLyhdupSoXR1MQkk_pmUmfK_PpCQwnkkoDB9w/exec';
 var NOTE_COLORS={'A1':'#97fdff','B1':'#ffc572','C1':'#feff93','D1':'#ff5e5e'};
 var NOTE_DEFAULT='#f26eff';
 var tid=0,allRows=[],rHeaders=[],noteDescMap={},artDescMap={},artCollMap={};
@@ -547,14 +547,30 @@ function aggiungiRiga(){
   var linea='',ubicazione='';
   repData.forEach(function(r,i){if(i===0||!r[0])return;if(String(r[0]).trim()===rep.trim()){linea=String(r[1]||'');ubicazione=String(r[2]||'');}});
   var dataDisplay=localToDisplay(data);
+  showSpinner('Salvataggio riga...');
   gp('write',{data:dataDisplay,reparto:rep,linea:linea,ubicazione:ubicazione,articolo:art,note:noteEntries.join(','),note_libere:nlib,headers:rHeaders.join(','),foglio:'Riepilogo'},function(r){
     if(r.ok){
+      // Aggiorna localmente senza ricaricare tutto
+      var newRow=new Array(rHeaders.length).fill('');
+      var colData2=rHeaders.indexOf('Data');var colNome2=rHeaders.indexOf('Nome');
+      var colLinea2=rHeaders.indexOf('Linea');var colUbic2=rHeaders.indexOf('Ubicazione');
+      var colArt2=rHeaders.indexOf('Articolo');var colNLib2=rHeaders.indexOf('Note Libere');
+      var colTot2=rHeaders.indexOf('Totale');
+      if(colData2>=0)newRow[colData2]=dataDisplay;
+      if(colNome2>=0)newRow[colNome2]=rep;
+      if(colLinea2>=0)newRow[colLinea2]=linea;
+      if(colUbic2>=0)newRow[colUbic2]=ubicazione;
+      if(colArt2>=0)newRow[colArt2]=art;
+      if(colNLib2>=0)newRow[colNLib2]=nlib;
+      var tot=0;
+      ni.forEach(function(i){var col=rHeaders[i];var el=document.getElementById('af-n-'+col);if(el){var q=parseFloat(el.value)||0;if(q>0){newRow[i]=q;tot+=q;}}});
+      if(colTot2>=0)newRow[colTot2]=tot;
+      allRows.unshift(newRow); // metti in cima
+      buildDateDrop();filtra();
       showSuccess('Riga aggiunta!');
       closeAddModal();
-      setTimeout(loadR,500);
     } else{hideSpinner();showAlert('Errore: '+(r.error||''),'err');}
   });
-  showSpinner('Salvataggio riga...');
 }
 
 function openModal(dStr,nome,art){
@@ -595,10 +611,29 @@ function salvaModifica(){
   showSpinner('Salvataggio modifica...');
   gp('delete_row',{data:editingRow.data,reparto:editingRow.nome,articolo:editingRow.articolo},function(rd){
     if(!rd.ok&&rd.error!=='Riga non trovata'){hideSpinner();showAlert('Errore: '+rd.error,'err');return;}
-    if(!noteEntries.length){showSuccess('Riga eliminata');closeModal();setTimeout(loadR,500);return;}
+    if(!noteEntries.length){
+      // Rimuovi localmente
+      var artIdx2=rHeaders.indexOf('Articolo');
+      allRows=allRows.filter(function(r){return!(formatDate(r[0])===editingRow.data&&String(r[1]||'')==editingRow.nome&&String(r[artIdx2>=0?artIdx2:3]||'')==editingRow.articolo);});
+      buildDateDrop();filtra();showSuccess('Riga eliminata');closeModal();return;
+    }
     gp('write',{data:editingRow.data,reparto:editingRow.nome,linea:linea,ubicazione:ubicazione,articolo:editingRow.articolo,note:noteEntries.join(','),note_libere:nlib,headers:rHeaders.join(','),foglio:'Riepilogo'},function(r){
-      if(r.ok){showSuccess('Modifica salvata!');closeModal();setTimeout(loadR,500);}
-      else{hideSpinner();showAlert('Errore: '+(r.error||''),'err');}
+      if(r.ok){
+        // Aggiorna localmente
+        var artIdx2=rHeaders.indexOf('Articolo');var colTot2=rHeaders.indexOf('Totale');var colNLib2=rHeaders.indexOf('Note Libere');
+        allRows=allRows.map(function(row){
+          if(formatDate(row[0])===editingRow.data&&String(row[1]||'')==editingRow.nome&&String(row[artIdx2>=0?artIdx2:3]||'')==editingRow.articolo){
+            var updated=row.slice();
+            var tot=0;
+            getNoteIndices().forEach(function(i){var col=rHeaders[i];var el=document.getElementById('me-'+col);if(el){var q=parseFloat(el.value)||0;updated[i]=q;tot+=q;}});
+            if(colTot2>=0)updated[colTot2]=tot;
+            if(colNLib2>=0)updated[colNLib2]=nlib;
+            return updated;
+          }
+          return row;
+        });
+        filtra();showSuccess('Modifica salvata!');closeModal();
+      } else{hideSpinner();showAlert('Errore: '+(r.error||''),'err');}
     });
   });
 }
