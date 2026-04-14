@@ -307,11 +307,18 @@ function filterDrop(type){
   var txt=txtEl.value.toLowerCase();
   var src=getSrc(type);
   var list=document.getElementById('drop-'+type);if(!list)return;
-  list.innerHTML=src.filter(function(x){return x.cod.toLowerCase().indexOf(txt)>=0||(x.desc&&x.desc.toLowerCase().indexOf(txt)>=0);}).map(function(x){
+  var items=src.filter(function(x){return x.cod.toLowerCase().indexOf(txt)>=0||(x.desc&&x.desc.toLowerCase().indexOf(txt)>=0);});
+  list.innerHTML='';
+  items.forEach(function(x){
     var safe=txt.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
     var hl=safe?x.cod.replace(new RegExp('('+safe+')','gi'),'<mark>$1</mark>'):x.cod;
-    return'<div class="dropdown-item" onmousedown="selectDrop(''+type+'',''+x.cod.replace(/'/g,"\'")+'',''+x.desc.replace(/'/g,"\'")+'')"><span style="font-weight:700;">'+hl+'</span>'+(x.desc?' <span style="color:var(--text-muted);font-size:11px;">'+x.desc+'</span>':'')+'</div>';
-  }).join('')||'<div class="dropdown-item" style="color:var(--text-dim)">Nessun risultato</div>';
+    var div=document.createElement('div');
+    div.className='dropdown-item';
+    div.innerHTML='<span style="font-weight:700;">'+hl+'</span>'+(x.desc?' <span style="color:var(--text-muted);font-size:11px;">'+x.desc+'</span>':'');
+    (function(cod,desc){div.addEventListener('mousedown',function(){selectDrop(type,cod,desc);});})(x.cod,x.desc||'');
+    list.appendChild(div);
+  });
+  if(!items.length)list.innerHTML='<div class="dropdown-item" style="color:var(--text-dim)">Nessun risultato</div>';
   list.classList.add('open');
 }
 function openDrop(type){filterDrop(type);}
@@ -333,9 +340,14 @@ function buildDateDrop(){
 function filterDataDrop(){
   var txt=document.getElementById('r-data-txt').value.toLowerCase();
   var list=document.getElementById('drop-data');
-  list.innerHTML=dateList.filter(function(d){return d.indexOf(txt)>=0;}).map(function(d){
-    return'<div class="dropdown-item" onmousedown="selectData(''+d+'')">'+d+'</div>';
-  }).join('')||'<div class="dropdown-item" style="color:#b0b0c8">Nessuna data</div>';
+  var items=dateList.filter(function(d){return d.indexOf(txt)>=0;});
+  list.innerHTML='';
+  items.forEach(function(d){
+    var div=document.createElement('div');div.className='dropdown-item';div.textContent=d;
+    div.addEventListener('mousedown',function(){selectData(d);});
+    list.appendChild(div);
+  });
+  if(!items.length)list.innerHTML='<div class="dropdown-item" style="color:#b0b0c8">Nessuna data</div>';
   list.classList.add('open');
 }
 function openDataDrop(){filterDataDrop();}
@@ -407,23 +419,31 @@ function filtra(){
   renderPie(fG);renderBarChart(fG);
   var tb=document.getElementById('tb');
   if(!f.length){tb.innerHTML='<tr><td colspan="'+(rHeaders.filter(function(h){return!isHidden(h);}).length+1)+'" class="empty">Nessun dato trovato</td></tr>';return;}
-  tb.innerHTML=f.map(function(r){
+  tb.innerHTML='';
+  f.forEach(function(r){
     var dStr=formatDate(r[0]);var nome=String(r[1]||'');
     var artCol=rHeaders.indexOf('Articolo');var artVal=artCol>=0?String(r[artCol]||''):'';
-    var dn=dStr.replace(/'/g,"\'");var nn=nome.replace(/'/g,"\'");var an=artVal.replace(/'/g,"\'");
-    var html='<tr><td style="white-space:nowrap;"><button class="btn-edit" onclick="openModal(''+dn+'',''+nn+'',''+an+'')">Edit</button> <button class="btn-danger" onclick="eliminaRiga(''+dn+'',''+nn+'',''+an+'')">Del</button></td>';
+    var tr=document.createElement('tr');
+    var tdAct=document.createElement('td');tdAct.style.whiteSpace='nowrap';
+    var btnEdit=document.createElement('button');btnEdit.className='btn-edit';btnEdit.textContent='Edit';
+    (function(d,n,a){btnEdit.addEventListener('click',function(){openModal(d,n,a);});})(dStr,nome,artVal);
+    var btnDel=document.createElement('button');btnDel.className='btn-danger';btnDel.textContent='Del';btnDel.style.marginLeft='4px';
+    (function(d,n,a){btnDel.addEventListener('click',function(){eliminaRiga(d,n,a);});})(dStr,nome,artVal);
+    tdAct.appendChild(btnEdit);tdAct.appendChild(btnDel);tr.appendChild(tdAct);
     for(var i=0;i<rHeaders.length;i++){
       var col=rHeaders[i],val=r[i]!==undefined?r[i]:'';
       if(isHidden(col))continue;
-      if(col==='Data'){html+='<td>'+dStr+'</td>';continue;}
-      if(col==='Totale'){html+='<td class="td-tot"><span class="badge">'+(parseFloat(val)||0)+'</span></td>';continue;}
-      if(isNoteLibere(col)){html+='<td class="td-note-lib">'+String(val||'')+'</td>';continue;}
-      if(col==='Articolo'){var coll=artCollMap[String(val)]||'';var desc=artDescMap[String(val)]||'';html+='<td>'+String(val)+(desc?'<br><span style="color:var(--text-muted);font-size:11px;">'+desc+'</span>':'')+(coll?'<br><span style="color:#e91e8c;font-size:11px;font-weight:700;">'+coll+'</span>':'')+'</td>';continue;}
-      if(ni.indexOf(i)>=0){var n=parseFloat(val)||0,u=col.toUpperCase();if(n===0){html+='<td class="td-zero">-</td>';}else{var bg=getNoteColor(col);var fg=u==='D1'?'#fff':'#000';html+='<td><span style="display:inline-block;padding:3px 10px;border-radius:20px;font-size:12px;font-weight:800;background:'+bg+';color:'+fg+';">'+n+'</span></td>';}continue;}
-      html+='<td>'+String(val)+'</td>';
+      var td=document.createElement('td');
+      if(col==='Data'){td.textContent=dStr;}
+      else if(col==='Totale'){td.className='td-tot';td.innerHTML='<span class="badge">'+(parseFloat(val)||0)+'</span>';}
+      else if(isNoteLibere(col)){td.className='td-note-lib';td.textContent=String(val||'');}
+      else if(col==='Articolo'){var coll=artCollMap[String(val)]||'';var desc=artDescMap[String(val)]||'';td.innerHTML=String(val)+(desc?'<br><span style="color:var(--text-muted);font-size:11px;">'+desc+'</span>':'')+(coll?'<br><span style="color:#e91e8c;font-size:11px;font-weight:700;">'+coll+'</span>':'');}
+      else if(ni.indexOf(i)>=0){var n=parseFloat(val)||0,u=col.toUpperCase();if(n===0){td.className='td-zero';td.textContent='-';}else{var bg=getNoteColor(col);var fg=u==='D1'?'#fff':'#000';td.innerHTML='<span style="display:inline-block;padding:3px 10px;border-radius:20px;font-size:12px;font-weight:800;background:'+bg+';color:'+fg+';">'+n+'</span>';}}
+      else{td.textContent=String(val);}
+      tr.appendChild(td);
     }
-    return html+'</tr>';
-  }).join('');
+    tb.appendChild(tr);
+  });
 }
 
 function toggleAdd(){
