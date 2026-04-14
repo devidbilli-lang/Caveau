@@ -43,7 +43,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:20p
 .btn-primary:hover{opacity:0.9;}
 .btn-danger{background:#fee2e2;color:var(--red);border:1.5px solid #fca5a5;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;padding:5px 10px;}
 .btn-danger:hover{background:#fca5a5;color:#fff;}
-.btn-edit{background:#ede9fe;color:#7c3aed;border:1.5px solid #c4b5fd;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;padding:5px 10px;}
+.btn-edit{background:linear-gradient(135deg,#f26eff,#d400e8);color:#fff;border:none;border-radius:8px;font-size:16px;cursor:pointer;padding:6px 10px;line-height:1;box-shadow:0 2px 8px rgba(242,110,255,0.3);}
 .btn-edit:hover{background:#c4b5fd;color:#fff;}
 .rep-layout{display:grid;grid-template-columns:1fr 250px;gap:16px;align-items:start;margin-top:16px;}
 .table-wrap{border-radius:12px;overflow:visible;border:1.5px solid var(--border);width:100%;box-shadow:var(--shadow);}
@@ -88,7 +88,7 @@ tbody tr:hover{background:#eeeeff;}
 /* MODAL */
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:500;display:none;align-items:center;justify-content:center;}
 .modal-overlay.open{display:flex;}
-.modal{background:#fff;border-radius:20px;padding:28px;width:100%;max-width:460px;box-shadow:0 20px 60px rgba(242,110,255,0.2);border:2px solid rgba(242,110,255,0.3);}
+.modal{background:#fff;border-radius:20px;padding:28px;width:100%;max-width:420px;box-shadow:0 20px 60px rgba(242,110,255,0.3);border:2px solid rgba(242,110,255,0.4);}
 .modal-title{font-size:16px;font-weight:900;letter-spacing:1px;margin-bottom:4px;}
 .modal-sub{font-size:12px;color:var(--text-muted);font-weight:600;margin-bottom:20px;}
 .modal-note-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px;}
@@ -101,7 +101,7 @@ tbody tr:hover{background:#eeeeff;}
 .borsa-box{background:var(--surface);border:1.5px solid rgba(242,110,255,0.3);border-radius:12px;padding:14px;margin-top:12px;}
 .borsa-box-title{font-size:11px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--accent);margin-bottom:10px;}
 
-.fab-add{position:fixed;bottom:32px;right:32px;z-index:200;background:linear-gradient(135deg,#00e676,#00c853);color:#1a1a2e;border:none;border-radius:50px;padding:16px 28px;font-size:14px;font-weight:900;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;box-shadow:0 6px 24px rgba(0,200,83,0.4);display:flex;align-items:center;gap:8px;transition:transform 0.15s,box-shadow 0.15s;}
+.fab-add{position:fixed;bottom:32px;left:40px;z-index:200;background:linear-gradient(135deg,#00e676,#00c853);color:#1a1a2e;border:none;border-radius:50px;padding:16px 28px;font-size:14px;font-weight:900;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;box-shadow:0 6px 24px rgba(0,200,83,0.4);display:flex;align-items:center;gap:8px;transition:transform 0.15s,box-shadow 0.15s;}
 .fab-add:hover{transform:translateY(-2px);box-shadow:0 10px 32px rgba(0,200,83,0.5);}
 </style>
 </head>
@@ -167,64 +167,7 @@ tbody tr:hover{background:#eeeeff;}
       </table>
     </div>
 
-    <button class="add-toggle-btn" id="add-toggle" onclick="toggleAdd()">+ Aggiungi riga</button>
-    <div class="add-form-body" id="add-body">
-      <div class="add-grid">
-        <div class="fg">
-          <label>Data *</label>
-          <input type="date" id="af-data"/>
-        </div>
-        <div class="fg">
-          <label>Reparto *</label>
-          <div class="search-wrap">
-            <input type="text" id="faf-rep-txt" placeholder="Cerca..." autocomplete="off"
-              oninput="filterDrop('af-rep')" onfocus="openDrop('af-rep')" onblur="blurDrop('af-rep')"/>
-            <button class="clear-btn" onmousedown="clearSrch('af-rep')">x</button>
-            <div class="dropdown-list" id="drop-af-rep"></div>
-          </div>
-          <input type="hidden" id="faf-rep"/>
-        </div>
-        <div class="fg">
-          <label>Articolo *</label>
-          <div class="search-wrap">
-            <input type="text" id="faf-art-txt" placeholder="Cerca..." autocomplete="off"
-              oninput="filterDrop('af-art')" onfocus="openDrop('af-art')" onblur="blurDrop('af-art')"/>
-            <button class="clear-btn" onmousedown="clearSrch('af-art')">x</button>
-            <div class="dropdown-list" id="drop-af-art"></div>
-          </div>
-          <input type="hidden" id="faf-art"/>
-        </div>
-      </div>
-      <div style="margin-bottom:12px;">
-        <div style="font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--text-muted);margin-bottom:8px;">Cluster Caveau</div>
-        <div class="note-inputs" id="af-note-inputs"></div>
-      </div>
-      <div class="fg" style="margin-bottom:14px;">
-        <label>Note Libere</label>
-        <textarea id="af-note-lib" rows="2" style="resize:none;"></textarea>
-      </div>
-      <div style="display:flex;gap:10px;justify-content:flex-end;">
-        <button onclick="toggleAdd()" style="padding:10px 18px;background:none;border:1.5px solid var(--border);border-radius:10px;font-size:13px;font-weight:700;color:var(--text-muted);cursor:pointer;">Annulla</button>
-        <button class="btn-primary" onclick="aggiungiRiga()">Salva riga</button>
-      </div>
-    </div>
 
-    <div class="borsa-box">
-      <div class="borsa-box-title">Borsa Ferma</div>
-      <div class="search-wrap" style="margin-bottom:10px;">
-        <input type="text" id="ffborsa-txt" placeholder="Cerca articolo..." autocomplete="off" style="width:100%;text-align:center;"
-          oninput="filterDrop('fborsa')" onfocus="openDrop('fborsa')" onblur="blurDrop('fborsa')"/>
-        <button class="clear-btn" onmousedown="clearSrch('fborsa')">x</button>
-        <div class="dropdown-list" id="drop-fborsa"></div>
-      </div>
-      <input type="hidden" id="ffborsa"/>
-      <div style="display:flex;gap:8px;align-items:center;">
-        <input type="number" id="fborsa-qta" min="0" placeholder="Qta" style="width:80px;text-align:center;padding:10px;border:1.5px solid rgba(242,110,255,0.4);border-radius:10px;font-size:14px;font-weight:700;font-family:'Montserrat',sans-serif;"/>
-        <button class="btn-primary" onclick="salvaBorsa()" style="flex:1;padding:10px;font-size:13px;">+ Aggiungi</button>
-        <button onclick="smaltisciBorsa()" style="flex:1;padding:10px;background:#86efac;color:#1a1a2e;border:none;border-radius:10px;font-size:13px;font-weight:800;cursor:pointer;">- Smaltisci</button>
-      </div>
-      <div id="err-borsa" style="color:var(--red);font-size:12px;font-weight:600;display:none;margin-top:6px;"></div>
-    </div>
   </div>
 
   <div style="display:flex;flex-direction:column;gap:16px;position:sticky;top:120px;">
@@ -244,6 +187,63 @@ tbody tr:hover{background:#eeeeff;}
 </div>
 
 </div>
+</div>
+
+<div class="modal-overlay" id="add-overlay">
+  <div class="modal" style="max-width:440px;max-height:90vh;overflow-y:auto;">
+    <div class="modal-title" style="margin-bottom:16px;">Aggiungi Riga</div>
+    <div class="add-grid" style="display:grid;grid-template-columns:1fr;gap:10px;margin-bottom:14px;">
+      <div class="fg">
+        <label>Data *</label>
+        <input type="date" id="af-data"/>
+      </div>
+      <div class="fg">
+        <label>Reparto *</label>
+        <div class="search-wrap">
+          <input type="text" id="faf-rep-txt" placeholder="Cerca reparto..." autocomplete="off"
+            oninput="filterDrop('af-rep')" onfocus="openDrop('af-rep')" onblur="blurDrop('af-rep')"/>
+          <button class="clear-btn" onmousedown="clearSrch('af-rep')">x</button>
+          <div class="dropdown-list" id="drop-af-rep"></div>
+        </div>
+        <input type="hidden" id="faf-rep"/>
+      </div>
+      <div class="fg">
+        <label>Articolo *</label>
+        <div class="search-wrap">
+          <input type="text" id="faf-art-txt" placeholder="Cerca articolo..." autocomplete="off"
+            oninput="filterDrop('af-art')" onfocus="openDrop('af-art')" onblur="blurDrop('af-art')"/>
+          <button class="clear-btn" onmousedown="clearSrch('af-art')">x</button>
+          <div class="dropdown-list" id="drop-af-art"></div>
+        </div>
+        <input type="hidden" id="faf-art"/>
+      </div>
+    </div>
+    <div style="font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--text-muted);margin-bottom:8px;">Cluster Caveau</div>
+    <div class="modal-note-grid" id="af-note-inputs" style="margin-bottom:14px;"></div>
+    <div class="fg" style="margin-bottom:16px;">
+      <label>Note Libere</label>
+      <textarea id="af-note-lib" rows="2" style="resize:none;"></textarea>
+    </div>
+    <hr style="border:none;border-top:1.5px solid var(--border);margin-bottom:16px;"/>
+    <div style="font-size:11px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--accent);margin-bottom:10px;">Borsa Ferma</div>
+    <div class="search-wrap" style="margin-bottom:10px;">
+      <input type="text" id="ffborsa-txt" placeholder="Cerca articolo..." autocomplete="off" style="width:100%;text-align:center;"
+        oninput="filterDrop('fborsa')" onfocus="openDrop('fborsa')" onblur="blurDrop('fborsa')"/>
+      <button class="clear-btn" onmousedown="clearSrch('fborsa')">x</button>
+      <div class="dropdown-list" id="drop-fborsa"></div>
+    </div>
+    <input type="hidden" id="ffborsa"/>
+    <div style="display:flex;gap:8px;align-items:center;margin-bottom:6px;">
+      <input type="number" id="fborsa-qta" min="0" placeholder="Qta" style="width:80px;text-align:center;padding:10px;border:1.5px solid rgba(242,110,255,0.4);border-radius:10px;font-size:14px;font-weight:700;font-family:'Montserrat',sans-serif;"/>
+      <button class="btn-primary" onclick="salvaBorsa()" style="flex:1;padding:10px;font-size:13px;">+ Aggiungi</button>
+      <button onclick="smaltisciBorsa()" style="flex:1;padding:10px;background:#86efac;color:#1a1a2e;border:none;border-radius:10px;font-size:13px;font-weight:800;cursor:pointer;">- Smaltisci</button>
+    </div>
+    <div id="err-borsa" style="color:var(--red);font-size:12px;font-weight:600;display:none;margin-bottom:10px;"></div>
+    <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:8px;">
+      <button onclick="closeAddModal()" style="padding:10px 18px;background:none;border:1.5px solid var(--border);border-radius:10px;font-size:13px;font-weight:700;color:var(--text-muted);cursor:pointer;">Chiudi</button>
+      <button class="btn-primary" onclick="aggiungiRiga()">Salva riga</button>
+    </div>
+  </div>
 </div>
 <button class="fab-add" onclick="toggleAdd()">＋ Aggiungi Riga</button>
 
@@ -363,10 +363,22 @@ function clearDataFiltro(){selectedDate='';document.getElementById('r-data-txt')
 
 function buildAfNoteInputs(){
   var ni=getNoteIndices();
-  document.getElementById('af-note-inputs').innerHTML=ni.map(function(i){
+  var container=document.getElementById('af-note-inputs');
+  if(!container)return;
+  container.innerHTML='';
+  ni.forEach(function(i){
     var col=rHeaders[i];var bg=getNoteColor(col);var fg=col.toUpperCase()==='D1'?'#fff':'#000';
-    return'<div class="note-inp-wrap"><span style="background:'+bg+';color:'+fg+';">'+col+'</span><input type="number" id="af-n-'+col+'" min="0" placeholder="0"/></div>';
-  }).join('');
+    var div=document.createElement('div');div.className='modal-note-item';
+    var desc=noteDescMap[col]||'';
+    var lbl=document.createElement('label');
+    lbl.style.cssText='background:'+bg+';color:'+fg+';padding:4px 8px;border-radius:6px;display:block;margin-bottom:4px;font-size:11px;font-weight:800;';
+    lbl.textContent=col+(desc?' — '+desc:'');
+    var inp=document.createElement('input');
+    inp.type='number';inp.id='af-n-'+col;inp.min='0';inp.placeholder='0';
+    inp.style.cssText='width:100%;text-align:center;border:2px solid '+bg+';border-radius:8px;padding:10px 4px;font-size:15px;font-weight:700;font-family:Montserrat,sans-serif;';
+    div.appendChild(lbl);div.appendChild(inp);
+    container.appendChild(div);
+  });
 }
 
 function init(){
@@ -431,7 +443,7 @@ function filtra(){
     var artCol=rHeaders.indexOf('Articolo');var artVal=artCol>=0?String(r[artCol]||''):'';
     var tr=document.createElement('tr');
     var tdAct=document.createElement('td');tdAct.style.whiteSpace='nowrap';
-    var btnEdit=document.createElement('button');btnEdit.className='btn-edit';btnEdit.textContent='Edit';
+    var btnEdit=document.createElement('button');btnEdit.className='btn-edit';btnEdit.textContent='✏️';
     (function(d,n,a){btnEdit.addEventListener('click',function(){openModal(d,n,a);});})(dStr,nome,artVal);
     tdAct.appendChild(btnEdit);tr.appendChild(tdAct);
     for(var i=0;i<rHeaders.length;i++){
@@ -451,9 +463,15 @@ function filtra(){
 }
 
 function toggleAdd(){
-  var body=document.getElementById('add-body');var btn=document.getElementById('add-toggle');
-  if(body.style.display==='none'||!body.style.display){body.style.display='block';btn.style.display='none';}
-  else{body.style.display='none';btn.style.display='block';}
+  document.getElementById('af-data').value=todayLocal();
+  buildAfNoteInputs();
+  document.getElementById('add-overlay').classList.add('open');
+}
+function closeAddModal(){
+  document.getElementById('add-overlay').classList.remove('open');
+  clearSrch('af-rep');clearSrch('af-art');
+  document.getElementById('af-note-lib').value='';
+  getNoteIndices().forEach(function(i){var el=document.getElementById('af-n-'+rHeaders[i]);if(el)el.value='';});
 }
 
 function aggiungiRiga(){
@@ -471,10 +489,7 @@ function aggiungiRiga(){
   gp('write',{data:dataDisplay,reparto:rep,linea:linea,ubicazione:ubicazione,articolo:art,note:noteEntries.join(','),note_libere:nlib,headers:rHeaders.join(','),foglio:'Riepilogo'},function(r){
     if(r.ok){
       showAlert('Riga aggiunta!','ok');
-      clearSrch('af-rep');clearSrch('af-art');document.getElementById('af-note-lib').value='';
-      ni.forEach(function(i){var el=document.getElementById('af-n-'+rHeaders[i]);if(el)el.value='';});
-      document.getElementById('add-body').style.display='none';
-      document.getElementById('add-toggle').style.display='block';
+      closeAddModal();
       setTimeout(loadR,500);
     } else{showAlert('Errore: '+(r.error||''),'err');}
   });
@@ -484,13 +499,22 @@ function openModal(dStr,nome,art){
   editingRow={data:dStr,nome:nome,articolo:art};
   var artIdx=rHeaders.indexOf('Articolo');
   var row=allRows.filter(function(r){return formatDate(r[0])===dStr&&String(r[1]||'')==nome&&(artIdx<0||String(r[artIdx]||'')==art);})[0];
-  document.getElementById('modal-sub').textContent=dStr+' - '+nome+' - '+art;
+  document.getElementById('modal-sub').textContent=dStr+' — '+nome+' — '+art;
   var ni=getNoteIndices();
-  document.getElementById('modal-note-grid').innerHTML=ni.map(function(i){
+  var grid=document.getElementById('modal-note-grid');grid.innerHTML='';
+  ni.forEach(function(i){
     var col=rHeaders[i];var bg=getNoteColor(col);var fg=col.toUpperCase()==='D1'?'#fff':'#000';
-    var val=row?parseFloat(row[i])||0:0;
-    return'<div class="modal-note-item"><label style="background:'+bg+';color:'+fg+';">'+col+'</label><input type="number" id="me-'+col+'" min="0" value="'+val+'"/></div>';
-  }).join('');
+    var val=row?parseFloat(row[i])||0:0;var desc=noteDescMap[col]||'';
+    var div=document.createElement('div');div.className='modal-note-item';
+    var lbl=document.createElement('label');
+    lbl.style.cssText='background:'+bg+';color:'+fg+';padding:4px 8px;border-radius:6px;display:block;margin-bottom:4px;font-size:11px;font-weight:800;';
+    lbl.textContent=col+(desc?' — '+desc:'');
+    var inp=document.createElement('input');
+    inp.type='number';inp.id='me-'+col;inp.min='0';inp.value=val;
+    inp.style.cssText='width:100%;text-align:center;border:2px solid '+bg+';border-radius:8px;padding:10px 4px;font-size:15px;font-weight:700;font-family:Montserrat,sans-serif;';
+    div.appendChild(lbl);div.appendChild(inp);
+    grid.appendChild(div);
+  });
   var nlibIdx=rHeaders.indexOf('Note Libere');
   document.getElementById('modal-note-lib').value=row&&nlibIdx>=0?String(row[nlibIdx]||''):'';
   document.getElementById('modal-overlay').classList.add('open');
