@@ -92,6 +92,9 @@ tbody tr:hover{background:#eeeeff;}
 .modal-title{font-size:16px;font-weight:900;letter-spacing:1px;margin-bottom:4px;}
 .modal-sub{font-size:14px;color:var(--text);font-weight:700;margin-bottom:20px;background:#f8f8fd;border-radius:10px;padding:10px 14px;border:1.5px solid var(--border);}
 .modal-note-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px;}
+.modal-note-item{text-align:center;display:flex;flex-direction:column;}
+.modal-note-item label{font-size:11px;font-weight:800;padding:4px 6px;border-radius:6px;display:block;margin-bottom:4px;min-height:32px;display:flex;align-items:center;justify-content:center;line-height:1.2;}
+.modal-note-item input{flex:1;text-align:center;border-radius:8px;padding:12px 4px;font-size:18px;font-weight:800;font-family:'Montserrat',sans-serif;width:100%;}
 .modal-note-item{text-align:center;}
 .modal-note-item label{display:block;font-size:11px;font-weight:800;margin-bottom:4px;padding:3px 6px;border-radius:6px;}
 .modal-note-item input{width:100%;text-align:center;padding:10px 4px;border:1.5px solid rgba(242,110,255,0.4);border-radius:8px;font-size:15px;font-weight:700;font-family:'Montserrat',sans-serif;}
@@ -248,7 +251,7 @@ tbody tr:hover{background:#eeeeff;}
 <button class="fab-add" onclick="toggleAdd()">＋ Aggiungi Riga</button>
 
 <script>
-var BASE='https://script.google.com/macros/s/AKfycbzJC7bwmuBQO1yg0KzPnT7GUzjEbSIHMfSHhkLbXHld3X3zAzW9aoZvRvdg0NW4jwzi7g/exec';
+var BASE='https://script.google.com/macros/s/AKfycbwUX67uBo3bEDBNJqc5ekbjUHTXRNjPLLg-hpDkTeHye3RoKomMg_p8jw2q23pSni9zHQ/exec';
 var NOTE_COLORS={'A1':'#97fdff','B1':'#ffc572','C1':'#feff93','D1':'#ff5e5e'};
 var NOTE_DEFAULT='#f26eff';
 var tid=0,allRows=[],rHeaders=[],noteDescMap={},artDescMap={},artCollMap={};
@@ -407,7 +410,10 @@ function loadR(){
   document.getElementById('tb').innerHTML='<tr><td class="empty">Caricamento...</td></tr>';
   gp('read_riepilogo',{},function(d){
     if(!d.ok){document.getElementById('tb').innerHTML='<tr><td class="empty">Errore</td></tr>';return;}
-    rHeaders=d.headers||[];allRows=(d.rows||[]).filter(function(r){return r[0];});
+    rHeaders=d.headers||[];
+    allRows=(d.rows||[]).filter(function(r){return r[0];});
+    // Ordina per data decrescente
+    allRows.sort(function(a,b){return toISO(formatDate(b[0])).localeCompare(toISO(formatDate(a[0])));});
     renderHead();buildDateDrop();buildAfNoteInputs();filtra();
   });
 }
