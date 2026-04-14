@@ -104,7 +104,7 @@ tbody tr:hover{background:#eeeeff;}
 .borsa-box{background:var(--surface);border:1.5px solid rgba(242,110,255,0.3);border-radius:12px;padding:14px;margin-top:12px;}
 .borsa-box-title{font-size:11px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--accent);margin-bottom:10px;}
 
-.fab-add{position:fixed;bottom:32px;left:40px;z-index:200;background:rgba(97,255,169,0.15);color:#000;border:2.5px solid #61ffa9;border-radius:50px;padding:14px 26px;font-size:14px;font-weight:900;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;box-shadow:0 4px 20px rgba(97,255,169,0.3);display:flex;align-items:center;gap:8px;transition:all 0.15s;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);}
+.fab-add{position:fixed;bottom:32px;left:40px;z-index:200;background:rgba(97,255,169,0.15);color:#00a550;border:2.5px solid #61ffa9;border-radius:50px;padding:14px 26px;font-size:14px;font-weight:900;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;box-shadow:0 4px 20px rgba(97,255,169,0.3);display:flex;align-items:center;gap:8px;transition:all 0.15s;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);}
 .fab-add:hover{background:rgba(97,255,169,0.1);transform:translateY(-2px);box-shadow:0 8px 28px rgba(97,255,169,0.35);}
 
 .saving-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.35);z-index:9000;display:none;align-items:center;justify-content:center;flex-direction:column;gap:16px;}
@@ -741,8 +741,10 @@ setInterval(function(){
     (d.cluster||[]).forEach(function(r,i){if(i===0||!r[0])return;noteDescMap[String(r[0])]=r[1]?String(r[1]):'';});
     buildDropData('art',d.articoli||[],true);buildDropData('rep',d.reparti||[],true);buildDropData('borsa',d.articoli||[],true);
   });
-  loadR();loadBorseFerme();
 },5*60*1000);
+
+// Sincronizzazione automatica ogni 60 secondi — dati fissi, aggiornamento silenzioso
+setInterval(function(){syncData();},60*1000);
 
 init();
 </script>
