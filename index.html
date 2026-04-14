@@ -10,7 +10,7 @@
 :root{--bg:#f0f0f5;--surface:#fff;--border:#e0e0ec;--accent:#f26eff;--accent2:#d400e8;--accent-glow:rgba(242,110,255,0.15);--green:#059669;--red:#dc2626;--text:#1a1a2e;--text-muted:#6b6b8a;--text-dim:#b0b0c8;--shadow:0 2px 12px rgba(242,110,255,0.08);}
 *{box-sizing:border-box;margin:0;padding:0;font-family:'Montserrat',sans-serif;}
 body{background:var(--bg);color:var(--text);min-height:100vh;font-size:15px;}
-.full-wrap{width:100vw;position:relative;left:50%;right:50%;margin-left:-50vw;margin-right:-50vw;padding:0 40px;}
+.full-wrap{width:100vw;position:relative;left:50%;right:50%;margin-left:-50vw;margin-right:-50vw;padding:0 24px;}
 .inner{max-width:1600px;margin:0 auto;}
 header{display:flex;align-items:center;justify-content:space-between;padding:20px 0 18px;border-bottom:2px solid var(--border);margin-bottom:0;}
 .brand{display:flex;align-items:center;gap:14px;}
@@ -43,7 +43,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:20p
 .btn-primary:hover{opacity:0.9;}
 .btn-danger{background:#fee2e2;color:var(--red);border:1.5px solid #fca5a5;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;padding:5px 10px;}
 .btn-danger:hover{background:#fca5a5;color:#fff;}
-.btn-edit{background:#fff;color:#f26eff;border:2px solid #f26eff;border-radius:8px;font-size:16px;cursor:pointer;padding:5px 9px;line-height:1;box-shadow:0 2px 8px rgba(242,110,255,0.15);}
+.btn-edit{background:#fff;color:#333;border:2px solid #1a1a2e;border-radius:8px;font-size:16px;cursor:pointer;padding:5px 9px;line-height:1;box-shadow:0 2px 8px rgba(242,110,255,0.15);}
 .btn-edit:hover{background:#c4b5fd;color:#fff;}
 .rep-layout{display:grid;grid-template-columns:1fr 250px;gap:16px;align-items:start;margin-top:16px;}
 .table-wrap{border-radius:12px;overflow:visible;border:1.5px solid var(--border);width:100%;box-shadow:var(--shadow);}
@@ -104,8 +104,8 @@ tbody tr:hover{background:#eeeeff;}
 .borsa-box{background:var(--surface);border:1.5px solid rgba(242,110,255,0.3);border-radius:12px;padding:14px;margin-top:12px;}
 .borsa-box-title{font-size:11px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--accent);margin-bottom:10px;}
 
-.fab-add{position:fixed;bottom:32px;left:40px;z-index:200;background:linear-gradient(135deg,#00e676,#00c853);color:#1a1a2e;border:none;border-radius:50px;padding:16px 28px;font-size:14px;font-weight:900;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;box-shadow:0 6px 24px rgba(0,200,83,0.4);display:flex;align-items:center;gap:8px;transition:transform 0.15s,box-shadow 0.15s;}
-.fab-add:hover{transform:translateY(-2px);box-shadow:0 10px 32px rgba(0,200,83,0.5);}
+.fab-add{position:fixed;bottom:32px;left:40px;z-index:200;background:transparent;color:#61ffa9;border:2.5px solid #61ffa9;border-radius:50px;padding:14px 26px;font-size:14px;font-weight:900;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;box-shadow:0 4px 20px rgba(97,255,169,0.25);display:flex;align-items:center;gap:8px;transition:all 0.15s;backdrop-filter:blur(4px);}
+.fab-add:hover{background:rgba(97,255,169,0.1);transform:translateY(-2px);box-shadow:0 8px 28px rgba(97,255,169,0.35);}
 
 .saving-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.35);z-index:9000;display:none;align-items:center;justify-content:center;flex-direction:column;gap:16px;}
 .saving-overlay.open{display:flex;}
@@ -177,7 +177,7 @@ tbody tr:hover{background:#eeeeff;}
     <button class="clear-btn" onmousedown="clearDataFiltro()">x</button>
     <div class="dropdown-list" id="drop-data"></div>
   </div>
-  <button class="btn-green" onclick="loadR()">Aggiorna</button>
+  <button id="sync-btn" onclick="syncData()" style="background:none;border:2px solid #61ffa9;color:#61ffa9;border-radius:10px;font-size:13px;font-weight:800;cursor:pointer;padding:9px 16px;display:flex;align-items:center;gap:6px;transition:all 0.15s;" onmouseover="this.style.background='rgba(97,255,169,0.1)'" onmouseout="this.style.background='none'"><span id="sync-icon" style="display:inline-block;transition:transform 0.4s;">↻</span> Sincronizza</button>
 </div>
 
 <div class="rep-layout">
@@ -248,7 +248,7 @@ tbody tr:hover{background:#eeeeff;}
     </div>
     <hr style="border:none;border-top:1.5px solid var(--border);margin-bottom:16px;"/>
     <div style="font-size:11px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--accent);margin-bottom:10px;">Borsa Ferma</div>
-    <div style="display:grid;grid-template-columns:1fr 1fr 120px;gap:10px;margin-bottom:10px;">
+    <div style="display:grid;grid-template-columns:1fr 80px 100px 100px;gap:8px;align-items:end;margin-bottom:10px;">
       <div class="fg">
         <label>Articolo</label>
         <div class="search-wrap">
@@ -261,14 +261,14 @@ tbody tr:hover{background:#eeeeff;}
       </div>
       <div class="fg">
         <label>Qtà</label>
-        <input type="number" id="fborsa-qta" min="0" placeholder="0"/>
+        <input type="number" id="fborsa-qta" min="0" placeholder="0" style="text-align:center;"/>
       </div>
       <div class="fg" style="display:flex;flex-direction:column;justify-content:flex-end;">
-        <button onclick="salvaBorsa()" style="padding:10px;background:#e0e0e0;color:#555;border:none;border-radius:10px;font-size:13px;font-weight:800;cursor:pointer;width:100%;">+ Aggiungi</button>
+        <button onclick="salvaBorsa()" style="padding:10px 8px;background:#e0e0e0;color:#555;border:none;border-radius:10px;font-size:12px;font-weight:800;cursor:pointer;width:100%;white-space:nowrap;">+ Aggiungi</button>
       </div>
-    </div>
-    <div style="display:flex;gap:8px;margin-bottom:6px;">
-      <button onclick="smaltisciBorsa()" style="flex:1;padding:10px;background:#86efac;color:#1a1a2e;border:none;border-radius:10px;font-size:13px;font-weight:800;cursor:pointer;">- Smaltisci</button>
+      <div class="fg" style="display:flex;flex-direction:column;justify-content:flex-end;">
+        <button onclick="smaltisciBorsa()" style="padding:10px 8px;background:#86efac;color:#1a1a2e;border:none;border-radius:10px;font-size:12px;font-weight:800;cursor:pointer;width:100%;white-space:nowrap;">- Smaltisci</button>
+      </div>
     </div>
     <div id="err-borsa" style="color:var(--red);font-size:12px;font-weight:600;display:none;margin-bottom:10px;"></div>
     <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:8px;">
@@ -289,7 +289,16 @@ var dateList=[],selectedDate='';
 var editingRow=null;
 
 setInterval(function(){var n=new Date();document.getElementById('clk').textContent=('0'+n.getHours()).slice(-2)+':'+('0'+n.getMinutes()).slice(-2);},1000);
-function setConn(s,t){var e=document.getElementById('conn');e.className='conn-pill '+s;document.getElementById('conn-txt').textContent=t;}
+function syncData(){
+  var btn=document.getElementById('sync-btn');
+  var icon=document.getElementById('sync-icon');
+  icon.style.transform='rotate(360deg)';
+  btn.style.opacity='0.6';
+  setTimeout(function(){icon.style.transform='rotate(0deg)';},400);
+  loadR();
+  loadBorseFerme();
+  setTimeout(function(){btn.style.opacity='1';},1000);
+}
 function gp(action,params,cb){
   var fn='_cb'+(tid++);var el=document.createElement('script');
   var q=new URLSearchParams(Object.assign({action:action,callback:fn,t:Date.now()},params||{})).toString();
@@ -552,7 +561,8 @@ function openModal(dStr,nome,art){
     lbl.style.cssText='background:'+bg+';color:'+fg+';padding:4px 8px;border-radius:6px;display:block;margin-bottom:4px;font-size:11px;font-weight:800;';
     lbl.textContent=col+(desc?' — '+desc:'');
     var inp=document.createElement('input');
-    inp.type='number';inp.id='me-'+col;inp.min='0';inp.value=val;
+    inp.type='number';inp.id='me-'+col;inp.min='0';
+    inp.value=val>0?val:'';
     inp.style.cssText='width:100%;text-align:center;border:2px solid '+bg+';border-radius:8px;padding:10px 4px;font-size:15px;font-weight:700;font-family:Montserrat,sans-serif;';
     div.appendChild(lbl);div.appendChild(inp);
     grid.appendChild(div);
