@@ -331,6 +331,7 @@
     </div>
     <div class="modal-acts">
       <button class="btn" onclick="closeModal()" style="background:#fef2f2;color:var(--red);border-color:#fca5a5;">✕ Annulla</button>
+      <button class="btn" onclick="eliminaRiga()" style="background:#dc2626;color:#fff;border-color:#dc2626;">🗑️ Elimina</button>
       <button class="btn btn-primary" onclick="salvaModifica()">✓ Salva Modifiche</button>
     </div>
   </div>
@@ -641,6 +642,32 @@ function closeModal(){
   document.getElementById('modal-overlay').classList.remove('open');
   _editRowIndex=-1;
 }
+
+function eliminaRiga(){
+  var rowIndex=parseInt(document.getElementById('m-row-id').value);
+  var row=allRows[rowIndex];
+  if(!row)return;
+  var lineaIdx=rHeaders.indexOf('Linea');
+  var artIdx=rHeaders.indexOf('Articolo');
+  var origData=formatDate(row[0]);
+  var origLinea=lineaIdx>=0?String(row[lineaIdx]||''):'';
+  var origArt=artIdx>=0?String(row[artIdx]||''):'';
+  var msg='Eliminare la riga?\n\n'+origData+' — '+origLinea+' — '+origArt;
+  if(!confirm(msg))return;
+  gp('delete_row',{
+    orig_data:origData,
+    orig_linea:origLinea,
+    orig_art:origArt
+  },function(r){
+    if(r.ok){
+      showAlert('🗑️ Riga eliminata!','ok');
+      closeModal();
+      setTimeout(loadR,400);
+    } else {
+      showAlert('Errore: '+(r.error||'sconosciuto'),'err');
+    }
+  });
+}
 // Chiudi modal cliccando overlay
 document.getElementById('modal-overlay').addEventListener('click',function(e){
   if(e.target===this)closeModal();
@@ -648,31 +675,50 @@ document.getElementById('modal-overlay').addEventListener('click',function(e){
 
 function salvaModifica(){
   var rowIndex=parseInt(document.getElementById('m-row-id').value);
-  var data=document.getElementById('m-data').value;
+  var nuovaData=document.getElementById('m-data').value;   // AAAA-MM-GG (input date)
   var art=document.getElementById('m-art').value;
   var nlib=document.getElementById('m-note-lib').value;
-  if(!data||!art){showAlert('Data e articolo sono obbligatori','err');return;}
-  var noteEntries=[];
+  if(!nuovaData||!art){showAlert('Data e articolo sono obbligatori','err');return;}
+
+  // Converti AAAA-MM-GG → GG/MM/AAAA per coerenza col foglio
+  function toGGMMAAAA(iso){
+    var p=iso.split('-');
+    return p.length===3?p[2]+'/'+p[1]+'/'+p[0]:iso;
+  }
+
   var ni=getNoteIndices();
+  var noteEntries=[];
   ni.forEach(function(i){
     var cod=rHeaders[i];
     var el=document.getElementById('m-qty-'+cod);
-    if(el){var v=parseFloat(el.value)||0;noteEntries.push(cod+':'+v);}
+    var v=el?parseFloat(el.value)||0:0;
+    noteEntries.push(cod+':'+v);
   });
-  // Recupera info reparto dalla riga originale
+
+  // Chiave originale per localizzare la riga nel foglio
   var row=allRows[rowIndex];
-  var repIdx=rHeaders.indexOf('Reparto')<0?rHeaders.indexOf('reparto'):rHeaders.indexOf('Reparto');
   var lineaIdx=rHeaders.indexOf('Linea');
+  var artIdx=rHeaders.indexOf('Articolo');
+  var origData=formatDate(row[0]);           // GG/MM/AAAA originale
+  var origLinea=lineaIdx>=0?String(row[lineaIdx]||''):'';
+  var origArt=artIdx>=0?String(row[artIdx]||''):'';
+
+  // Reparto dalla riga originale
+  var repIdx=rHeaders.indexOf('Reparto');
   var repVal=repIdx>=0?String(row[repIdx]||''):'';
-  var lineaVal=lineaIdx>=0?String(row[lineaIdx]||''):'';
-  // Il server userà rowId per trovare e aggiornare la riga esatta nel foglio
+
   gp('update',{
-    row_id: String(rowIndex),  // indice 0-based in allRows; il GAS mapperà alla riga del foglio
-    data:data,
-    articolo:art,
-    note:noteEntries.join(','),
-    note_libere:nlib,
-    headers:rHeaders.join(',')
+    // Chiave di ricerca (GAS cerca questa riga nel foglio)
+    orig_data   : origData,
+    orig_linea  : origLinea,
+    orig_art    : origArt,
+    // Nuovi valori
+    data        : toGGMMAAAA(nuovaData),
+    articolo    : art,
+    reparto     : repVal,
+    note        : noteEntries.join(','),
+    note_libere : nlib,
+    headers     : rHeaders.join(',')
   },function(r){
     if(r.ok){
       showAlert('✓ Movimento aggiornato!','ok');
