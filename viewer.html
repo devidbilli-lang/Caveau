@@ -136,13 +136,8 @@ tbody tr:hover{background:#eeeeff;}
 <div id="alert-box" class="alert-box"></div>
 
 
-<div class="saving-overlay" id="saving-overlay">
-  <div class="spinner"></div>
   <div class="saving-msg" id="saving-msg">Salvataggio in corso...</div>
 </div>
-<div class="success-toast" id="success-toast">
-  <span class="check">✓</span>
-  <div class="msg" id="success-msg">Movimento salvato!</div>
 </div>
     <div class="modal-sub" id="modal-sub"></div>
     <div class="modal-note-grid" id="modal-note-grid"></div>
@@ -431,26 +426,6 @@ function blurDataDrop(){setTimeout(function(){document.getElementById('drop-data
 function selectData(d){selectedDate=d;document.getElementById('r-data-txt').value=d;document.getElementById('drop-data').classList.remove('open');filtra();}
 function clearDataFiltro(){selectedDate='';document.getElementById('r-data-txt').value='';filtra();}
 
-function buildAfNoteInputs(){
-  var ni=getNoteIndices();
-  var container=document.getElementById('af-note-inputs');
-  if(!container)return;
-  container.innerHTML='';
-  ni.forEach(function(i){
-    var col=rHeaders[i];var bg=getNoteColor(col);var fg=col.toUpperCase()==='D1'?'#fff':'#000';
-    var div=document.createElement('div');div.className='modal-note-item';
-    var desc=noteDescMap[col]||'';
-    var lbl=document.createElement('label');
-    lbl.style.cssText='background:'+bg+';color:'+fg+';padding:4px 8px;border-radius:6px;display:block;margin-bottom:4px;font-size:11px;font-weight:800;';
-    lbl.textContent=col+(desc?' — '+desc:'');
-    var inp=document.createElement('input');
-    inp.type='number';inp.id='af-n-'+col;inp.min='0';inp.placeholder='';
-    inp.style.cssText='width:100%;text-align:center;border:2px solid '+bg+';border-radius:8px;padding:10px 4px;font-size:15px;font-weight:700;font-family:Montserrat,sans-serif;';
-    div.appendChild(lbl);div.appendChild(inp);
-    container.appendChild(div);
-  });
-}
-
 function init(){
   setConn('load','Connessione...');
   gp('init',{},function(d){
@@ -531,18 +506,6 @@ function filtra(){
   });
 }
 
-function toggleAdd(){
-  document.getElementById('af-data').value=todayLocal();
-  buildAfNoteInputs();
-  document.getElementById('add-overlay').classList.add('open');
-}
-function closeAddModal(){
-  document.getElementById('add-overlay').classList.remove('open');
-  clearSrch('af-rep');clearSrch('af-art');
-  document.getElementById('af-note-lib').value='';
-  getNoteIndices().forEach(function(i){var el=document.getElementById('af-n-'+rHeaders[i]);if(el)el.value='';});
-}
-
 function aggiungiRiga(){
   var data=document.getElementById('af-data').value;
   var rep=document.getElementById('faf-rep').value;
@@ -580,34 +543,6 @@ function aggiungiRiga(){
     } else{hideSpinner();showAlert('Errore: '+(r.error||''),'err');}
   });
 }
-
-function openModal(dStr,nome,art){
-  editingRow={data:dStr,nome:nome,articolo:art};
-  var artIdx=rHeaders.indexOf('Articolo');
-  var row=allRows.filter(function(r){return formatDate(r[0])===dStr&&String(r[1]||'')==nome&&(artIdx<0||String(r[artIdx]||'')==art);})[0];
-  document.getElementById('modal-sub').textContent=dStr+' — '+nome+' — '+art;
-  var ni=getNoteIndices();
-  var grid=document.getElementById('modal-note-grid');grid.innerHTML='';
-  ni.forEach(function(i){
-    var col=rHeaders[i];var bg=getNoteColor(col);var fg=col.toUpperCase()==='D1'?'#fff':'#000';
-    var val=row?parseFloat(row[i])||0:0;var desc=noteDescMap[col]||'';
-    var div=document.createElement('div');div.className='modal-note-item';
-    var lbl=document.createElement('label');
-    lbl.style.cssText='background:'+bg+';color:'+fg+';padding:4px 8px;border-radius:6px;display:block;margin-bottom:4px;font-size:11px;font-weight:800;';
-    lbl.textContent=col+(desc?' — '+desc:'');
-    var inp=document.createElement('input');
-    inp.type='number';inp.id='me-'+col;inp.min='0';
-    inp.value=val>0?val:'';
-    inp.style.cssText='width:100%;text-align:center;border:2px solid '+bg+';border-radius:8px;padding:10px 4px;font-size:15px;font-weight:700;font-family:Montserrat,sans-serif;';
-    div.appendChild(lbl);div.appendChild(inp);
-    grid.appendChild(div);
-  });
-  var nlibIdx=rHeaders.indexOf('Note Libere');
-  document.getElementById('modal-note-lib').value=row&&nlibIdx>=0?String(row[nlibIdx]||''):'';
-  document.getElementById('modal-overlay').classList.add('open');
-}
-
-function closeModal(){document.getElementById('modal-overlay').classList.remove('open');editingRow=null;}
 
 function salvaModifica(){
   if(!editingRow)return;
@@ -648,43 +583,6 @@ function salvaModifica(){
   });
 }
 
-function eliminaRigaModal(){
-  if(!editingRow)return;
-  gp('delete_row',{data:editingRow.data,reparto:editingRow.nome,articolo:editingRow.articolo},function(r){
-    if(r.ok){showAlert('Riga eliminata!','ok');closeModal();setTimeout(loadR,500);}
-    else{showAlert('Errore: '+(r.error||''),'err');}
-  });
-}
-function eliminaRiga(dStr,nome,art){
-  if(!confirm('Eliminare la riga?\n'+dStr+' - '+nome+' - '+art))return;
-  gp('delete_row',{data:dStr,reparto:nome,articolo:art},function(r){
-    if(r.ok){showAlert('Riga eliminata!','ok');setTimeout(loadR,500);}
-    else{showAlert('Errore: '+(r.error||''),'err');}
-  });
-}
-
-function salvaBorsa(){
-  var art=document.getElementById('ffborsa').value;var qta=parseFloat(document.getElementById('fborsa-qta').value)||0;
-  var errEl=document.getElementById('err-borsa');errEl.style.display='none';
-  if(!art){errEl.textContent='Seleziona un articolo';errEl.style.display='block';return;}
-  if(qta<=0){errEl.textContent='Inserisci una quantita valida';errEl.style.display='block';return;}
-  showSpinner('Salvataggio borsa...');
-  gp('write_borsa',{articolo:art,descrizione:artDescMap[art]||'',quantita:qta},function(r){
-    if(r.ok){showSuccess('Borsa Ferma salvata!');clearSrch('fborsa');document.getElementById('fborsa-qta').value='';loadBorseFerme();}
-    else{hideSpinner();showAlert('Errore: '+(r.error||''),'err');}
-  });
-}
-function smaltisciBorsa(){
-  var art=document.getElementById('ffborsa').value;var qta=parseFloat(document.getElementById('fborsa-qta').value)||0;
-  var errEl=document.getElementById('err-borsa');errEl.style.display='none';
-  if(!art){errEl.textContent='Seleziona un articolo';errEl.style.display='block';return;}
-  if(qta<=0){errEl.textContent='Inserisci una quantita valida';errEl.style.display='block';return;}
-  showSpinner('Smaltimento borsa...');
-  gp('write_borsa',{articolo:art,descrizione:artDescMap[art]||'',quantita:-qta},function(r){
-    if(r.ok){showSuccess('Borsa smaltita!');clearSrch('fborsa');document.getElementById('fborsa-qta').value='';loadBorseFerme();}
-    else{hideSpinner();showAlert('Errore: '+(r.error||''),'err');}
-  });
-}
 function loadBorseFerme(){
   var div=document.getElementById('borse-chart');if(!div)return;
   gp('read_borse_ferme',{},function(d){
@@ -733,15 +631,6 @@ function renderBarChart(rows){
   }catch(e){}
 }
 
-function showSpinner(msg){var o=document.getElementById('saving-overlay');document.getElementById('saving-msg').textContent=msg||'Salvataggio in corso...';o.classList.add('open');}
-function hideSpinner(){document.getElementById('saving-overlay').classList.remove('open');}
-function showSuccess(msg){
-  hideSpinner();
-  var t=document.getElementById('success-toast');
-  document.getElementById('success-msg').textContent=msg||'Salvato!';
-  t.classList.add('open');
-  setTimeout(function(){t.classList.remove('open');},2000);
-}
 function showAlert(t,c){var e=document.getElementById('alert-box');e.textContent=t;e.className='alert-box '+c;e.style.display='block';setTimeout(function(){e.style.display='none';},4000);}
 
 setInterval(function(){
