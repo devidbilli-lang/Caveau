@@ -119,22 +119,19 @@ tbody tr:hover{background:#eeeeff;}
 </style>
 </head>
 <body>
-
-<!-- LOGIN -->
-<div class="login-wrap" id="login-screen" style="min-height:100vh;display:flex;align-items:center;justify-content:center;">
-  <div style="background:#fff;border:2.5px solid var(--accent);border-radius:20px;padding:40px 48px;width:100%;max-width:400px;text-align:center;box-shadow:0 0 24px 6px rgba(242,110,255,0.4),0 0 60px 12px rgba(242,110,255,0.15);">
+<div class="login-wrap" id="login-screen" style="min-height:100vh;display:flex;align-items:center;justify-content:center;position:fixed;inset:0;z-index:9999;background:var(--bg);">
+  <div style="background:#fff;border:2.5px solid var(--accent);border-radius:20px;padding:40px 48px;width:100%;max-width:400px;text-align:center;box-shadow:0 0 24px 6px rgba(242,110,255,0.4);">
     <div style="margin-bottom:20px;"><img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiIgdmlld0JveD0iMCAwIDUxMiA1MTIiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CiAgPGRlZnM+CiAgICA8bGluZWFyR3JhZGllbnQgaWQ9ImJnIiB4MT0iMCUiIHkxPSIwJSIgeDI9IjEwMCUiIHkyPSIxMDAlIj4KICAgICAgPHN0b3Agb2Zmc2V0PSIwJSIgc3R5bGU9InN0b3AtY29sb3I6I2YyNmVmZiIvPgogICAgICA8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0eWxlPSJzdG9wLWNvbG9yOiNkNDAwZTgiLz4KICAgIDwvbGluZWFyR3JhZGllbnQ+CiAgPC9kZWZzPgogIDxyZWN0IHdpZHRoPSI1MTIiIGhlaWdodD0iNTEyIiByeD0iOTYiIGZpbGw9InVybCgjYmcpIi8+CiAgPHJlY3QgeD0iMTI4IiB5PSIyNDgiIHdpZHRoPSIyNTYiIGhlaWdodD0iMTg0IiByeD0iMjgiIGZpbGw9IndoaXRlIi8+CiAgPHBhdGggZD0iTTE2OCAyNDggVjE4MCBDMTY4IDEwOCAzNDQgMTA4IDM0NCAxODAgVjI0OCIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLXdpZHRoPSI0MCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBmaWxsPSJub25lIi8+CiAgPGNpcmNsZSBjeD0iMjU2IiBjeT0iMzMwIiByPSIzMiIgZmlsbD0iI2YyNmVmZiIvPgogIDxyZWN0IHg9IjI0MCIgeT0iMzQ2IiB3aWR0aD0iMzIiIGhlaWdodD0iMzYiIHJ4PSI4IiBmaWxsPSIjZjI2ZWZmIi8+Cjwvc3ZnPgo=" width="72" height="72" style="border-radius:18px;"/></div>
     <div style="font-size:22px;font-weight:900;letter-spacing:2px;margin-bottom:4px;">CAVEAU (Valentano)</div>
     <div style="font-size:12px;font-weight:600;color:var(--text-muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:28px;">Accesso Riepilogo</div>
     <label style="font-size:12px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:var(--accent);margin-bottom:8px;display:block;">Password</label>
     <input type="password" id="pwd-input" placeholder="••••••••"
-      style="width:100%;padding:13px 16px;border:1.5px solid rgba(242,110,255,0.4);border-radius:10px;font-size:16px;font-weight:600;text-align:center;font-family:'Montserrat',sans-serif;color:var(--text);background:#fff;margin-bottom:20px;"
+      style="width:100%;padding:13px 16px;border:1.5px solid rgba(242,110,255,0.4);border-radius:10px;font-size:16px;font-weight:600;text-align:center;font-family:Montserrat,sans-serif;margin-bottom:20px;"
       onkeydown="if(event.key==='Enter')doLogin()"/>
-    <button onclick="doLogin()" style="width:100%;padding:14px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:800;letter-spacing:1px;text-transform:uppercase;cursor:pointer;">Accedi</button>
-    <div id="login-err" style="color:var(--red);font-size:13px;font-weight:600;margin-top:12px;display:none;"></div>
+    <button onclick="doLogin()" style="width:100%;padding:14px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:800;cursor:pointer;">Accedi</button>
+    <div id="login-err" style="color:#dc2626;font-size:13px;font-weight:600;margin-top:12px;display:none;"></div>
   </div>
 </div>
-
 <div id="app-screen" style="display:none;">
 <div id="alert-box" class="alert-box"></div>
 
@@ -771,8 +768,8 @@ function doLogin(){
       document.getElementById('app-screen').style.display='block';
       init();
     } else {
-      err.textContent='Password errata. Riprova.';err.style.display='block';
-      document.getElementById('pwd-input').value='';document.getElementById('pwd-input').focus();
+      err.textContent='Password errata.';err.style.display='block';
+      document.getElementById('pwd-input').value='';
     }
   });
 }
