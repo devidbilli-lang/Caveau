@@ -342,6 +342,24 @@ function renderPie(rows){
   loadBorseFerme();
 }
 
+function syncData(){
+  var icon=document.getElementById('sync-icon');
+  setConn('load','Sincronizzazione...');
+  icon.style.transition='transform 1s linear';
+  icon.style.transform='rotate(720deg)';
+  setTimeout(function(){icon.style.transition='';icon.style.transform='rotate(0deg)';},1000);
+  gp('read_riepilogo',{},function(d){
+    if(!d.ok){setConn('err','Errore sync');return;}
+    rHeaders=d.headers||[];
+    var newRows=(d.rows||[]).filter(function(r){return r[0];});
+    newRows.sort(function(a,b){return toISO(formatDate(b[0])).localeCompare(toISO(formatDate(a[0])));});
+    allRows=newRows;
+    renderHead();buildDateDrop();filtra();
+    setConn('ok','Connesso');
+  });
+  loadBorseFerme();
+}
+
 // Auto-sync ogni 60 secondi
 setInterval(function(){
   if(document.getElementById('app-screen').style.display!=='none') syncData();
