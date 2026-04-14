@@ -643,31 +643,42 @@ function closeModal(){
   _editRowIndex=-1;
 }
 
-function eliminaRiga(){
-  var rowIndex=parseInt(document.getElementById('m-row-id').value);
+function _getOrigKey(rowIndex){
   var row=allRows[rowIndex];
-  if(!row)return;
+  if(!row)return null;
   var lineaIdx=rHeaders.indexOf('Linea');
   var artIdx=rHeaders.indexOf('Articolo');
-  var origData=formatDate(row[0]);
-  var origLinea=lineaIdx>=0?String(row[lineaIdx]||''):'';
-  var origArt=artIdx>=0?String(row[artIdx]||''):'';
-  var msg='Eliminare la riga?\n\n'+origData+' — '+origLinea+' — '+origArt;
-  if(!confirm(msg))return;
+  return {
+    row:row,
+    origData:formatDate(row[0]),
+    origLinea:lineaIdx>=0?String(row[lineaIdx]||''):'',
+    origArt:artIdx>=0?String(row[artIdx]||''):''
+  };
+}
+
+function eliminaRiga(){
+  var rowIndex=parseInt(document.getElementById('m-row-id').value);
+  var k=_getOrigKey(rowIndex);
+  if(!k){showAlert('Riga non trovata in memoria','err');return;}
+  if(!confirm('Eliminare la riga?\n\n'+k.origData+' / '+k.origLinea+' / '+k.origArt))return;
+  showAlert('\u23f3 Eliminazione in corso...','inf');
   gp('delete_row',{
-    orig_data:origData,
-    orig_linea:origLinea,
-    orig_art:origArt
+    orig_data:k.origData,
+    orig_linea:k.origLinea,
+    orig_art:k.origArt
   },function(r){
-    if(r.ok){
-      showAlert('🗑️ Riga eliminata!','ok');
+    if(r&&r.ok){
+      showAlert('\uD83D\uDDD1\uFE0F Riga eliminata!','ok');
       closeModal();
       setTimeout(loadR,400);
     } else {
-      showAlert('Errore: '+(r.error||'sconosciuto'),'err');
+      var em=r?JSON.stringify(r):'nessuna risposta';
+      showAlert('\u2717 Eliminazione fallita: '+em,'err');
+      console.error('delete_row response:',r);
     }
   });
 }
+
 // Chiudi modal cliccando overlay
 document.getElementById('modal-overlay').addEventListener('click',function(e){
   if(e.target===this)closeModal();
@@ -675,12 +686,12 @@ document.getElementById('modal-overlay').addEventListener('click',function(e){
 
 function salvaModifica(){
   var rowIndex=parseInt(document.getElementById('m-row-id').value);
-  var nuovaData=document.getElementById('m-data').value;   // AAAA-MM-GG (input date)
-  var art=document.getElementById('m-art').value;
+  var nuovaData=document.getElementById('m-data').value;
+  var art=document.getElementById('m-art').value.trim();
   var nlib=document.getElementById('m-note-lib').value;
-  if(!nuovaData||!art){showAlert('Data e articolo sono obbligatori','err');return;}
+  if(!nuovaData){showAlert('\u26a0 Inserisci la data','err');return;}
+  if(!art){showAlert('\u26a0 Seleziona un articolo','err');return;}
 
-  // Converti AAAA-MM-GG → GG/MM/AAAA per coerenza col foglio
   function toGGMMAAAA(iso){
     var p=iso.split('-');
     return p.length===3?p[2]+'/'+p[1]+'/'+p[0]:iso;
@@ -691,41 +702,37 @@ function salvaModifica(){
   ni.forEach(function(i){
     var cod=rHeaders[i];
     var el=document.getElementById('m-qty-'+cod);
-    var v=el?parseFloat(el.value)||0:0;
-    noteEntries.push(cod+':'+v);
+    noteEntries.push(cod+':'+(el?parseFloat(el.value)||0:0));
   });
 
-  // Chiave originale per localizzare la riga nel foglio
-  var row=allRows[rowIndex];
-  var lineaIdx=rHeaders.indexOf('Linea');
-  var artIdx=rHeaders.indexOf('Articolo');
-  var origData=formatDate(row[0]);           // GG/MM/AAAA originale
-  var origLinea=lineaIdx>=0?String(row[lineaIdx]||''):'';
-  var origArt=artIdx>=0?String(row[artIdx]||''):'';
-
-  // Reparto dalla riga originale
+  var k=_getOrigKey(rowIndex);
+  if(!k){showAlert('Riga non trovata in memoria','err');return;}
   var repIdx=rHeaders.indexOf('Reparto');
-  var repVal=repIdx>=0?String(row[repIdx]||''):'';
+  var repVal=repIdx>=0?String(k.row[repIdx]||''):'';
 
-  gp('update',{
-    // Chiave di ricerca (GAS cerca questa riga nel foglio)
-    orig_data   : origData,
-    orig_linea  : origLinea,
-    orig_art    : origArt,
-    // Nuovi valori
-    data        : toGGMMAAAA(nuovaData),
-    articolo    : art,
-    reparto     : repVal,
-    note        : noteEntries.join(','),
-    note_libere : nlib,
-    headers     : rHeaders.join(',')
-  },function(r){
-    if(r.ok){
-      showAlert('✓ Movimento aggiornato!','ok');
+  var payload={
+    orig_data:k.origData,
+    orig_linea:k.origLinea,
+    orig_art:k.origArt,
+    data:toGGMMAAAA(nuovaData),
+    articolo:art,
+    reparto:repVal,
+    note:noteEntries.join(','),
+    note_libere:nlib,
+    headers:rHeaders.join(',')
+  };
+
+  showAlert('\u23f3 Salvataggio... chiave: "'+k.origData+'" / "'+k.origLinea+'" / "'+k.origArt+'"','inf');
+
+  gp('update',payload,function(r){
+    if(r&&r.ok){
+      showAlert('\u2713 Movimento aggiornato!','ok');
       closeModal();
       setTimeout(loadR,400);
     } else {
-      showAlert('Errore: '+(r.error||'sconosciuto'),'err');
+      var em=r?JSON.stringify(r):'nessuna risposta dal server';
+      showAlert('\u2717 Salvataggio fallito: '+em,'err');
+      console.error('update response:',r);
     }
   });
 }
