@@ -100,6 +100,9 @@ tbody tr:hover{background:#eeeeff;}
 /* BORSA */
 .borsa-box{background:var(--surface);border:1.5px solid rgba(242,110,255,0.3);border-radius:12px;padding:14px;margin-top:12px;}
 .borsa-box-title{font-size:11px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--accent);margin-bottom:10px;}
+
+.fab-add{position:fixed;bottom:32px;right:32px;z-index:200;background:linear-gradient(135deg,#00e676,#00c853);color:#1a1a2e;border:none;border-radius:50px;padding:16px 28px;font-size:14px;font-weight:900;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;box-shadow:0 6px 24px rgba(0,200,83,0.4);display:flex;align-items:center;gap:8px;transition:transform 0.15s,box-shadow 0.15s;}
+.fab-add:hover{transform:translateY(-2px);box-shadow:0 10px 32px rgba(0,200,83,0.5);}
 </style>
 </head>
 <body>
@@ -115,7 +118,9 @@ tbody tr:hover{background:#eeeeff;}
       <textarea id="modal-note-lib" rows="2" style="resize:none;"></textarea>
     </div>
     <div class="modal-actions">
-      <button class="btn-danger" onclick="closeModal()">Annulla</button>
+      <button class="btn-danger" onclick="if(editingRow&&confirm('Eliminare la riga?'))eliminaRigaModal()">Elimina</button>
+      <div style="flex:1;"></div>
+      <button style="padding:10px 18px;background:none;border:1.5px solid var(--border);border-radius:10px;font-size:13px;font-weight:700;color:var(--text-muted);cursor:pointer;" onclick="closeModal()">Annulla</button>
       <button class="btn-primary" onclick="salvaModifica()">Salva</button>
     </div>
   </div>
@@ -240,6 +245,7 @@ tbody tr:hover{background:#eeeeff;}
 
 </div>
 </div>
+<button class="fab-add" onclick="toggleAdd()">＋ Aggiungi Riga</button>
 
 <script>
 var BASE='https://script.google.com/macros/s/AKfycbzJC7bwmuBQO1yg0KzPnT7GUzjEbSIHMfSHhkLbXHld3X3zAzW9aoZvRvdg0NW4jwzi7g/exec';
@@ -427,9 +433,7 @@ function filtra(){
     var tdAct=document.createElement('td');tdAct.style.whiteSpace='nowrap';
     var btnEdit=document.createElement('button');btnEdit.className='btn-edit';btnEdit.textContent='Edit';
     (function(d,n,a){btnEdit.addEventListener('click',function(){openModal(d,n,a);});})(dStr,nome,artVal);
-    var btnDel=document.createElement('button');btnDel.className='btn-danger';btnDel.textContent='Del';btnDel.style.marginLeft='4px';
-    (function(d,n,a){btnDel.addEventListener('click',function(){eliminaRiga(d,n,a);});})(dStr,nome,artVal);
-    tdAct.appendChild(btnEdit);tdAct.appendChild(btnDel);tr.appendChild(tdAct);
+    tdAct.appendChild(btnEdit);tr.appendChild(tdAct);
     for(var i=0;i<rHeaders.length;i++){
       var col=rHeaders[i],val=r[i]!==undefined?r[i]:'';
       if(isHidden(col))continue;
@@ -511,6 +515,13 @@ function salvaModifica(){
   });
 }
 
+function eliminaRigaModal(){
+  if(!editingRow)return;
+  gp('delete_row',{data:editingRow.data,reparto:editingRow.nome,articolo:editingRow.articolo},function(r){
+    if(r.ok){showAlert('Riga eliminata!','ok');closeModal();setTimeout(loadR,500);}
+    else{showAlert('Errore: '+(r.error||''),'err');}
+  });
+}
 function eliminaRiga(dStr,nome,art){
   if(!confirm('Eliminare la riga?\n'+dStr+' - '+nome+' - '+art))return;
   gp('delete_row',{data:dStr,reparto:nome,articolo:art},function(r){
