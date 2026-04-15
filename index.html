@@ -169,10 +169,26 @@ tbody tr:hover{background:#eeeeff;}
 </header>
 
 <div class="filters">
-  <input type="text" id="r-rep" placeholder="Linea..." oninput="filtra()"/>
-  <input type="text" id="r-art" placeholder="Desc. articolo..." oninput="filtra()"/>
-  <input type="text" id="r-cluster" placeholder="Cluster caveau..." oninput="filtra()"/>
-  <input type="text" id="r-brand" placeholder="Brand..." oninput="filtra()"/>
+  <div class="search-wrap" style="z-index:25;">
+    <input type="text" id="r-rep" placeholder="Linea..." autocomplete="off" oninput="filterFDrop('rep')" onfocus="openFDrop('rep')" onblur="blurFDrop('rep')"/>
+    <button class="clear-btn" onmousedown="clearFDrop('rep')">x</button>
+    <div class="dropdown-list" id="fdrop-rep"></div>
+  </div>
+  <div class="search-wrap" style="z-index:25;">
+    <input type="text" id="r-art" placeholder="Desc. articolo..." autocomplete="off" oninput="filterFDrop('art')" onfocus="openFDrop('art')" onblur="blurFDrop('art')"/>
+    <button class="clear-btn" onmousedown="clearFDrop('art')">x</button>
+    <div class="dropdown-list" id="fdrop-art"></div>
+  </div>
+  <div class="search-wrap" style="z-index:25;">
+    <input type="text" id="r-cluster" placeholder="Cluster caveau..." autocomplete="off" oninput="filterFDrop('cluster')" onfocus="openFDrop('cluster')" onblur="blurFDrop('cluster')"/>
+    <button class="clear-btn" onmousedown="clearFDrop('cluster')">x</button>
+    <div class="dropdown-list" id="fdrop-cluster"></div>
+  </div>
+  <div class="search-wrap" style="z-index:25;">
+    <input type="text" id="r-brand" placeholder="Brand..." autocomplete="off" oninput="filterFDrop('brand')" onfocus="openFDrop('brand')" onblur="blurFDrop('brand')"/>
+    <button class="clear-btn" onmousedown="clearFDrop('brand')">x</button>
+    <div class="dropdown-list" id="fdrop-brand"></div>
+  </div>
   <div class="search-wrap" style="z-index:30;">
     <input type="text" id="r-data-txt" placeholder="Data..." autocomplete="off" style="width:150px;"
       oninput="filterDataDrop()" onfocus="openDataDrop()" onblur="blurDataDrop()"/>
@@ -309,7 +325,7 @@ function syncData(){
     var newRows=(d.rows||[]).filter(function(r){return r[0];});
     newRows.sort(function(a,b){return toISO(formatDate(b[0])).localeCompare(toISO(formatDate(a[0])));});
     allRows=newRows;
-    renderHead();buildDateDrop();buildAfNoteInputs();filtra();
+    renderHead();buildDateDrop();buildAfNoteInputs();buildFDropLists();filtra();
     setConn('ok','Connesso');
   });
   loadBorseFerme();
@@ -401,6 +417,52 @@ function clearSrch(type){
   var txtEl=document.getElementById(getTxtId(type));var hidEl=document.getElementById(getHidId(type));
   if(txtEl)txtEl.value='';if(hidEl)hidEl.value='';
 }
+// FILTER DROPDOWNS
+var fDropLists={rep:[],art:[],cluster:[],brand:[]};
+function buildFDropLists(){
+  var linee={},arti={},clusters={},brands={};
+  var artIdx=rHeaders.indexOf('Articolo');var lineaIdx=rHeaders.indexOf('Linea');
+  var ni=getNoteIndices();
+  allRows.forEach(function(r){
+    if(lineaIdx>=0&&r[lineaIdx])linee[String(r[lineaIdx])]=1;
+    else if(r[1])linee[String(r[1])]=1;
+    var cod=artIdx>=0?String(r[artIdx]||''):'';
+    if(cod){
+      var desc=artDescMap[cod]||'';if(desc)arti[desc]=1;
+      var brand=artBrandMap[cod]||'';if(brand)brands[brand]=1;
+    }
+    ni.forEach(function(i){if((parseFloat(r[i])||0)>0)clusters[rHeaders[i]]=1;});
+  });
+  // Also add all known values
+  Object.keys(artDescMap).forEach(function(k){if(artDescMap[k])arti[artDescMap[k]]=1;});
+  Object.keys(artBrandMap).forEach(function(k){if(artBrandMap[k])brands[artBrandMap[k]]=1;});
+  Object.keys(noteDescMap).forEach(function(k){clusters[k]=1;});
+  fDropLists.rep=Object.keys(linee).sort();
+  fDropLists.art=Object.keys(arti).sort();
+  fDropLists.cluster=Object.keys(clusters).sort();
+  fDropLists.brand=Object.keys(brands).sort();
+}
+function filterFDrop(type){
+  var el=document.getElementById('r-'+type);if(!el)return;
+  var txt=el.value.toLowerCase();
+  var list=document.getElementById('fdrop-'+type);if(!list)return;
+  var items=(fDropLists[type]||[]).filter(function(v){return v.toLowerCase().indexOf(txt)>=0;});
+  list.innerHTML='';
+  items.forEach(function(v){
+    var div=document.createElement('div');div.className='dropdown-item';
+    div.textContent=v;
+    div.addEventListener('mousedown',function(){
+      el.value=v;list.classList.remove('open');filtra();
+    });
+    list.appendChild(div);
+  });
+  if(!items.length)list.innerHTML='<div class="dropdown-item" style="color:var(--text-dim)">Nessun risultato</div>';
+  list.classList.add('open');
+}
+function openFDrop(type){filterFDrop(type);}
+function blurFDrop(type){setTimeout(function(){var l=document.getElementById('fdrop-'+type);if(l)l.classList.remove('open');},150);}
+function clearFDrop(type){var el=document.getElementById('r-'+type);if(el)el.value='';filtra();}
+
 function buildDateDrop(){
   var dates={};allRows.forEach(function(r){var d=formatDate(r[0]);if(d)dates[d]=1;});
   dateList=Object.keys(dates).sort(function(a,b){return toISO(b).localeCompare(toISO(a));});
@@ -467,7 +529,7 @@ function loadR(){
     allRows=(d.rows||[]).filter(function(r){return r[0];});
     // Ordina per data decrescente
     allRows.sort(function(a,b){return toISO(formatDate(b[0])).localeCompare(toISO(formatDate(a[0])));});
-    renderHead();buildDateDrop();buildAfNoteInputs();filtra();
+    renderHead();buildDateDrop();buildAfNoteInputs();buildFDropLists();filtra();
   });
 }
 
