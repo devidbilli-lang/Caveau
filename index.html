@@ -170,7 +170,7 @@ tbody tr:hover{background:#eeeeff;}
 
 <div class="filters">
   <div class="search-wrap" style="z-index:25;">
-    <input type="text" id="r-rep" placeholder="Linea..." autocomplete="off" oninput="filterFDrop('rep')" onfocus="openFDrop('rep')" onblur="blurFDrop('rep')"/>
+    <input type="text" id="r-rep" placeholder="Nome..." autocomplete="off" oninput="filterFDrop('rep')" onfocus="openFDrop('rep')" onblur="blurFDrop('rep')"/>
     <button class="clear-btn" onmousedown="clearFDrop('rep')">x</button>
     <div class="dropdown-list" id="fdrop-rep"></div>
   </div>
@@ -424,8 +424,7 @@ function buildFDropLists(){
   var artIdx=rHeaders.indexOf('Articolo');var lineaIdx=rHeaders.indexOf('Linea');
   var ni=getNoteIndices();
   allRows.forEach(function(r){
-    if(lineaIdx>=0&&r[lineaIdx])linee[String(r[lineaIdx])]=1;
-    else if(r[1])linee[String(r[1])]=1;
+    if(r[1])linee[String(r[1])]=1;
     var cod=artIdx>=0?String(r[artIdx]||''):'';
     if(cod){
       var desc=artDescMap[cod]||'';if(desc)arti[desc]=1;
@@ -434,7 +433,7 @@ function buildFDropLists(){
     ni.forEach(function(i){if((parseFloat(r[i])||0)>0)clusters[rHeaders[i]]=1;});
   });
   // Also add all known values
-  Object.keys(artDescMap).forEach(function(k){if(artDescMap[k])arti[artDescMap[k]]=1;});
+  Object.keys(artDescMap).forEach(function(k){if(artDescMap[k]){var coll=artCollMap[k]||'';var label=artDescMap[k]+(coll?' — '+coll:'');arti[label]=1;}});
   Object.keys(artBrandMap).forEach(function(k){if(artBrandMap[k])brands[artBrandMap[k]]=1;});
   Object.keys(noteDescMap).forEach(function(k){clusters[k]=1;});
   fDropLists.rep=Object.keys(linee).sort();
@@ -554,7 +553,7 @@ function filtra(){
   var ni=getNoteIndices();
   var f=allRows.filter(function(r){
     if(rep){var lv=lineaIdx>=0?String(r[lineaIdx]||'').toLowerCase():'';var nv=String(r[1]||'').toLowerCase();if(lv.indexOf(rep)<0&&nv.indexOf(rep)<0)return false;}
-    if(art){var cod=String(r[artIdx>=0?artIdx:3]||'');var desc=(artDescMap[cod]||'').toLowerCase();if(desc.indexOf(art)<0&&cod.toLowerCase().indexOf(art)<0)return false;}
+    if(art){var cod=String(r[artIdx>=0?artIdx:3]||'');var desc=(artDescMap[cod]||'').toLowerCase();var coll2=(artCollMap[cod]||'').toLowerCase();if(desc.indexOf(art)<0&&cod.toLowerCase().indexOf(art)<0&&coll2.indexOf(art)<0)return false;}
     if(cluster){var found=false;ni.forEach(function(i){var cn=rHeaders[i].toLowerCase();var qty=parseFloat(r[i])||0;if(cn.indexOf(cluster)>=0&&qty>0)found=true;var dc=(noteDescMap[rHeaders[i]]||'').toLowerCase();if(dc.indexOf(cluster)>=0&&qty>0)found=true;});if(!found)return false;}
     var brand=document.getElementById('r-brand')?document.getElementById('r-brand').value.toLowerCase():'';
     if(brand){var cod2=String(r[artIdx>=0?artIdx:3]||'');var br=(artBrandMap[cod2]||'').toLowerCase();if(br.indexOf(brand)<0)return false;}
