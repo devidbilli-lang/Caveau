@@ -13,6 +13,7 @@ body{background:var(--bg);color:var(--text);min-height:100vh;font-size:15px;}
 /* LOGIN */
 .login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;}
 .login-card{background:#fff;border:2.5px solid var(--accent);border-radius:20px;padding:40px 48px;width:100%;max-width:400px;text-align:center;box-shadow:0 0 24px 6px rgba(242,110,255,0.4);}
+@keyframes spin{to{transform:rotate(360deg);}}
 /* LAYOUT */
 .full-wrap{width:100vw;position:relative;left:50%;right:50%;margin-left:-50vw;margin-right:-50vw;padding:0 16px;}
 .inner{max-width:100%;}
@@ -82,7 +83,11 @@ tbody tr:hover{background:#eeeeff;}
     <input type="password" id="pwd-input" placeholder="••••••••"
       style="width:100%;padding:13px 16px;border:1.5px solid rgba(242,110,255,0.4);border-radius:10px;font-size:16px;font-weight:600;text-align:center;font-family:'Montserrat',sans-serif;margin-bottom:20px;"
       onkeydown="if(event.key==='Enter')doLogin()"/>
-    <button onclick="doLogin()" style="width:100%;padding:14px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:800;cursor:pointer;">Accedi</button>
+    <button onclick="doLogin()" id="login-btn" style="width:100%;padding:14px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:800;cursor:pointer;">Accedi</button>
+    <div id="login-spinner" style="display:none;margin-top:16px;text-align:center;">
+      <div style="width:36px;height:36px;border:4px solid rgba(242,110,255,0.2);border-top-color:#f26eff;border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto;"></div>
+      <div style="font-size:12px;font-weight:700;color:var(--accent);margin-top:8px;letter-spacing:1px;">Verifica in corso...</div>
+    </div>
     <div id="login-err" style="color:var(--red);font-size:13px;font-weight:600;margin-top:12px;display:none;"></div>
   </div>
 </div>
@@ -131,7 +136,6 @@ tbody tr:hover{background:#eeeeff;}
     <button class="clear-btn" onmousedown="clearDataFiltro()">x</button>
     <div class="dropdown-list" id="drop-data"></div>
   </div>
-  <button class="btn-green" onclick="loadR()">↻ Aggiorna</button>
 </div>
 
 <div class="rep-layout">
@@ -166,7 +170,7 @@ tbody tr:hover{background:#eeeeff;}
 </div>
 
 <script>
-var BASE='https://script.google.com/macros/s/AKfycbzgCXVjbLgGpJGYco-YsKZ_l2HEFIzu9e1f6PSzU8VtoS6RxxvRIcMsuGuM4PJ8TCavyQ/exec';
+var BASE='https://script.google.com/macros/s/AKfycby3ijsI1oE2t_lObb9hZ_TRh_JKCQ1VzPHrVBA6k3fxR2sSQ2ZzPvStmzNAe-93chPlPw/exec';
 var NOTE_COLORS={'A1':'#97fdff','B1':'#ffc572','C1':'#feff93','D1':'#ff5e5e'};
 var NOTE_DEFAULT='#f26eff';
 var tid=0,allRows=[],rHeaders=[],noteDescMap={},artDescMap={},artCollMap={},artBrandMap={};
@@ -261,7 +265,11 @@ function doLogin(){
   var pwd=document.getElementById('pwd-input').value;
   var err=document.getElementById('login-err');err.style.display='none';
   if(!pwd){err.textContent='Inserisci la password.';err.style.display='block';return;}
+  var btn=document.getElementById('login-btn');
+  var spinner=document.getElementById('login-spinner');
+  btn.style.display='none';spinner.style.display='block';
   gp('get_password',{},function(d){
+    btn.style.display='block';spinner.style.display='none';
     if(!d.ok){err.textContent='Errore connessione.';err.style.display='block';return;}
     if(pwd===d.password){
       document.getElementById('login-screen').style.display='none';
