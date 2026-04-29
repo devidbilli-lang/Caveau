@@ -195,6 +195,12 @@ tbody tr:hover{background:#eeeeff;}
     <button class="clear-btn" onmousedown="clearDataFiltro()">x</button>
     <div class="dropdown-list" id="drop-data"></div>
   </div>
+  <div class="search-wrap" style="z-index:28;">
+    <input type="text" id="r-week-txt" placeholder="Settimana..." autocomplete="off" style="width:180px;"
+      oninput="filterWeekDrop()" onfocus="openWeekDrop()" onblur="blurWeekDrop()"/>
+    <button class="clear-btn" onmousedown="clearWeekFiltro()">x</button>
+    <div class="dropdown-list" id="drop-week"></div>
+  </div>
   <button class="btn-green" onclick="loadR()">Aggiorna</button>
 </div>
 
@@ -299,7 +305,24 @@ tbody tr:hover{background:#eeeeff;}
   </div>
 </div>
 <button class="fab-add" onclick="toggleAdd()">＋ Aggiungi Riga</button>
+<button class="fab-add" onclick="toggleSelezione()" style="bottom:100px;background:rgba(59,130,246,0.35);color:#1d4ed8;border-color:#3b82f6;box-shadow:0 4px 20px rgba(59,130,246,0.3);">☑ Aggiungi Selezione</button>
 
+
+<div class="modal-overlay" id="sel-overlay">
+  <div class="modal" style="max-width:900px;max-height:90vh;overflow-y:auto;">
+    <div class="modal-title" style="margin-bottom:6px;">Aggiungi Selezione</div>
+    <div style="font-size:12px;color:var(--text-muted);font-weight:600;margin-bottom:14px;">Righe dalla tabella attuale — modifica qtà e deseleziona quelle da escludere</div>
+    <div style="margin-bottom:12px;">
+      <label style="font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--text-muted);">Data inserimento</label>
+      <input type="date" id="sel-data" style="padding:9px 12px;border:1.5px solid rgba(242,110,255,0.35);border-radius:8px;font-size:13px;font-weight:600;font-family:'Montserrat',sans-serif;width:200px;"/>
+    </div>
+    <div id="sel-rows-container" style="max-height:55vh;overflow-y:auto;border:1.5px solid var(--border);border-radius:10px;"></div>
+    <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:14px;">
+      <button onclick="closeSelezione()" style="padding:10px 18px;background:none;border:1.5px solid var(--border);border-radius:10px;font-size:13px;font-weight:700;color:var(--text-muted);cursor:pointer;">Annulla</button>
+      <button class="btn-primary" onclick="salvaSelzione()">✓ Salva tutto</button>
+    </div>
+  </div>
+</div>
 <script>
 var BASE='https://script.google.com/macros/s/AKfycby3ijsI1oE2t_lObb9hZ_TRh_JKCQ1VzPHrVBA6k3fxR2sSQ2ZzPvStmzNAe-93chPlPw/exec';
 var NOTE_COLORS={'A1':'#97fdff','B1':'#ffc572','C1':'#feff93','D1':'#ff5e5e'};
@@ -462,9 +485,77 @@ function openFDrop(type){filterFDrop(type);}
 function blurFDrop(type){setTimeout(function(){var l=document.getElementById('fdrop-'+type);if(l)l.classList.remove('open');},150);}
 function clearFDrop(type){var el=document.getElementById('r-'+type);if(el)el.value='';filtra();}
 
+
+// WEEK FILTER
+var selectedWeek=''; // formato 'YYYY-WNN'
+var weekList=[];
+
+function getWeekKey(dateStr){
+  // dateStr in formato GG/MM/AAAA
+  var p=dateStr.split('/');if(p.length!==3)return'';
+  var d=new Date(parseInt(p[2]),parseInt(p[1])-1,parseInt(p[0]));
+  var jan1=new Date(d.getFullYear(),0,1);
+  var weekNum=Math.ceil(((d-jan1)/86400000+jan1.getDay()+1)/7);
+  return d.getFullYear()+'-W'+String(weekNum).padStart(2,'0');
+}
+
+function getWeekLabel(key){
+  // key = 'YYYY-WNN'
+  var parts=key.split('-W');if(parts.length!==2)return key;
+  var year=parseInt(parts[0]);var week=parseInt(parts[1]);
+  // Calcola primo e ultimo giorno della settimana
+  var jan1=new Date(year,0,1);
+  var dayOfWeek=jan1.getDay()||7; // 1=Mon
+  var firstMon=new Date(jan1.getTime()+(dayOfWeek<=1?0:8-dayOfWeek)*86400000);
+  var weekStart=new Date(firstMon.getTime()+(week-1)*7*86400000);
+  var weekEnd=new Date(weekStart.getTime()+6*86400000);
+  var fmt=function(d){return('0'+d.getDate()).slice(-2)+'/'+('0'+(d.getMonth()+1)).slice(-2);};
+  return'Sett. '+week+' ('+fmt(weekStart)+' - '+fmt(weekEnd)+'/'+year+')';
+}
+
+function buildWeekList(){
+  var weeks={};
+  allRows.forEach(function(r){
+    var d=formatDate(r[0]);if(!d)return;
+    var k=getWeekKey(d);if(k)weeks[k]=1;
+  });
+  weekList=Object.keys(weeks).sort(function(a,b){return b.localeCompare(a);});
+}
+
+function filterWeekDrop(){
+  var txt=document.getElementById('r-week-txt').value.toLowerCase();
+  var list=document.getElementById('drop-week');if(!list)return;
+  list.innerHTML='';
+  var items=weekList.filter(function(k){return getWeekLabel(k).toLowerCase().indexOf(txt)>=0;});
+  items.forEach(function(k){
+    var div=document.createElement('div');div.className='dropdown-item';
+    div.textContent=getWeekLabel(k);
+    div.addEventListener('mousedown',function(){selectWeek(k);});
+    list.appendChild(div);
+  });
+  if(!items.length)list.innerHTML='<div class="dropdown-item" style="color:var(--text-dim)">Nessuna settimana</div>';
+  list.classList.add('open');
+}
+function openWeekDrop(){filterWeekDrop();}
+function blurWeekDrop(){setTimeout(function(){var l=document.getElementById('drop-week');if(l)l.classList.remove('open');},150);}
+function selectWeek(k){
+  selectedWeek=k;
+  selectedDate=''; // reset data singola
+  document.getElementById('r-data-txt').value='';
+  document.getElementById('r-week-txt').value=getWeekLabel(k);
+  document.getElementById('drop-week').classList.remove('open');
+  filtra();
+}
+function clearWeekFiltro(){
+  selectedWeek='';
+  document.getElementById('r-week-txt').value='';
+  filtra();
+}
+
 function buildDateDrop(){
   var dates={};allRows.forEach(function(r){var d=formatDate(r[0]);if(d)dates[d]=1;});
   dateList=Object.keys(dates).sort(function(a,b){return toISO(b).localeCompare(toISO(a));});
+  buildWeekList();
 }
 function filterDataDrop(){
   var txt=document.getElementById('r-data-txt').value.toLowerCase();
@@ -558,10 +649,20 @@ function filtra(){
     var brand=document.getElementById('r-brand')?document.getElementById('r-brand').value.toLowerCase():'';
     if(brand){var cod2=String(r[artIdx>=0?artIdx:3]||'');var br=(artBrandMap[cod2]||'').toLowerCase();if(br.indexOf(brand)<0)return false;}
     if(selectedDate&&formatDate(r[0])!==selectedDate)return false;
+    if(selectedWeek&&getWeekKey(formatDate(r[0]))!==selectedWeek)return false;
     return true;
   });
   var gDate=selectedDate||(dateList.length?dateList[0]:'');
-  var fG=allRows.filter(function(r){return formatDate(r[0])===gDate;});
+  var gWeek=selectedWeek;
+  var brandEl=document.getElementById('r-brand');
+  var brandFiltro=brandEl?brandEl.value.toLowerCase():'';
+  var artIdxG=rHeaders.indexOf('Articolo');
+  var fG=allRows.filter(function(r){
+    if(gWeek){if(getWeekKey(formatDate(r[0]))!==gWeek)return false;}
+    else if(formatDate(r[0])!==gDate)return false;
+    if(brandFiltro){var codG=String(r[artIdxG>=0?artIdxG:3]||'');var brG=(artBrandMap[codG]||'').toLowerCase();if(brG.indexOf(brandFiltro)<0)return false;}
+    return true;
+  });
   renderPie(fG);renderBarChart(fG);
   var tb=document.getElementById('tb');
   if(!f.length){tb.innerHTML='<tr><td colspan="'+(rHeaders.filter(function(h){return!isHidden(h);}).length+1)+'" class="empty">Nessun dato trovato</td></tr>';return;}
@@ -588,6 +689,147 @@ function filtra(){
     }
     tb.appendChild(tr);
   });
+}
+
+
+// AGGIUNGI SELEZIONE
+var selectionRows = []; // righe correnti filtrate
+
+function toggleSelezione(){
+  // Prendi le righe filtrate correnti dalla tabella
+  var rep=document.getElementById('r-rep').value.toLowerCase();
+  var art=document.getElementById('r-art').value.toLowerCase();
+  var cluster=document.getElementById('r-cluster').value.toLowerCase();
+  var brand=document.getElementById('r-brand')?document.getElementById('r-brand').value.toLowerCase():'';
+  var artIdx=rHeaders.indexOf('Articolo');var lineaIdx=rHeaders.indexOf('Linea');
+  var ni=getNoteIndices();
+
+  selectionRows=allRows.filter(function(r){
+    if(rep){var lv=lineaIdx>=0?String(r[lineaIdx]||'').toLowerCase():'';var nv=String(r[1]||'').toLowerCase();if(lv.indexOf(rep)<0&&nv.indexOf(rep)<0)return false;}
+    if(art){var cod=String(r[artIdx>=0?artIdx:3]||'');var desc=(artDescMap[cod]||'').toLowerCase();var coll2=(artCollMap[cod]||'').toLowerCase();if(desc.indexOf(art)<0&&cod.toLowerCase().indexOf(art)<0&&coll2.indexOf(art)<0)return false;}
+    if(cluster){var found=false;ni.forEach(function(i){var cn=rHeaders[i].toLowerCase();var qty=parseFloat(r[i])||0;if(cn.indexOf(cluster)>=0&&qty>0)found=true;var dc=(noteDescMap[rHeaders[i]]||'').toLowerCase();if(dc.indexOf(cluster)>=0&&qty>0)found=true;});if(!found)return false;}
+    if(brand){var cod2=String(r[artIdx>=0?artIdx:3]||'');var br=(artBrandMap[cod2]||'').toLowerCase();if(br.indexOf(brand)<0)return false;}
+    if(selectedDate&&formatDate(r[0])!==selectedDate)return false;
+    if(selectedWeek&&getWeekKey(formatDate(r[0]))!==selectedWeek)return false;
+    return true;
+  });
+
+  if(!selectionRows.length){showAlert('Nessuna riga selezionata dai filtri','err');return;}
+
+  // Set date to today
+  document.getElementById('sel-data').value=todayLocal();
+
+  // Build rows UI
+  var artIdxL=rHeaders.indexOf('Articolo');
+  var container=document.getElementById('sel-rows-container');
+  container.innerHTML='';
+
+  selectionRows.forEach(function(r, idx){
+    var nome=String(r[1]||'');
+    var artVal=artIdxL>=0?String(r[artIdxL]||''):'';
+    var desc=artDescMap[artVal]||'';
+    var coll=artCollMap[artVal]||'';
+    var ni=getNoteIndices();
+
+    var row=document.createElement('div');
+    row.style.cssText='display:flex;align-items:center;gap:10px;padding:10px 12px;border-bottom:1px solid var(--border);';
+    row.id='selrow-'+idx;
+
+    // Checkbox
+    var chk=document.createElement('input');
+    chk.type='checkbox';chk.checked=true;chk.id='selchk-'+idx;
+    chk.style.cssText='width:18px;height:18px;cursor:pointer;flex-shrink:0;accent-color:#f26eff;';
+    chk.addEventListener('change',function(){
+      row.style.opacity=chk.checked?'1':'0.4';
+    });
+
+    // Nome (reparto) - editable
+    var nomeEl=document.createElement('input');
+    nomeEl.type='text';nomeEl.value=nome;nomeEl.id='selnome-'+idx;
+    nomeEl.style.cssText='width:160px;padding:6px 8px;border:1.5px solid rgba(242,110,255,0.35);border-radius:8px;font-size:12px;font-weight:600;font-family:Montserrat,sans-serif;flex-shrink:0;';
+
+    // Articolo label
+    var artDiv=document.createElement('div');
+    artDiv.style.cssText='flex:1;min-width:0;';
+    artDiv.innerHTML='<div style="font-size:12px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+artVal+'</div>'+
+      (desc?'<div style="font-size:10px;color:var(--text-muted);">'+desc+'</div>':'')+
+      (coll?'<div style="font-size:10px;color:#e91e8c;font-weight:700;">'+coll+'</div>':'');
+
+    // Cluster inputs
+    var noteDiv=document.createElement('div');
+    noteDiv.style.cssText='display:flex;gap:6px;flex-shrink:0;';
+    ni.forEach(function(i){
+      var col=rHeaders[i];var bg=getNoteColor(col);var fg=col.toUpperCase()==='D1'?'#fff':'#000';
+      var wrap=document.createElement('div');
+      wrap.style.cssText='display:flex;flex-direction:column;align-items:center;gap:2px;';
+      var lbl=document.createElement('label');
+      lbl.style.cssText='font-size:9px;font-weight:800;background:'+bg+';color:'+fg+';padding:2px 5px;border-radius:4px;';
+      lbl.textContent=col;
+      var inp=document.createElement('input');
+      inp.type='number';inp.min='0';inp.placeholder='0';inp.id='selqty-'+idx+'-'+col;
+      inp.style.cssText='width:52px;text-align:center;padding:5px 2px;border:1.5px solid '+bg+';border-radius:6px;font-size:13px;font-weight:700;font-family:Montserrat,sans-serif;';
+      wrap.appendChild(lbl);wrap.appendChild(inp);
+      noteDiv.appendChild(wrap);
+    });
+
+    row.appendChild(chk);
+    row.appendChild(nomeEl);
+    row.appendChild(artDiv);
+    row.appendChild(noteDiv);
+    container.appendChild(row);
+  });
+
+  document.getElementById('sel-overlay').classList.add('open');
+}
+
+function closeSelezione(){
+  document.getElementById('sel-overlay').classList.remove('open');
+}
+
+function salvaSelzione(){
+  var data=localToDisplay(document.getElementById('sel-data').value);
+  if(!data){showAlert('Inserisci una data','err');return;}
+  var ni=getNoteIndices();
+  var artIdxL=rHeaders.indexOf('Articolo');
+  var toSave=[];
+
+  selectionRows.forEach(function(r,idx){
+    var chk=document.getElementById('selchk-'+idx);
+    if(!chk||!chk.checked)return;
+    var nome=document.getElementById('selnome-'+idx).value.trim();
+    var artVal=artIdxL>=0?String(r[artIdxL]||''):'';
+    var noteEntries=[];
+    ni.forEach(function(i){
+      var col=rHeaders[i];
+      var el=document.getElementById('selqty-'+idx+'-'+col);
+      if(el){var q=parseFloat(el.value)||0;if(q>0)noteEntries.push(col+':'+q);}
+    });
+    if(!noteEntries.length)return; // skip se nessuna qtà
+    var linea='',ubicazione='';
+    repData.forEach(function(row,i){if(i===0||!row[0])return;if(String(row[0]).trim()===nome){linea=String(row[1]||'');ubicazione=String(row[2]||'');}});
+    toSave.push({data:data,reparto:nome,linea:linea,ubicazione:ubicazione,articolo:artVal,note:noteEntries.join(','),headers:rHeaders.join(',')});
+  });
+
+  if(!toSave.length){showAlert('Nessuna riga con qtà da salvare','err');return;}
+
+  showSpinner('Salvataggio '+toSave.length+' righe...');
+  var saved=0;var errors=0;
+
+  function saveNext(i){
+    if(i>=toSave.length){
+      hideSpinner();
+      closeSelezione();
+      if(errors>0)showAlert('Salvate '+saved+' righe, '+errors+' errori','err');
+      else showSuccess('Salvate '+saved+' righe!');
+      setTimeout(function(){syncData();},500);
+      return;
+    }
+    gp('write',toSave[i],function(r){
+      if(r.ok)saved++;else errors++;
+      saveNext(i+1);
+    });
+  }
+  saveNext(0);
 }
 
 function toggleAdd(){
