@@ -767,6 +767,8 @@ function toggleSelezione(){
       lbl.textContent=col;
       var inp=document.createElement('input');
       inp.type='number';inp.min='0';inp.placeholder='0';inp.id='selqty-'+idx+'-'+col;
+      var existingVal=parseFloat(r[i])||0;
+      inp.value=existingVal>0?existingVal:'';
       inp.style.cssText='width:52px;text-align:center;padding:5px 2px;border:1.5px solid '+bg+';border-radius:6px;font-size:13px;font-weight:700;font-family:Montserrat,sans-serif;';
       wrap.appendChild(lbl);wrap.appendChild(inp);
       noteDiv.appendChild(wrap);
