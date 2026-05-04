@@ -596,7 +596,12 @@ function filtra(){
     return true;
   });
   var gDate=selectedDate||(dateList.length?dateList[0]:'');
-  var fG=allRows.filter(function(r){return formatDate(r[0])===gDate;});
+  var rep2=document.getElementById('r-rep').value.toLowerCase();
+  var art2=document.getElementById('r-art').value.toLowerCase();
+  var cluster2=document.getElementById('r-cluster').value.toLowerCase();
+  var brand2=document.getElementById('r-brand')?document.getElementById('r-brand').value.toLowerCase():'';
+  var hasFilter=rep2||art2||cluster2||brand2||selectedDate||selectedWeek;
+  var fG=hasFilter?f:allRows.filter(function(r){return formatDate(r[0])===gDate;});
   renderPie(fG);renderBarChart(fG);
   updateTotalBadge(f);
   var tb=document.getElementById('tb');
