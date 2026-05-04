@@ -542,7 +542,7 @@ function loadR(){
 function fixStickyHead(){
   var filtersEl=document.querySelector('.filters');
   if(!filtersEl)return;
-  var h=Math.round(filtersEl.getBoundingClientRect().height);
+  var h=filtersEl.offsetTop+filtersEl.offsetHeight;
   var style=document.getElementById('sticky-head-style');
   if(!style){style=document.createElement('style');style.id='sticky-head-style';document.head.appendChild(style);}
   style.textContent='thead tr{position:sticky;top:'+h+'px;z-index:10;} .right-sticky{position:sticky;top:'+h+'px;}';
