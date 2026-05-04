@@ -48,7 +48,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:20p
 .rep-layout{display:grid;grid-template-columns:1fr 250px;gap:16px;align-items:start;margin-top:16px;}
 .table-wrap{border-radius:12px;overflow:visible;border:1.5px solid var(--border);width:100%;box-shadow:var(--shadow);}
 table{width:100%;border-collapse:collapse;table-layout:auto;}
-thead tr{position:sticky;top:57px;z-index:10;}
+thead tr{position:sticky;top:145px;z-index:10;}
 thead th{background:linear-gradient(135deg,var(--accent),var(--accent2));padding:11px 6px;text-align:center;font-size:11px;font-weight:800;letter-spacing:0.5px;color:#fff;text-transform:uppercase;white-space:nowrap;}
 thead th.th-tot{background:#86efac;color:#1a1a2e;}
 thead th.th-act{background:#1a1a2e;color:#fff;width:90px;}
@@ -195,8 +195,19 @@ tbody tr:hover{background:#eeeeff;}
     <button class="clear-btn" onmousedown="clearDataFiltro()">x</button>
     <div class="dropdown-list" id="drop-data"></div>
   </div>
-</div>
-<button class="btn-green" onclick="loadR()">Aggiorna</button>
+  <div class="search-wrap" style="z-index:28;">
+    <input type="text" id="r-week-txt" placeholder="Settimana..." autocomplete="off" style="width:180px;"
+      oninput="filterWeekDrop()" onfocus="openWeekDrop()" onblur="blurWeekDrop()"/>
+    <button class="clear-btn" onmousedown="clearWeekFiltro()">x</button>
+    <div class="dropdown-list" id="drop-week"></div>
+  </div>
+  <div style="display:flex;align-items:center;gap:12px;">
+    <div style="background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:14px;padding:10px 18px;box-shadow:0 4px 16px rgba(242,110,255,0.4);display:flex;align-items:center;gap:10px;flex-shrink:0;">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><rect x="3" y="11" width="18" height="11" rx="3" fill="white"/><path d="M7 11V7a5 5 0 0 1 10 0v4" stroke="white" stroke-width="2.5" stroke-linecap="round" fill="none"/><circle cx="12" cy="16.5" r="2" fill="var(--accent2)"/></svg>
+      <div id="total-badge-filter" style="color:#fff;font-size:22px;font-weight:900;letter-spacing:1px;min-width:36px;text-align:center;">—</div>
+    </div>
+    <button class="btn-green" onclick="loadR()">↻ Aggiorna</button>
+  </div>
 </div>
 
 <div class="rep-layout">
@@ -212,17 +223,6 @@ tbody tr:hover{background:#eeeeff;}
   </div>
 
   <div style="display:flex;flex-direction:column;gap:16px;position:sticky;top:120px;">
-    <div style="background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:16px;padding:16px 20px;box-shadow:0 4px 20px rgba(242,110,255,0.4);display:flex;align-items:center;justify-content:space-between;">
-      <div style="display:flex;align-items:center;gap:10px;">
-        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <rect x="3" y="11" width="18" height="11" rx="3" fill="white"/>
-          <path d="M7 11V7a5 5 0 0 1 10 0v4" stroke="white" stroke-width="2.5" stroke-linecap="round" fill="none"/>
-          <circle cx="12" cy="16.5" r="2" fill="var(--accent2)"/>
-        </svg>
-        <span style="color:#fff;font-size:11px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;">Totale</span>
-      </div>
-      <div id="total-badge" style="color:#fff;font-size:28px;font-weight:900;letter-spacing:1px;">—</div>
-    </div>
     <div class="right-card">
       <div class="right-card-title">Dettaglio Coffre</div>
       <div id="bar-chart" style="max-height:280px;overflow-y:auto;"></div>
@@ -492,7 +492,55 @@ function clearFDrop(type){var el=document.getElementById('r-'+type);if(el)el.val
 function buildDateDrop(){
   var dates={};allRows.forEach(function(r){var d=formatDate(r[0]);if(d)dates[d]=1;});
   dateList=Object.keys(dates).sort(function(a,b){return toISO(b).localeCompare(toISO(a));});
+  buildWeekList();
 }
+// WEEK FILTER
+var weekList=[];
+function getWeekKey(dateStr){
+  var p=dateStr.split('/');if(p.length!==3)return'';
+  var d=new Date(parseInt(p[2]),parseInt(p[1])-1,parseInt(p[0]));
+  var jan1=new Date(d.getFullYear(),0,1);
+  var weekNum=Math.ceil(((d-jan1)/86400000+jan1.getDay()+1)/7);
+  return d.getFullYear()+'-W'+String(weekNum).padStart(2,'0');
+}
+function getWeekLabel(key){
+  var parts=key.split('-W');if(parts.length!==2)return key;
+  var year=parseInt(parts[0]);var week=parseInt(parts[1]);
+  var jan1=new Date(year,0,1);var dayOfWeek=jan1.getDay()||7;
+  var firstMon=new Date(jan1.getTime()+(dayOfWeek<=1?0:8-dayOfWeek)*86400000);
+  var weekStart=new Date(firstMon.getTime()+(week-1)*7*86400000);
+  var weekEnd=new Date(weekStart.getTime()+6*86400000);
+  var fmt=function(d){return('0'+d.getDate()).slice(-2)+'/'+('0'+(d.getMonth()+1)).slice(-2);};
+  return'Sett. '+week+' ('+fmt(weekStart)+' - '+fmt(weekEnd)+'/'+year+')';
+}
+function buildWeekList(){
+  var weeks={};
+  allRows.forEach(function(r){var d=formatDate(r[0]);if(!d)return;var k=getWeekKey(d);if(k)weeks[k]=1;});
+  weekList=Object.keys(weeks).sort(function(a,b){return b.localeCompare(a);});
+}
+function filterWeekDrop(){
+  var txt=document.getElementById('r-week-txt').value.toLowerCase();
+  var list=document.getElementById('drop-week');if(!list)return;
+  list.innerHTML='';
+  weekList.filter(function(k){return getWeekLabel(k).toLowerCase().indexOf(txt)>=0;}).forEach(function(k){
+    var div=document.createElement('div');div.className='dropdown-item';
+    div.textContent=getWeekLabel(k);
+    div.addEventListener('mousedown',function(){selectWeek(k);});
+    list.appendChild(div);
+  });
+  if(!weekList.length)list.innerHTML='<div class="dropdown-item" style="color:var(--text-dim)">Nessuna settimana</div>';
+  list.classList.add('open');
+}
+function openWeekDrop(){filterWeekDrop();}
+function blurWeekDrop(){setTimeout(function(){var l=document.getElementById('drop-week');if(l)l.classList.remove('open');},150);}
+function selectWeek(k){
+  selectedWeek=k;selectedDate='';
+  document.getElementById('r-data-txt').value='';
+  document.getElementById('r-week-txt').value=getWeekLabel(k);
+  document.getElementById('drop-week').classList.remove('open');
+  filtra();
+}
+function clearWeekFiltro(){selectedWeek='';document.getElementById('r-week-txt').value='';filtra();}
 function filterDataDrop(){
   var txt=document.getElementById('r-data-txt').value.toLowerCase();
   var list=document.getElementById('drop-data');
@@ -905,6 +953,8 @@ function updateTotalBadge(filteredRows){
   rows.forEach(function(r){ni.forEach(function(i){total+=(parseFloat(r[i])||0);});});
   var badge=document.getElementById('total-badge');
   if(badge)badge.textContent=total>0?total:'—';
+  var badge2=document.getElementById('total-badge-filter');
+  if(badge2)badge2.textContent=total>0?total:'—';
 }
 
 function renderPie(rows){
