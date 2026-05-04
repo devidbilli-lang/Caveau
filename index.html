@@ -333,7 +333,7 @@ var NOTE_COLORS={'A1':'#97fdff','B1':'#ffc572','C1':'#feff93','D1':'#ff5e5e'};
 var NOTE_DEFAULT='#f26eff';
 var tid=0,allRows=[],rHeaders=[],noteDescMap={},artDescMap={},artCollMap={},artBrandMap={};
 var repData=[],dropData={};
-var dateList=[],selectedDate='';
+var dateList=[],selectedDate='',selectedWeek='';
 var editingRow=null;
 
 setInterval(function(){var n=new Date();document.getElementById('clk').textContent=('0'+n.getHours()).slice(-2)+':'+('0'+n.getMinutes()).slice(-2);},1000);
