@@ -584,6 +584,7 @@ function renderHead(){
 
 function filtra(){
   fixStickyHead();
+  fixStickyHead();
   var rep=document.getElementById('r-rep').value.toLowerCase();
   var art=document.getElementById('r-art').value.toLowerCase();
   var cluster=document.getElementById('r-cluster').value.toLowerCase();
@@ -601,6 +602,7 @@ function filtra(){
   var gDate=selectedDate||(dateList.length?dateList[0]:'');
   var fG=allRows.filter(function(r){return formatDate(r[0])===gDate;});
   renderPie(fG);renderBarChart(fG);
+  updateTotalBadge(f);
   var tb=document.getElementById('tb');
   if(!f.length){tb.innerHTML='<tr><td colspan="'+(rHeaders.filter(function(h){return!isHidden(h);}).length+1)+'" class="empty">Nessun dato trovato</td></tr>';return;}
   tb.innerHTML='';
@@ -876,6 +878,19 @@ function loadBorseFerme(){
       return'<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 4px;border-bottom:1px solid var(--border);"><div style="flex:1;min-width:0;padding-right:6px;"><div style="font-size:12px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+cod+'</div>'+(desc?'<div style="font-size:10px;color:var(--text-muted);">'+desc+'</div>':'')+'</div><span style="background:#3b82f6;color:#fff;font-size:12px;font-weight:800;padding:2px 8px;border-radius:20px;flex-shrink:0;">'+qta+'</span></div>';
     }).join('');
   });
+}
+
+function updateTotalBadge(filteredRows){
+  var ni=getNoteIndices();var total=0;
+  var rep=document.getElementById('r-rep')?document.getElementById('r-rep').value:'';
+  var art=document.getElementById('r-art')?document.getElementById('r-art').value:'';
+  var cluster=document.getElementById('r-cluster')?document.getElementById('r-cluster').value:'';
+  var brand=document.getElementById('r-brand')?document.getElementById('r-brand').value:'';
+  var hasFilter=rep||art||cluster||brand||selectedDate||selectedWeek;
+  var rows=hasFilter?filteredRows:allRows.filter(function(r){return formatDate(r[0])===(dateList[0]||'');});
+  rows.forEach(function(r){ni.forEach(function(i){total+=(parseFloat(r[i])||0);});});
+  var badge=document.getElementById('total-badge');
+  if(badge)badge.textContent=total>0?total:'—';
 }
 
 function renderPie(rows){
