@@ -561,6 +561,20 @@ function fixStickyHead(){
   var style=document.getElementById('sticky-head-style');
   if(!style){style=document.createElement('style');style.id='sticky-head-style';document.head.appendChild(style);}
   style.textContent='thead tr{position:sticky;top:'+h+'px;z-index:10;} .right-sticky{position:sticky;top:'+h+'px;}';
+  // Position total card fixed at same height
+  var rightCol=document.querySelector('.right-sticky');
+  if(rightCol){
+    var totalCard=rightCol.querySelector('[id="total-badge"]');
+    if(totalCard){
+      var parent=totalCard.closest('div[style*="background:linear-gradient"]');
+      if(parent){
+        var rightRect=rightCol.getBoundingClientRect();
+        parent.style.position='sticky';
+        parent.style.top=h+'px';
+        parent.style.zIndex='15';
+      }
+    }
+  }
 }
 window.addEventListener('load',fixStickyHead);
 window.addEventListener('resize',fixStickyHead);
