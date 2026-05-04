@@ -557,11 +557,7 @@ function loadR(){
 function fixStickyHead(){
   var filtersEl=document.querySelector('.filters');
   if(!filtersEl)return;
-  var rect=filtersEl.getBoundingClientRect();
-  var scrollTop=window.pageYOffset||document.documentElement.scrollTop;
-  var h=Math.round(rect.top+scrollTop+rect.height);
-  // When page not scrolled, filters are at their natural position
-  h=Math.round(filtersEl.offsetTop+filtersEl.offsetHeight);
+  var h=filtersEl.offsetHeight;
   var style=document.getElementById('sticky-head-style');
   if(!style){style=document.createElement('style');style.id='sticky-head-style';document.head.appendChild(style);}
   style.textContent='thead tr{position:sticky;top:'+h+'px;z-index:10;} .right-sticky{position:sticky;top:'+h+'px;}';
