@@ -637,7 +637,19 @@ function filtra(){
     return true;
   });
   var gDate=selectedDate||(dateList.length?dateList[0]:'');
-  var fG=allRows.filter(function(r){return formatDate(r[0])===gDate;});
+  var gWeek=selectedWeek;
+  var brandFiltro=document.getElementById('r-brand')?document.getElementById('r-brand').value.toLowerCase():'';
+  var rep2=document.getElementById('r-rep').value.toLowerCase();
+  var art2=document.getElementById('r-art').value.toLowerCase();
+  var cluster2=document.getElementById('r-cluster').value.toLowerCase();
+  var hasFilter=rep2||art2||cluster2||brandFiltro||selectedDate||selectedWeek;
+  var fG;
+  if(hasFilter){
+    fG=f; // usa le righe già filtrate
+  } else {
+    // nessun filtro: mostra ultima data
+    fG=allRows.filter(function(r){return formatDate(r[0])===gDate;});
+  }
   renderPie(fG);renderBarChart(fG);
   updateTotalBadge(f);
   var tb=document.getElementById('tb');
