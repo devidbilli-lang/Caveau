@@ -46,7 +46,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:20p
 .btn-edit{background:#fff;color:#333;border:2px solid #1a1a2e;border-radius:8px;font-size:16px;cursor:pointer;padding:5px 9px;line-height:1;box-shadow:0 2px 8px rgba(242,110,255,0.15);}
 .btn-edit:hover{background:#c4b5fd;color:#fff;}
 .right-sticky{display:flex;flex-direction:column;gap:16px;} #total-card{position:sticky;top:0;z-index:15;}
-.rep-layout{display:grid;grid-template-columns:1fr 250px;gap:16px;align-items:start;margin-top:16px;}
+.rep-layout{display:grid;grid-template-columns:1fr 250px;gap:16px;align-items:start;margin-top:0;}
 .table-wrap{border-radius:12px;overflow:visible;border:1.5px solid var(--border);width:100%;box-shadow:var(--shadow);}
 table{width:100%;border-collapse:collapse;table-layout:auto;}
 thead tr{position:sticky;top:57px;z-index:10;}
@@ -117,9 +117,12 @@ tbody tr:hover{background:#eeeeff;}
 .success-toast.open{display:block;}
 .success-toast .check{font-size:48px;display:block;margin-bottom:8px;}
 .success-toast .msg{font-size:16px;font-weight:800;color:#1a1a2e;}
+
+body.logged-out .full-wrap { display:none; }
+body.logged-out #alert-box { display:none !important; }
 </style>
 </head>
-<body>
+<body class="logged-out">
 <div id="login-screen" style="min-height:100vh;display:flex;align-items:center;justify-content:center;position:fixed;inset:0;z-index:9999;background:var(--bg);">
   <div style="background:#fff;border:2.5px solid var(--accent);border-radius:20px;padding:40px 48px;width:100%;max-width:400px;text-align:center;box-shadow:0 0 24px 6px rgba(242,110,255,0.4);">
     <div style="margin-bottom:20px;"><img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiIgdmlld0JveD0iMCAwIDUxMiA1MTIiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CiAgPGRlZnM+CiAgICA8bGluZWFyR3JhZGllbnQgaWQ9ImJnIiB4MT0iMCUiIHkxPSIwJSIgeDI9IjEwMCUiIHkyPSIxMDAlIj4KICAgICAgPHN0b3Agb2Zmc2V0PSIwJSIgc3R5bGU9InN0b3AtY29sb3I6I2YyNmVmZiIvPgogICAgICA8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0eWxlPSJzdG9wLWNvbG9yOiNkNDAwZTgiLz4KICAgIDwvbGluZWFyR3JhZGllbnQ+CiAgPC9kZWZzPgogIDxyZWN0IHdpZHRoPSI1MTIiIGhlaWdodD0iNTEyIiByeD0iOTYiIGZpbGw9InVybCgjYmcpIi8+CiAgPHJlY3QgeD0iMTI4IiB5PSIyNDgiIHdpZHRoPSIyNTYiIGhlaWdodD0iMTg0IiByeD0iMjgiIGZpbGw9IndoaXRlIi8+CiAgPHBhdGggZD0iTTE2OCAyNDggVjE4MCBDMTY4IDEwOCAzNDQgMTA4IDM0NCAxODAgVjI0OCIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLXdpZHRoPSI0MCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBmaWxsPSJub25lIi8+CiAgPGNpcmNsZSBjeD0iMjU2IiBjeT0iMzMwIiByPSIzMiIgZmlsbD0iI2YyNmVmZiIvPgogIDxyZWN0IHg9IjI0MCIgeT0iMzQ2IiB3aWR0aD0iMzIiIGhlaWdodD0iMzYiIHJ4PSI4IiBmaWxsPSIjZjI2ZWZmIi8+Cjwvc3ZnPgo=" width="72" height="72" style="border-radius:18px;"/></div>
@@ -135,7 +138,6 @@ tbody tr:hover{background:#eeeeff;}
     <div id="login-err" style="color:#dc2626;font-size:13px;font-weight:600;margin-top:12px;display:none;"></div>
   </div>
 </div>
-<div id="app-screen" style="display:none;">
 <div id="alert-box" class="alert-box"></div>
 
 
@@ -596,11 +598,10 @@ function doLogin(){
     if(!d.ok){err.textContent='Errore connessione.';err.style.display='block';return;}
     if(pwd===d.password){
       document.getElementById('login-screen').style.display='none';
-      document.getElementById('app-screen').style.display='block';
+      document.body.classList.remove('logged-out');
       init();
       setTimeout(fixStickyHead,100);
       setTimeout(fixStickyHead,500);
-      setTimeout(fixStickyHead,1000);
     } else {
       err.textContent='Password errata.';err.style.display='block';
       document.getElementById('pwd-input').value='';
@@ -608,13 +609,12 @@ function doLogin(){
   });
 }
 function logout(){
-  document.getElementById('app-screen').style.display='none';
+  document.body.classList.add('logged-out');
   document.getElementById('login-screen').style.display='flex';
   document.getElementById('pwd-input').value='';
 }
 
 // init() chiamato dopo login
 </script>
-</div>
 </body>
 </html>
