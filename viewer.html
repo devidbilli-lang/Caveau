@@ -413,7 +413,7 @@ function blurDataDrop(){setTimeout(function(){document.getElementById('drop-data
 function selectData(d){selectedDate=d;document.getElementById('r-data-txt').value=d;document.getElementById('drop-data').classList.remove('open');filtra();}
 function clearDataFiltro(){selectedDate='';document.getElementById('r-data-txt').value='';filtra();}
 
-{
+function init(){
   setConn('load','Connessione...');
   gp('init',{},function(d){
     if(!d.ok){setConn('err','Errore');showAlert('Errore connessione','err');return;}
