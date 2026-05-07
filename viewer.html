@@ -436,14 +436,30 @@ function loadR(){
 
 function fixStickyHead(){
   var filtersEl=document.querySelector('.filters');
-  if(!filtersEl)return;
+  if(!filtersEl||document.getElementById('app-screen').style.display==='none')return;
   var h=filtersEl.offsetHeight;
   var style=document.getElementById('sticky-head-style');
   if(!style){style=document.createElement('style');style.id='sticky-head-style';document.head.appendChild(style);}
-  style.textContent='thead tr{position:sticky;top:'+h+'px;z-index:10;} .right-sticky{position:sticky;top:'+h+'px;} #total-card{position:sticky;top:'+h+'px;z-index:15;}';  var tc=document.getElementById('total-card');if(tc)tc.style.top=h+'px';
+  style.textContent='thead tr{position:sticky;top:'+h+'px;z-index:10;}';
+  // Position total-card as fixed, aligned with right column
+  var rc=document.querySelector('.right-sticky');
+  var tc=document.getElementById('total-card');
+  if(rc&&tc){
+    var rect=rc.getBoundingClientRect();
+    tc.style.position='fixed';
+    tc.style.top=h+'px';
+    tc.style.left=Math.round(rect.left)+'px';
+    tc.style.width=Math.round(rect.width)+'px';
+    tc.style.zIndex='50';
+    // Add padding top to right-sticky so content doesn't hide under fixed card
+    var cardH=tc.offsetHeight;
+    rc.style.paddingTop=cardH+'px';
+    rc.style.marginTop='-'+cardH+'px';
+  }
 }
 window.addEventListener('load',fixStickyHead);
 window.addEventListener('resize',fixStickyHead);
+window.addEventListener('scroll',fixStickyHead);
 
 function renderHead(){
   var ni=getNoteIndices();
@@ -501,48 +517,6 @@ function filtra(){
   });
 }
 
-{
-  document.getElementById('af-data').value=todayLocal();
-  buildAfNoteInputs();
-  document.getElementById('add-overlay').classList.add('open');
-}
-{
-  var data=document.getElementById('af-data').value;
-  var rep=document.getElementById('faf-rep').value;
-  var art=document.getElementById('faf-art').value;
-  if(!data||!rep||!art){showAlert('Compila Data, Reparto e Articolo','err');return;}
-  var ni=getNoteIndices();var noteEntries=[];
-  ni.forEach(function(i){var col=rHeaders[i];var el=document.getElementById('af-n-'+col);if(el){var q=parseFloat(el.value)||0;if(q>0)noteEntries.push(col+':'+q);}});
-  if(!noteEntries.length){showAlert('Inserisci almeno una quantita cluster','err');return;}
-  var nlib=document.getElementById('af-note-lib').value;
-  var linea='',ubicazione='';
-  repData.forEach(function(r,i){if(i===0||!r[0])return;if(String(r[0]).trim()===rep.trim()){linea=String(r[1]||'');ubicazione=String(r[2]||'');}});
-  var dataDisplay=localToDisplay(data);
-  showSpinner('Salvataggio riga...');
-  gp('write',{data:dataDisplay,reparto:rep,linea:linea,ubicazione:ubicazione,articolo:art,note:noteEntries.join(','),note_libere:nlib,headers:rHeaders.join(','),foglio:'Riepilogo'},function(r){
-    if(r.ok){
-      // Aggiorna localmente senza ricaricare tutto
-      var newRow=new Array(rHeaders.length).fill('');
-      var colData2=rHeaders.indexOf('Data');var colNome2=rHeaders.indexOf('Nome');
-      var colLinea2=rHeaders.indexOf('Linea');var colUbic2=rHeaders.indexOf('Ubicazione');
-      var colArt2=rHeaders.indexOf('Articolo');var colNLib2=rHeaders.indexOf('Note Libere');
-      var colTot2=rHeaders.indexOf('Totale');
-      if(colData2>=0)newRow[colData2]=dataDisplay;
-      if(colNome2>=0)newRow[colNome2]=rep;
-      if(colLinea2>=0)newRow[colLinea2]=linea;
-      if(colUbic2>=0)newRow[colUbic2]=ubicazione;
-      if(colArt2>=0)newRow[colArt2]=art;
-      if(colNLib2>=0)newRow[colNLib2]=nlib;
-      var tot=0;
-      ni.forEach(function(i){var col=rHeaders[i];var el=document.getElementById('af-n-'+col);if(el){var q=parseFloat(el.value)||0;if(q>0){newRow[i]=q;tot+=q;}}});
-      if(colTot2>=0)newRow[colTot2]=tot;
-      allRows.unshift(newRow); // metti in cima
-      buildDateDrop();filtra();
-      showSuccess('Riga aggiunta!');
-      closeAddModal();
-    } else{hideSpinner();showAlert('Errore: '+(r.error||''),'err');}
-  });
-}
 
 function loadBorseFerme(){
   var div=document.getElementById('borse-chart');if(!div)return;
@@ -639,6 +613,7 @@ function doLogin(){
       document.getElementById('login-screen').style.display='none';
       document.getElementById('app-screen').style.display='block';
       init();
+      setTimeout(fixStickyHead,300);
     } else {
       err.textContent='Password errata.';err.style.display='block';
       document.getElementById('pwd-input').value='';
