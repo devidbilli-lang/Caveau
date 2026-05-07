@@ -632,7 +632,6 @@ function toggleSelezione(){
     if(cluster){var found=false;ni.forEach(function(i){var cn=rHeaders[i].toLowerCase();var qty=parseFloat(r[i])||0;if(cn.indexOf(cluster)>=0&&qty>0)found=true;var dc=(noteDescMap[rHeaders[i]]||'').toLowerCase();if(dc.indexOf(cluster)>=0&&qty>0)found=true;});if(!found)return false;}
     if(brand){var cod2=String(r[artIdx>=0?artIdx:3]||'');var br=(artBrandMap[cod2]||'').toLowerCase();if(br.indexOf(brand)<0)return false;}
     if(selectedDate&&formatDate(r[0])!==selectedDate)return false;
-    if(selectedWeek&&getWeekKey(formatDate(r[0]))!==selectedWeek)return false;
     return true;
   });
   if(!selectionRows.length){showAlert('Nessuna riga selezionata dai filtri','err');return;}
