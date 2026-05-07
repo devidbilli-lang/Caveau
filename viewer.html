@@ -254,7 +254,7 @@ function syncData(){
     var newRows=(d.rows||[]).filter(function(r){return r[0];});
     newRows.sort(function(a,b){return toISO(formatDate(b[0])).localeCompare(toISO(formatDate(a[0])));});
     allRows=newRows;
-    renderHead();buildDateDrop();buildFDropLists();filtra();setTimeout(fixStickyHead,50);setTimeout(fixStickyHead,300);
+    renderHead();buildDateDrop();buildFDropLists();filtra();requestAnimationFrame(function(){requestAnimationFrame(fixStickyHead);});
     setConn('ok','Connesso');
   });
   loadBorseFerme();
@@ -432,7 +432,7 @@ function loadR(){
     allRows=(d.rows||[]).filter(function(r){return r[0];});
     // Ordina per data decrescente
     allRows.sort(function(a,b){return toISO(formatDate(b[0])).localeCompare(toISO(formatDate(a[0])));});
-    renderHead();buildDateDrop();buildFDropLists();filtra();setTimeout(fixStickyHead,50);setTimeout(fixStickyHead,300);
+    renderHead();buildDateDrop();buildFDropLists();filtra();requestAnimationFrame(function(){requestAnimationFrame(fixStickyHead);});
   });
 }
 
@@ -600,8 +600,13 @@ function doLogin(){
       document.getElementById('login-screen').style.display='none';
       document.body.classList.remove('logged-out');
       init();
-      setTimeout(fixStickyHead,100);
-      setTimeout(fixStickyHead,500);
+      requestAnimationFrame(function(){
+        requestAnimationFrame(function(){
+          fixStickyHead();
+          setTimeout(fixStickyHead,300);
+          setTimeout(fixStickyHead,800);
+        });
+      });
     } else {
       err.textContent='Password errata.';err.style.display='block';
       document.getElementById('pwd-input').value='';
