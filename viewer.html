@@ -262,7 +262,7 @@ function syncData(){
     var newRows=(d.rows||[]).filter(function(r){return r[0];});
     newRows.sort(function(a,b){return toISO(formatDate(b[0])).localeCompare(toISO(formatDate(a[0])));});
     allRows=newRows;
-    renderHead();buildDateDrop();buildFDropLists();filtra();
+    renderHead();buildDateDrop();buildFDropLists();filtra();setTimeout(fixStickyHead,100);
     setConn('ok','Connesso');
   });
   loadBorseFerme();
@@ -445,7 +445,7 @@ function loadR(){
     allRows=(d.rows||[]).filter(function(r){return r[0];});
     // Ordina per data decrescente
     allRows.sort(function(a,b){return toISO(formatDate(b[0])).localeCompare(toISO(formatDate(a[0])));});
-    renderHead();buildDateDrop();buildFDropLists();filtra();
+    renderHead();buildDateDrop();buildFDropLists();filtra();setTimeout(fixStickyHead,100);
   });
 }
 
