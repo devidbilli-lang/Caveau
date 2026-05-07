@@ -252,7 +252,7 @@ function syncData(){
     var newRows=(d.rows||[]).filter(function(r){return r[0];});
     newRows.sort(function(a,b){return toISO(formatDate(b[0])).localeCompare(toISO(formatDate(a[0])));});
     allRows=newRows;
-    renderHead();buildDateDrop();buildFDropLists();filtra();setTimeout(fixStickyHead,200);
+    renderHead();buildDateDrop();buildFDropLists();filtra();setTimeout(fixStickyHead,50);setTimeout(fixStickyHead,300);
     setConn('ok','Connesso');
   });
   loadBorseFerme();
@@ -407,7 +407,7 @@ function filterDataDrop(){
   list.classList.add('open');
 }
 function openDataDrop(){filterDataDrop();}
-function blurDataDrop(){setTimeout(function(){document.getElementById('drop-data').classList.remove('open');},150);}
+function blurDataDrop(){setTimeout(function(){document.getElementById('drop-data').classList.remove('open');fixStickyHead();},150);}
 function selectData(d){selectedDate=d;document.getElementById('r-data-txt').value=d;document.getElementById('drop-data').classList.remove('open');filtra();}
 function clearDataFiltro(){selectedDate='';document.getElementById('r-data-txt').value='';filtra();}
 
@@ -430,36 +430,21 @@ function loadR(){
     allRows=(d.rows||[]).filter(function(r){return r[0];});
     // Ordina per data decrescente
     allRows.sort(function(a,b){return toISO(formatDate(b[0])).localeCompare(toISO(formatDate(a[0])));});
-    renderHead();buildDateDrop();buildFDropLists();filtra();setTimeout(fixStickyHead,200);
+    renderHead();buildDateDrop();buildFDropLists();filtra();setTimeout(fixStickyHead,50);setTimeout(fixStickyHead,300);
   });
 }
 
 function fixStickyHead(){
   var filtersEl=document.querySelector('.filters');
-  if(!filtersEl||document.getElementById('app-screen').style.display==='none')return;
+  if(!filtersEl)return;
   var h=filtersEl.offsetHeight;
   var style=document.getElementById('sticky-head-style');
   if(!style){style=document.createElement('style');style.id='sticky-head-style';document.head.appendChild(style);}
-  style.textContent='thead tr{position:sticky;top:'+h+'px;z-index:10;}';
-  // Position total-card as fixed, aligned with right column
-  var rc=document.querySelector('.right-sticky');
-  var tc=document.getElementById('total-card');
-  if(rc&&tc){
-    var rect=rc.getBoundingClientRect();
-    tc.style.position='fixed';
-    tc.style.top=h+'px';
-    tc.style.left=Math.round(rect.left)+'px';
-    tc.style.width=Math.round(rect.width)+'px';
-    tc.style.zIndex='50';
-    // Add padding top to right-sticky so content doesn't hide under fixed card
-    var cardH=tc.offsetHeight;
-    rc.style.paddingTop=cardH+'px';
-    rc.style.marginTop='-'+cardH+'px';
-  }
+  style.textContent='thead tr{position:sticky;top:'+h+'px;z-index:10;} .right-sticky{position:sticky;top:'+h+'px;} #total-card{position:sticky;top:'+h+'px;z-index:15;}';
+  var tc=document.getElementById('total-card');if(tc)tc.style.top=h+'px';
 }
 window.addEventListener('load',fixStickyHead);
 window.addEventListener('resize',fixStickyHead);
-window.addEventListener('scroll',fixStickyHead);
 
 function renderHead(){
   var ni=getNoteIndices();
@@ -613,7 +598,9 @@ function doLogin(){
       document.getElementById('login-screen').style.display='none';
       document.getElementById('app-screen').style.display='block';
       init();
-      setTimeout(fixStickyHead,300);
+      setTimeout(fixStickyHead,100);
+      setTimeout(fixStickyHead,500);
+      setTimeout(fixStickyHead,1000);
     } else {
       err.textContent='Password errata.';err.style.display='block';
       document.getElementById('pwd-input').value='';
