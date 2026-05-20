@@ -542,6 +542,18 @@ function init(){
   });
 }
 
+function fixStickyHead(){
+  var filtersEl=document.querySelector('.filters');
+  if(!filtersEl)return;
+  var h=filtersEl.offsetHeight;
+  var style=document.getElementById('sticky-head-style');
+  if(!style){style=document.createElement('style');style.id='sticky-head-style';document.head.appendChild(style);}
+  style.textContent='thead tr{position:sticky;top:'+h+'px;z-index:10;} .right-sticky{position:sticky;top:'+h+'px;} #total-card{position:sticky;top:'+h+'px;z-index:15;}';
+  var tc=document.getElementById('total-card');if(tc)tc.style.top=h+'px';
+}
+window.addEventListener('load',fixStickyHead);
+window.addEventListener('resize',fixStickyHead);
+
 function loadR(){
   document.getElementById('tb').innerHTML='<tr><td class="empty">Caricamento...</td></tr>';
   gp('read_riepilogo',{},function(d){
