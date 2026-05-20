@@ -11,8 +11,8 @@
 *{box-sizing:border-box;margin:0;padding:0;font-family:'Montserrat',sans-serif;}
 html,body{overflow-x:hidden;max-width:100vw;}
 body{background:var(--bg);color:var(--text);min-height:100vh;font-size:15px;}
-.full-wrap{width:100%;padding:0 12px;}
-.inner{max-width:100%;overflow-x:hidden;}
+.full-wrap{width:100%;padding:0 20px;}
+.inner{max-width:100%;}
 header{display:flex;align-items:center;justify-content:space-between;padding:20px 0 18px;border-bottom:2px solid var(--border);margin-bottom:0;}
 .brand{display:flex;align-items:center;gap:14px;}
 .brand-icon{width:52px;height:52px;border-radius:14px;overflow:hidden;box-shadow:0 4px 16px rgba(242,110,255,0.3);flex-shrink:0;}
@@ -27,7 +27,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:20p
 .conn-pill.err::before{content:"●";color:#fca5a5;}
 .conn-pill.load{border-color:#fcd34d;color:#d97706;}
 .conn-pill.load::before{content:"●";color:#fcd34d;}
-.filters{display:flex;gap:12px;flex-wrap:wrap;align-items:center;position:sticky;top:0;z-index:20;background:var(--bg);padding:12px 0;border-bottom:1.5px solid var(--border);}
+.filters{display:flex;gap:10px;flex-wrap:wrap;align-items:center;position:sticky;top:0;z-index:20;background:var(--bg);padding:12px 0;border-bottom:1.5px solid var(--border);margin-bottom:14px;}
 .filters input[type=text]{padding:10px 14px;font-size:13px;font-weight:600;background:#fff;border:1.5px solid rgba(242,110,255,0.35);border-radius:10px;font-family:'Montserrat',sans-serif;width:155px;}
 .filters input[type=text]:focus{outline:none;border-color:var(--accent);}
 .search-wrap{position:relative;}
@@ -46,18 +46,18 @@ header{display:flex;align-items:center;justify-content:space-between;padding:20p
 .btn-danger:hover{background:#fca5a5;color:#fff;}
 .btn-edit{background:#fff;color:#333;border:2px solid #1a1a2e;border-radius:8px;font-size:16px;cursor:pointer;padding:5px 9px;line-height:1;box-shadow:0 2px 8px rgba(242,110,255,0.15);}
 .btn-edit:hover{background:#c4b5fd;color:#fff;}
-.right-sticky{display:flex;flex-direction:column;gap:16px;} #total-card{position:sticky;top:0;z-index:15;}
-.rep-layout{display:grid;grid-template-columns:minmax(0,1fr) 250px;gap:16px;align-items:start;margin-top:0;max-width:100%;}
-.table-wrap{border-radius:12px;overflow-x:auto;border:1.5px solid var(--border);width:100%;max-width:100%;box-shadow:var(--shadow);}
+.right-sticky{display:flex;flex-direction:column;gap:14px;align-self:start;}
+.rep-layout{display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:16px;align-items:start;max-width:100%;}
+.table-wrap{border-radius:12px;overflow-x:auto;overflow-y:visible;border:1.5px solid var(--border);width:100%;max-width:100%;box-shadow:var(--shadow);background:#fff;}
 table{width:100%;border-collapse:collapse;table-layout:auto;}
 thead tr{position:sticky;top:57px;z-index:10;}
-thead th{background:linear-gradient(135deg,var(--accent),var(--accent2));padding:11px 6px;text-align:center;font-size:11px;font-weight:800;letter-spacing:0.5px;color:#fff;text-transform:uppercase;white-space:nowrap;vertical-align:middle;}
+thead th{background:linear-gradient(135deg,var(--accent),var(--accent2));padding:10px 6px;text-align:center;font-size:11px;font-weight:800;letter-spacing:0.5px;color:#fff;text-transform:uppercase;white-space:nowrap;vertical-align:middle;line-height:1.3;}
 thead th.th-tot{background:#86efac;color:#1a1a2e;}
 thead th.th-act{background:#1a1a2e;color:#fff;width:90px;}
-thead th.th-note-a1{width:90px;min-width:90px;background:#97fdff;color:#000;font-size:14px;vertical-align:middle;text-align:center;}
-thead th.th-note-b1{width:90px;min-width:90px;background:#ffc572;color:#000;font-size:14px;vertical-align:middle;text-align:center;}
-thead th.th-note-c1{width:90px;min-width:90px;background:#feff93;color:#000;font-size:14px;vertical-align:middle;text-align:center;}
-thead th.th-note-d1{width:90px;min-width:90px;background:#ff5e5e;color:#fff;font-size:14px;vertical-align:middle;text-align:center;}
+thead th.th-note-a1{width:90px;min-width:90px;background:#97fdff;color:#000;font-size:13px;}
+thead th.th-note-b1{width:90px;min-width:90px;background:#ffc572;color:#000;font-size:13px;}
+thead th.th-note-c1{width:90px;min-width:90px;background:#feff93;color:#000;font-size:13px;}
+thead th.th-note-d1{width:90px;min-width:90px;background:#ff5e5e;color:#fff;font-size:13px;}
 .th-sub{font-size:10px;font-weight:600;color:inherit;display:block;margin-top:3px;text-transform:none;letter-spacing:0;white-space:normal;line-height:1.3;text-align:center;}
 .col-note-libere{width:180px;min-width:180px;max-width:180px;}
 tbody td{padding:10px 6px;text-align:center;border-bottom:1px solid var(--border);color:var(--text);font-weight:500;font-size:13px;white-space:nowrap;}
@@ -72,7 +72,7 @@ tbody tr:hover{background:#eeeeff;}
 .alert-box{position:fixed;top:24px;right:24px;padding:14px 24px;border-radius:12px;font-size:14px;font-weight:700;box-shadow:0 8px 24px rgba(0,0,0,0.12);z-index:9999;display:none;max-width:320px;}
 .alert-box.ok{background:#ecfdf5;color:#059669;border:1.5px solid #86efac;}
 .alert-box.err{background:#fef2f2;color:#dc2626;border:1.5px solid #fca5a5;}
-.pie-card{background:var(--surface);border:2px solid var(--accent);border-radius:16px;padding:12px;text-align:center;box-shadow:0 0 16px 4px rgba(242,110,255,0.5),0 0 48px 12px rgba(242,110,255,0.2);}
+.pie-card{background:var(--surface);border:2px solid var(--accent);border-radius:16px;padding:16px;text-align:center;box-shadow:0 0 16px 4px rgba(242,110,255,0.5),0 0 48px 12px rgba(242,110,255,0.2);display:flex;flex-direction:column;align-items:center;}
 .right-card{background:var(--surface);border:2px solid var(--accent);border-radius:16px;padding:20px;box-shadow:0 0 16px 4px rgba(242,110,255,0.5),0 0 48px 12px rgba(242,110,255,0.2);}
 .right-card-title{display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:12px;font-size:12px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:#f26eff;}
 /* ADD FORM */
@@ -225,7 +225,7 @@ tbody tr:hover{background:#eeeeff;}
       <div id="bar-chart" style="max-height:280px;overflow-y:auto;"></div>
     </div>
     <div class="pie-card">
-      <canvas id="pieChart" width="160" height="160" style="max-width:100%;height:auto;"></canvas>
+      <canvas id="pieChart" width="180" height="180" style="display:block;margin:0 auto;"></canvas>
       <div id="pie-legend"></div>
     </div>
     <div class="right-card" style="border-color:#3b82f6;box-shadow:0 0 16px 4px rgba(59,130,246,0.5),0 0 48px 12px rgba(59,130,246,0.2);">
