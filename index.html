@@ -9,10 +9,9 @@
 <style>
 :root{--bg:#f0f0f5;--surface:#fff;--border:#e0e0ec;--accent:#f26eff;--accent2:#d400e8;--accent-glow:rgba(242,110,255,0.15);--green:#059669;--red:#dc2626;--text:#1a1a2e;--text-muted:#6b6b8a;--text-dim:#b0b0c8;--shadow:0 2px 12px rgba(242,110,255,0.08);}
 *{box-sizing:border-box;margin:0;padding:0;font-family:'Montserrat',sans-serif;}
-html,body{overflow-x:hidden;max-width:100vw;}
 body{background:var(--bg);color:var(--text);min-height:100vh;font-size:15px;}
-.full-wrap{width:100%;padding:0 20px;}
-.inner{max-width:100%;}
+.full-wrap{width:100vw;position:relative;left:50%;right:50%;margin-left:-50vw;margin-right:-50vw;padding:0 16px;}
+.inner{}
 header{display:flex;align-items:center;justify-content:space-between;padding:20px 0 18px;border-bottom:2px solid var(--border);margin-bottom:0;}
 .brand{display:flex;align-items:center;gap:14px;}
 .brand-icon{width:52px;height:52px;border-radius:14px;overflow:hidden;box-shadow:0 4px 16px rgba(242,110,255,0.3);flex-shrink:0;}
@@ -46,12 +45,12 @@ header{display:flex;align-items:center;justify-content:space-between;padding:20p
 .btn-danger:hover{background:#fca5a5;color:#fff;}
 .btn-edit{background:#fff;color:#333;border:2px solid #1a1a2e;border-radius:8px;font-size:16px;cursor:pointer;padding:5px 9px;line-height:1;box-shadow:0 2px 8px rgba(242,110,255,0.15);}
 .btn-edit:hover{background:#c4b5fd;color:#fff;}
-.rep-layout{display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:16px;align-items:start;max-width:100%;margin-top:16px;}
-.right-sticky{display:flex;flex-direction:column;gap:12px;position:sticky;top:64px;align-self:start;}
-.table-wrap{border-radius:12px;overflow-x:auto;overflow-y:visible;width:100%;max-width:100%;box-shadow:var(--shadow);border:1.5px solid var(--border);background:#fff;}
+.rep-layout{display:grid;grid-template-columns:1fr 250px;gap:16px;align-items:start;margin-top:16px;}
+.right-sticky{display:flex;flex-direction:column;gap:16px;}
+.table-wrap{border-radius:12px;overflow:visible;border:1.5px solid var(--border);width:100%;box-shadow:var(--shadow);}
 table{width:100%;border-collapse:collapse;table-layout:auto;margin:0;}
-thead tr{position:sticky;top:64px;z-index:10;}
-thead th{background:linear-gradient(135deg,var(--accent),var(--accent2));padding:0 6px;text-align:center;font-size:11px;font-weight:800;letter-spacing:0.5px;color:#fff;text-transform:uppercase;white-space:nowrap;vertical-align:middle;line-height:1.3;height:64px;box-sizing:border-box;}
+
+thead th{background:linear-gradient(135deg,var(--accent),var(--accent2));padding:11px 6px;text-align:center;font-size:11px;font-weight:800;letter-spacing:0.5px;color:#fff;text-transform:uppercase;white-space:nowrap;vertical-align:middle;line-height:1.3;}
 thead th.th-tot{background:#86efac;color:#1a1a2e;}
 thead th.th-act{background:#1a1a2e;color:#fff;width:90px;}
 thead th.th-note-a1{width:90px;min-width:90px;background:#97fdff;color:#000;font-size:13px;}
@@ -213,7 +212,7 @@ tbody tr:hover{background:#eeeeff;}
   </div>
 
   <div class="right-sticky" style="display:flex;flex-direction:column;gap:16px;">
-    <div id="total-card" style="background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:12px;padding:0 18px;box-shadow:0 4px 20px rgba(242,110,255,0.4);display:flex;align-items:center;justify-content:space-between;height:64px;box-sizing:border-box;">
+    <div id="total-card" style="background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:16px;padding:16px 20px;box-shadow:0 4px 20px rgba(242,110,255,0.4);display:flex;align-items:center;justify-content:space-between;">
       <div style="display:flex;align-items:center;gap:10px;">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><rect x="3" y="11" width="18" height="11" rx="3" fill="white"/><path d="M7 11V7a5 5 0 0 1 10 0v4" stroke="white" stroke-width="2.5" stroke-linecap="round" fill="none"/><circle cx="12" cy="16.5" r="2" fill="var(--accent2)"/></svg>
         <span style="color:#fff;font-size:11px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;">Totale</span>
