@@ -128,6 +128,16 @@ tbody tr:hover{background:#eeeeff;}
   <div class="modal">
     <div class="modal-title">Modifica riga</div>
     <div class="modal-sub" id="modal-sub"></div>
+    <div class="fg" style="margin-bottom:14px;position:relative;">
+      <label>Articolo</label>
+      <div class="search-wrap">
+        <input type="text" id="fme-art-txt" placeholder="Cerca articolo..." autocomplete="off"
+          oninput="filterDrop('me-art')" onfocus="openDrop('me-art')" onblur="blurDrop('me-art')"/>
+        <button class="clear-btn" onmousedown="clearSrch('me-art')">x</button>
+        <div class="dropdown-list" id="drop-me-art"></div>
+      </div>
+      <input type="hidden" id="fme-art"/>
+    </div>
     <div class="modal-note-grid" id="modal-note-grid"></div>
     <div class="fg" style="margin-bottom:10px;">
       <label>Note Libere</label>
@@ -379,6 +389,7 @@ function getHidId(type){
 function getSrc(type){
   if(type==='af-rep')return dropData['rep']||[];
   if(type==='af-art')return dropData['art']||[];
+  if(type==='me-art')return dropData['art']||[];
   if(type==='fborsa')return dropData['borsa']||[];
   return dropData[type]||[];
 }
@@ -759,6 +770,12 @@ function openModal(dStr,nome,art){
   });
   var nlibIdx=rHeaders.indexOf('Note Libere');
   document.getElementById('modal-note-lib').value=row&&nlibIdx>=0?String(row[nlibIdx]||''):'';
+  var artTxt=document.getElementById('fme-art-txt');var artHid=document.getElementById('fme-art');
+  if(artTxt&&artHid){
+    var artDescVal=artDescMap[art]||'';
+    artTxt.value=art+(artDescVal?' - '+artDescVal:'');
+    artHid.value=art;
+  }
   document.getElementById('modal-overlay').classList.add('open');
 }
 function closeModal(){document.getElementById('modal-overlay').classList.remove('open');editingRow=null;}
@@ -767,6 +784,9 @@ function salvaModifica(){
   var ni=getNoteIndices();var noteEntries=[];
   ni.forEach(function(i){var col=rHeaders[i];var el=document.getElementById('me-'+col);if(el){var q=parseFloat(el.value)||0;if(q>0)noteEntries.push(col+':'+q);}});
   var nlib=document.getElementById('modal-note-lib').value;
+  var newArtEl=document.getElementById('fme-art');
+  var newArt=(newArtEl&&newArtEl.value)?newArtEl.value:editingRow.articolo;
+  var artChanged=newArt!==editingRow.articolo;
   var linea='',ubicazione='';
   repData.forEach(function(r,i){if(i===0||!r[0])return;if(String(r[0]).trim()===editingRow.nome.trim()){linea=String(r[1]||'');ubicazione=String(r[2]||'');}});
   showSpinner('Salvataggio modifica...');
@@ -777,6 +797,34 @@ function salvaModifica(){
         allRows=allRows.filter(function(r){return!(formatDate(r[0])===editingRow.data&&String(r[1]||'')==editingRow.nome&&String(r[artIdx2>=0?artIdx2:3]||'')==editingRow.articolo);});
         buildDateDrop();filtra();showSuccess('Riga eliminata');closeModal();
       } else{hideSpinner();showAlert('Errore: '+rd.error,'err');}
+    });
+    return;
+  }
+  if(artChanged){
+    // Articolo cambiato: elimina la vecchia riga e scrivi la nuova
+    gp('delete_row',{data:editingRow.data,reparto:editingRow.nome,articolo:editingRow.articolo},function(rd){
+      if(!rd.ok){hideSpinner();showAlert('Errore eliminazione: '+(rd.error||''),'err');return;}
+      gp('write',{data:editingRow.data,reparto:editingRow.nome,linea:linea,ubicazione:ubicazione,articolo:newArt,note:noteEntries.join(','),note_libere:nlib,headers:rHeaders.join(','),foglio:'Riepilogo'},function(rw){
+        if(rw.ok){
+          var artIdx2=rHeaders.indexOf('Articolo');
+          allRows=allRows.filter(function(r){return!(formatDate(r[0])===editingRow.data&&String(r[1]||'')==editingRow.nome&&String(r[artIdx2>=0?artIdx2:3]||'')==editingRow.articolo);});
+          var newRow=new Array(rHeaders.length).fill('');
+          var colData=rHeaders.indexOf('Data');var colNome=rHeaders.indexOf('Nome');
+          var colLinea=rHeaders.indexOf('Linea');var colUbic=rHeaders.indexOf('Ubicazione');
+          var colNLib=rHeaders.indexOf('Note Libere');var colTot=rHeaders.indexOf('Totale');
+          if(colData>=0)newRow[colData]=editingRow.data;
+          if(colNome>=0)newRow[colNome]=editingRow.nome;
+          if(colLinea>=0)newRow[colLinea]=linea;
+          if(colUbic>=0)newRow[colUbic]=ubicazione;
+          if(artIdx2>=0)newRow[artIdx2]=newArt;
+          if(colNLib>=0)newRow[colNLib]=nlib;
+          var tot=0;
+          ni.forEach(function(i){var col=rHeaders[i];var el=document.getElementById('me-'+col);if(el){var q=parseFloat(el.value)||0;if(q>0){newRow[i]=q;tot+=q;}}});
+          if(colTot>=0)newRow[colTot]=tot;
+          allRows.unshift(newRow);
+          buildDateDrop();filtra();showSuccess('Modifica salvata!');closeModal();
+        } else{hideSpinner();showAlert('Errore scrittura: '+(rw.error||''),'err');}
+      });
     });
     return;
   }
