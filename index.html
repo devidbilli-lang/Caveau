@@ -269,7 +269,7 @@ tbody tr:hover{background:#eeeeff;}
     <hr style="border:none;border-top:1.5px solid var(--border);margin-bottom:16px;"/>
     <div style="border:2px solid #3b82f6;border-radius:14px;padding:16px;margin-bottom:10px;background:rgba(59,130,246,0.03);">
       <div style="font-size:11px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:#3b82f6;margin-bottom:12px;">🔒 Borsa Ferma</div>
-      <div style="display:grid;grid-template-columns:1fr 80px 100px 100px;gap:8px;align-items:end;">
+      <div style="display:grid;grid-template-columns:1fr 150px 80px 100px 100px;gap:8px;align-items:end;">
         <div class="fg">
           <label style="color:#3b82f6;">Articolo</label>
           <div class="search-wrap">
@@ -280,6 +280,16 @@ tbody tr:hover{background:#eeeeff;}
             <div class="dropdown-list" id="drop-fborsa" style="border-color:#3b82f6;"></div>
           </div>
           <input type="hidden" id="ffborsa"/>
+        </div>
+        <div class="fg">
+          <label style="color:#3b82f6;">Tipologia</label>
+          <select id="fborsa-tipologia" style="width:100%;padding:9px 10px;border:1.5px solid #3b82f6;border-radius:8px;font-size:13px;font-weight:600;font-family:'Montserrat',sans-serif;color:var(--text);background:#fff;cursor:pointer;">
+            <option value="">—</option>
+            <option value="GO EXPE">GO EXPE</option>
+            <option value="MAQUETTE">MAQUETTE</option>
+            <option value="PROTO">PROTO</option>
+            <option value="PRODUZIONE">PRODUZIONE</option>
+          </select>
         </div>
         <div class="fg">
           <label style="color:#3b82f6;">Qtà</label>
@@ -710,6 +720,7 @@ function closeAddModal(){
   document.getElementById('add-overlay').classList.remove('open');
   clearSrch('af-rep');clearSrch('af-art');
   document.getElementById('af-note-lib').value='';
+  var tipoEl=document.getElementById('fborsa-tipologia');if(tipoEl)tipoEl.value='';
   getNoteIndices().forEach(function(i){var el=document.getElementById('af-n-'+rHeaders[i]);if(el)el.value='';});
 }
 function aggiungiRiga(){
@@ -867,7 +878,8 @@ function salvaBorsa(){
   if(!art){errEl.textContent='Seleziona un articolo';errEl.style.display='block';return;}
   if(qta<=0){errEl.textContent='Inserisci una quantita valida';errEl.style.display='block';return;}
   showSpinner('Salvataggio borsa...');
-  gp('write_borsa',{articolo:art,descrizione:artDescMap[art]||'',quantita:qta},function(r){
+  var tipo=document.getElementById('fborsa-tipologia')?document.getElementById('fborsa-tipologia').value:'';
+  gp('write_borsa',{articolo:art,descrizione:artDescMap[art]||'',quantita:qta,tipologia:tipo},function(r){
     if(r.ok){showSuccess('Borsa Ferma salvata!');clearSrch('fborsa');document.getElementById('fborsa-qta').value='';loadBorseFerme();}
     else{hideSpinner();showAlert('Errore: '+(r.error||''),'err');}
   });
@@ -878,7 +890,8 @@ function smaltisciBorsa(){
   if(!art){errEl.textContent='Seleziona un articolo';errEl.style.display='block';return;}
   if(qta<=0){errEl.textContent='Inserisci una quantita valida';errEl.style.display='block';return;}
   showSpinner('Smaltimento borsa...');
-  gp('write_borsa',{articolo:art,descrizione:artDescMap[art]||'',quantita:-qta},function(r){
+  var tipo=document.getElementById('fborsa-tipologia')?document.getElementById('fborsa-tipologia').value:'';
+  gp('write_borsa',{articolo:art,descrizione:artDescMap[art]||'',quantita:-qta,tipologia:tipo},function(r){
     if(r.ok){showSuccess('Borsa smaltita!');clearSrch('fborsa');document.getElementById('fborsa-qta').value='';loadBorseFerme();}
     else{hideSpinner();showAlert('Errore: '+(r.error||''),'err');}
   });
