@@ -197,7 +197,6 @@ tbody tr:hover{background:#eeeeff;}
     <button class="clear-btn" onmousedown="clearDataFiltro()">x</button>
     <div class="dropdown-list" id="drop-data"></div>
   </div>
-  <button class="btn-green" onclick="loadR()">Aggiorna</button>
 </div>
 <div class="rep-layout">
   <div>
@@ -702,7 +701,7 @@ function salvaSelzione(){
     var nlibVal=document.getElementById('selnlib-'+idx)?document.getElementById('selnlib-'+idx).value:'';
     var linea='',ubicazione='';
     repData.forEach(function(rw,i){if(i===0||!rw[0])return;if(String(rw[0]).trim()===nome){linea=String(rw[1]||'');ubicazione=String(rw[2]||'');}});
-    toSave.push({data:data,reparto:nome,linea:linea,ubicazione:ubicazione,articolo:artVal,note:noteEntries.join(','),note_libere:nlibVal,headers:rHeaders.join(',')});
+    toSave.push({data:data,reparto:nome,linea:linea,ubicazione:ubicazione,articolo:artVal,note:noteEntries.join(','),note_libere:nlibVal});
   });
   if(!toSave.length){showAlert('Nessuna riga con qtà da salvare','err');return;}
   showSpinner('Salvataggio '+toSave.length+' righe...');
@@ -746,7 +745,7 @@ function aggiungiRiga(){
   repData.forEach(function(r,i){if(i===0||!r[0])return;if(String(r[0]).trim()===rep.trim()){linea=String(r[1]||'');ubicazione=String(r[2]||'');}});
   var dataDisplay=localToDisplay(data);
   showSpinner('Salvataggio riga...');
-  gp('write',{data:dataDisplay,reparto:rep,linea:linea,ubicazione:ubicazione,articolo:art,note:noteEntries.join(','),note_libere:nlib,headers:rHeaders.join(','),foglio:'Riepilogo'},function(r){
+  gp('write',{data:dataDisplay,reparto:rep,linea:linea,ubicazione:ubicazione,articolo:art,note:noteEntries.join(','),note_libere:nlib},function(r){
     if(r.ok){
       var newRow=new Array(rHeaders.length).fill('');
       var colData2=rHeaders.indexOf('Data');var colNome2=rHeaders.indexOf('Nome');
@@ -826,7 +825,7 @@ function salvaModifica(){
     // Articolo cambiato: elimina la vecchia riga e scrivi la nuova
     gp('delete_row',{data:editingRow.data,reparto:editingRow.nome,articolo:editingRow.articolo},function(rd){
       if(!rd.ok){hideSpinner();showAlert('Errore eliminazione: '+(rd.error||''),'err');return;}
-      gp('write',{data:editingRow.data,reparto:editingRow.nome,linea:linea,ubicazione:ubicazione,articolo:newArt,note:noteEntries.join(','),note_libere:nlib,headers:rHeaders.join(','),foglio:'Riepilogo'},function(rw){
+      gp('write',{data:editingRow.data,reparto:editingRow.nome,linea:linea,ubicazione:ubicazione,articolo:newArt,note:noteEntries.join(','),note_libere:nlib},function(rw){
         if(rw.ok){
           var artIdx2=rHeaders.indexOf('Articolo');
           allRows=allRows.filter(function(r){return!(formatDate(r[0])===editingRow.data&&String(r[1]||'')==editingRow.nome&&String(r[artIdx2>=0?artIdx2:3]||'')==editingRow.articolo);});
@@ -850,7 +849,7 @@ function salvaModifica(){
     });
     return;
   }
-  gp('update_row',{data:editingRow.data,reparto:editingRow.nome,linea:linea,ubicazione:ubicazione,articolo:editingRow.articolo,note:noteEntries.join(','),note_libere:nlib,headers:rHeaders.join(',')},function(r){
+  gp('update_row',{data:editingRow.data,reparto:editingRow.nome,linea:linea,ubicazione:ubicazione,articolo:editingRow.articolo,note:noteEntries.join(','),note_libere:nlib},function(r){
     if(r.ok){
       var artIdx2=rHeaders.indexOf('Articolo');var colTot2=rHeaders.indexOf('Totale');var colNLib2=rHeaders.indexOf('Note Libere');
       allRows=allRows.map(function(row){
